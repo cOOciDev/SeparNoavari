@@ -10,7 +10,7 @@ import multer from "multer";
 import path from "path";
 
 const app = express();
-const port = 5000;
+const port = 5501;
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
