@@ -1,0 +1,169 @@
+{
+  "brandName": "Separ Noavari",
+  "logoAlt": "Separ Noavari Logo",
+
+  "program": "National Innovation Program",
+  "heroTitle": "Separ Noavari Innovation — Idea Challenge",
+  "heroSubtitle": "Empowering innovators to build resilient solutions for crisis management, passive defense, and social preparedness.",
+
+  "ctaStart": "Submit Idea",
+  "ctaTracks": "See Tracks",
+
+  "nav": {
+    "tracks": "Tracks",
+    "committee": "Committee",
+    "timeline": "Timeline",
+    "resources": "Resources",
+    "contact": "Contact",
+    "account": "Account",
+    "login": "Login",
+    "signup": "Sign up"
+  },
+
+  "countdown": {
+    "title": "Submission deadline",
+    "tip": "Don’t miss the key dates.",
+    "seeTimeline": "See full timeline"
+  },
+
+  "tracksCard": {
+    "title": "Tracks",
+    "text": "Browse the thematic tracks and pick the best fit."
+  },
+
+  "submitCard": {
+    "title": "Submit your idea",
+    "text": "Fill the form and upload your proposal.",
+    "start": "Start submission",
+    "template": "Download template"
+  },
+
+  "timeline": {
+    "title": "Program Timeline",
+    "item": {
+      "submission": "Idea submission window",
+      "review": "Review and judging",
+      "results": "Results announced"
+    }
+  },
+
+  "resources": "Resources",
+  "resourcesPdf": "Call for Proposals (PDF)",
+  "resourcesDoc": "Idea Template (DOCX)",
+  "resourcesZip": "Track Briefs Pack (ZIP)",
+
+  "contact": "Contact",
+
+  "awards": {
+    "title": "Awards & Sponsors",
+    "items": [
+      "Special Financial Support",
+      "Best Team Award",
+      "Innovation Awards",
+      "International Networking",
+      "Media Coverage",
+      "Acceleration Opportunity"
+    ]
+  },
+
+  "buttons": {
+    "seeAll": "See All",
+    "exploreTrack": "Explore Track",
+    "viewIdea": "Details",
+    "edit": "Edit",
+    "downloadPdf": "Download PDF",
+    "csv": "CSV"
+  },
+
+  "auth": {
+    "signup": "Sign up",
+    "signupSub": "Create your account to continue",
+    "signupSuccess": "Signup successful! Welcome aboard.",
+    "emailLabel": "Email",
+    "password": "Password",
+    "toLogin": "Login",
+    "nameLabel": "Full Name",
+
+    "login": "Login",
+    "loginSub": "Enter your credentials to continue",
+    "loginSuccess": "Login successful! Welcome back.",
+    "idLabel": "Email or phone",
+    "toSignup": "Sign up",
+
+    "errors": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email",
+      "minPassLength": "Password must be at least 6 characters long",
+      "server": "Something went wrong. Please try again.",
+      "invalidCredentials": "Invalid email/phone or password"
+    }
+  },
+
+  "submit": {
+    "title": "Submit Your Idea",
+    "submitterName": "Submitter Full Name",
+    "contactEmail": "Contact Email",
+    "track": "Track",
+    "ideaTitle": "Idea Title",
+    "executiveSummary": "Executive Summary",
+    "file": "Proposal File",
+    "uploadFile": "Upload File",
+    "teamMembers": "Team Members",
+    "addMember": "Add Member",
+    "send": "Submit",
+    "sending": "Submitting...",
+
+    "errors": {
+      "fileRequired": "Please upload your proposal file.",
+      "fileType": "Only PDF or Word documents are allowed.",
+      "fileSize": "File must be smaller than 50MB.",
+      "submitterName": "Please enter your full name.",
+      "email": "Please enter your email address.",
+      "emailValid": "Please enter a valid email address.",
+      "track": "Please select a track.",
+      "title": "Please enter the idea title.",
+      "summary": "Please enter an executive summary.",
+      "summaryLength": "Summary must be at least 50 characters.",
+      "submitFailed": "Submission failed. Please try again."
+    },
+
+    "success": {
+      "title": "Idea Submitted Successfully!",
+      "text": "Thank you for your submission. We will review your idea and get back to you.",
+      "back": "Back to Account"
+    },
+
+    "tracks": {
+      "placeholder": "Select a track",
+      "resilience": "Resilience & Risk Reduction",
+      "crisisTech": "Crisis Technology & Early Warning",
+      "passiveDefense": "Passive Defense & Infrastructure",
+      "logistics": "Emergency Logistics",
+      "health": "Health & Humanitarian Aid",
+      "education": "Education & Public Awareness"
+    }
+  },
+  "account": {
+    "title": "Account",
+    "activityTitle": "Activities (My Ideas)",
+    "loadError": "Error loading data",
+    "retry": "Retry",
+    "noIdeas": "You haven’t submitted any ideas yet.",
+    "submitNewIdea": "Submit New Idea",
+    "deleteIdea": "Delete Idea",
+    "confirmDelete": "Delete idea «{title}»? This action cannot be undone.",
+    "deleteError": "Error deleting: {error}",
+    "deleteFailed": "Delete failed",
+    "track": "Track",
+    "submittedAt": "Submitted At",
+    "updatedAt": "Last Updated",
+    "scoreAvg": "Average Score",
+    "submitterName": "Submitter",
+    "contactEmail": "Email",
+    "phone": "Phone",
+    "teamMembers": "Team Members",
+    "file": "File",
+    "viewUploadedFile": "View uploaded file",
+    "download": "Download"
+  }
+}

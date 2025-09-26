@@ -1,0 +1,321 @@
+export const TRACKS: TrackCard[] = [
+  {
+    id: 1,
+    slug: "emergency-defense",
+    title: { fa: "ارتقاء توان دفاعی در شرایط اضطرار", en: "Emergency Defense Readiness" },
+    subtitle: { fa: "چابکی و تاب‌آوری میدانی", en: "Agility & Field Resilience" },
+    blurb: {
+      fa: "هم‌افزایی تجهیزات و نیروی انسانی برای واکنش سریع و هوشمند به بحران.",
+      en: "Synchronizing assets and people for fast, intelligent crisis response."
+    },
+    description: {
+      fa: "تمرکز بر راهکارهای عملیاتی و فناورانه برای افزایش توان دفاعی در سناریوهای واقعی اضطراری.",
+      en: "Operational and technological solutions to boost defense readiness in real emergency scenarios."
+    },
+    tags: ["دفاعی", "اضطرار", "تاب‌آوری"],
+    badges: ["featured"],
+    order: 10,
+    status: "published",
+    image: {
+      src: "/images/tracks/emergency-defense.jpg",
+      src2x: "/images/tracks/emergency-defense@2x.jpg",
+      webp: "/images/tracks/emergency-defense.webp",
+      thumb: "/images/tracks/thumbs/emergency-defense.jpg",
+      alt: {
+        fa: "نیروهای امدادی و تجهیزات دفاعی با پهپادها در صحنه بحران",
+        en: "Rescue forces and defense equipment with drones in a crisis scene"
+      },
+      focalPoint: { x: 50, y: 40 }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#6C7A89", accent: "#FF8A00" },
+      bg: "auto",
+      icon: "/icons/shield.svg"
+    },
+    aiPrompt:
+      "Ultra-detailed photorealistic illustration, Iranian context: rescue forces and military units in modern protective gear (Iranian-style uniforms, modest clothing), futuristic defense drones, protective holographic shields, realistic emergency scene (earthquake rubble, fire, flood). 4K, cinematic lighting, sharp details, clean composition.",
+    aiNegativePrompt:
+      "unrealistic armor, western police patches, revealing clothing, low-res, blur, extra limbs, text artifacts",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "clean"
+    },
+    ctaPrimary: {
+      label: { fa: "ثبت ایده", en: "Submit Idea" },
+      action: "openSubmitModal"
+    },
+    ctaSecondary: {
+      label: { fa: "جزئیات محور", en: "View Details" },
+      action: "goToDetail"
+    },
+    seo: {
+      title: {
+        fa: "ارتقاء توان دفاعی در شرایط اضطرار | رویداد سپر نوآوری",
+        en: "Emergency Defense Readiness | Innovation Shield"
+      },
+      description: {
+        fa: "راهکارهای افزایشی تاب‌آوری و دفاع در سناریوهای اضطراری با رویکرد فناورانه.",
+        en: "Tech-forward strategies to increase resilience and defense in emergency scenarios."
+      },
+      keywords: ["دفاع", "بحران", "تاب‌آوری", "Innovation Shield"]
+    },
+    analyticsKey: "track_emergency_defense",
+    accessibility: { ariaLabel: { fa: "کارت محور ارتقاء توان دفاعی", en: "Emergency defense track card" } },
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  },
+
+  {
+    id: 2,
+    slug: "cyber-innovation-defense",
+    title: { fa: "نوآوری در توان سایبری و پدافند", en: "Cyber Innovation & Defense" },
+    subtitle: { fa: "عامل و غیرعامل", en: "Active & Passive" },
+    blurb: {
+      fa: "ترکیب پدافند عامل و غیرعامل با معماری شهری ایمن و زیرساخت هوشمند.",
+      en: "Blending active & passive defense with secure urban design and smart infra."
+    },
+    description: {
+      fa: "تمرکز بر راهکارهای نوین سایبری، دیواره‌های آتش نسل جدید و سازه‌های مقاوم.",
+      en: "Focus on cutting-edge cyber defense, next-gen firewalls, and resilient structures."
+    },
+    tags: ["سایبری", "پدافند", "زیرساخت"],
+    order: 20,
+    status: "published",
+    image: {
+      src: "/images/tracks/cyber-innovation.jpg",
+      src2x: "/images/tracks/cyber-innovation@2x.jpg",
+      webp: "/images/tracks/cyber-innovation.webp",
+      thumb: "/images/tracks/thumbs/cyber-innovation.jpg",
+      alt: {
+        fa: "سپر دیجیتال در حال حفاظت از شهر با خطوط مدار و نور نئون",
+        en: "Digital shield protecting a city with circuit lines and neon glow"
+      },
+      focalPoint: { x: 55, y: 35 }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#1E90FF", accent: "#3DDC97" },
+      bg: "dark",
+      icon: "/icons/cyber.svg"
+    },
+    aiPrompt:
+      "High-resolution photorealistic illustration: futuristic digital shield protecting a Middle Eastern city, glowing AI code and circuit lines. Mix active defense (cyber firewalls, drones) with passive defense (reinforced buildings). Iranian urban architecture hinted. Neon blue/green accents. 4K clarity.",
+    aiNegativePrompt:
+      "western skyline landmarks, exposed attire, cluttered UI text, low-res, cartoonish",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "minimal"
+    },
+    ctaPrimary: { label: { fa: "ثبت ایده", en: "Submit Idea" }, action: "openSubmitModal" },
+    ctaSecondary: { label: { fa: "جزئیات محور", en: "View Details" }, action: "goToDetail" },
+    seo: {
+      title: { fa: "نوآوری سایبری و پدافند", en: "Cyber Innovation & Defense" },
+      description: { fa: "پدافند عامل/غیرعامل با رویکرد هوشمندسازی شهر.", en: "Active/passive cyber defense for smart cities." },
+      keywords: ["cyber", "defense", "passive defense", "smart city"]
+    },
+    analyticsKey: "track_cyber_defense",
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  },
+
+  {
+    id: 3,
+    slug: "ai-in-crisis",
+    title: { fa: "هوش مصنوعی در بحران", en: "AI in Crisis" },
+    subtitle: { fa: "تحلیل، پیش‌بینی، اقدام", en: "Sense • Predict • Act" },
+    blurb: {
+      fa: "از تشخیص تا اقدام: هوش مصنوعی در تمامی مراحل مدیریت بحران.",
+      en: "From detection to action: AI across all stages of crisis management."
+    },
+    description: {
+      fa: "کاربردهای چندرشته‌ای AI برای حریق، سیل، زلزله، لجستیک امداد و فرماندهی.",
+      en: "Cross-domain AI for fire, flood, earthquake, rescue logistics, and command."
+    },
+    tags: ["هوش‌مصنوعی", "داده", "فراگیری ماشینی"],
+    order: 30,
+    status: "published",
+    image: {
+      src: "/images/tracks/ai-crisis.jpg",
+      src2x: "/images/tracks/ai-crisis@2x.jpg",
+      webp: "/images/tracks/ai-crisis.webp",
+      thumb: "/images/tracks/thumbs/ai-crisis.jpg",
+      alt: { fa: "هولوگرام مغز هوش مصنوعی با نمایش داده‌های بحران", en: "AI brain hologram analyzing crisis data" },
+      focalPoint: { x: 45, y: 35 }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#6C7A89", accent: "#3DDC97" },
+      bg: "auto",
+      icon: "/icons/ai.svg"
+    },
+    aiPrompt:
+      "4K photorealistic futuristic illustration: glowing holographic AI brain analyzing disaster data (earthquake, flood, fire) on transparent screens. Iranian male/female experts in modest professional clothing operating robots and drones. Clean, sharp, cinematic composition.",
+    aiNegativePrompt:
+      "overexposed UI text, western badges, revealing outfits, blurry, low-res",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "clean"
+    },
+    ctaPrimary: { label: { fa: "ثبت ایده", en: "Submit Idea" }, action: "openSubmitModal" },
+    ctaSecondary: { label: { fa: "جزئیات محور", en: "View Details" }, action: "goToDetail" },
+    seo: {
+      title: { fa: "استفاده از ظرفیت‌های هوش مصنوعی در بحران", en: "Using AI Capabilities in Crisis" },
+      description: { fa: "تحلیل و اقدام مبتنی بر داده در تمامی حوزه‌های بحران.", en: "Data-driven analysis and action across crisis domains." },
+      keywords: ["AI", "crisis", "disaster response"]
+    },
+    analyticsKey: "track_ai_crisis",
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  },
+
+  {
+    id: 4,
+    slug: "humanitarian-support",
+    title: { fa: "خدمات و پشتیبانی در زمان بحران", en: "Humanitarian Support in Crisis" },
+    subtitle: { fa: "پوشاک، خوراک، درمان و امداد", en: "Shelter, Food, Medical & Relief" },
+    blurb: {
+      fa: "زنجیره‌ی تأمین یاری‌گر جان‌ها؛ از تدارکات تا درمان.",
+      en: "A lifeline supply chain—from logistics to care."
+    },
+    description: {
+      fa: "تمرکز بر راهکارهای لجستیکی، درمانی و توزیع منصفانه در شرایط اضطراری.",
+      en: "Focus on logistics, medical response, and equitable distribution during emergencies."
+    },
+    tags: ["امداد", "سلامت", "لجستیک"],
+    order: 40,
+    status: "published",
+    image: {
+      src: "/images/tracks/humanitarian.jpg",
+      src2x: "/images/tracks/humanitarian@2x.jpg",
+      webp: "/images/tracks/humanitarian.webp",
+      thumb: "/images/tracks/thumbs/humanitarian.jpg",
+      alt: {
+        fa: "داوطلبان ایرانی با پوشش متناسب در حال توزیع اقلام امدادی",
+        en: "Iranian volunteers in modest attire distributing relief supplies"
+      }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#6C7A89", accent: "#FF8A00" },
+      bg: "light",
+      icon: "/icons/relief.svg"
+    },
+    aiPrompt:
+      "High-detail humanitarian scene: Iranian volunteers (men and women with modest clothing, hijab for women) distributing food, clothing, and first-aid kits. Red Crescent tents, helicopter supply drops. Warm, hopeful, sharp photorealism, 4K.",
+    aiNegativePrompt:
+      "red cross misuse, revealing outfits, chaotic clutter, low-res, exaggerated gore",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "clean"
+    },
+    ctaPrimary: { label: { fa: "ثبت ایده", en: "Submit Idea" }, action: "openSubmitModal" },
+    ctaSecondary: { label: { fa: "جزئیات محور", en: "View Details" }, action: "goToDetail" },
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  },
+
+  {
+    id: 5,
+    slug: "data-and-public-participation",
+    title: { fa: "روش‌های نوین استفاده از داده‌ها و مشارکت عمومی", en: "Data & Public Participation" },
+    subtitle: { fa: "از مردم‌یار تا داده‌یار", en: "Crowd-powered to Data-powered" },
+    blurb: {
+      fa: "جمع‌سپاری داده برای هشدار و واکنش سریع‌تر.",
+      en: "Crowdsourced data for faster alerts and responses."
+    },
+    description: {
+      fa: "الگوهای مشارکت شهروندی، داده‌های مکانی و داشبوردهای بحران.",
+      en: "Civic engagement patterns, geospatial data, and crisis dashboards."
+    },
+    tags: ["داده", "مشارکت", "GIS"],
+    order: 50,
+    status: "published",
+    image: {
+      src: "/images/tracks/data-participation.jpg",
+      src2x: "/images/tracks/data-participation@2x.jpg",
+      webp: "/images/tracks/data-participation.webp",
+      thumb: "/images/tracks/thumbs/data-participation.jpg",
+      alt: {
+        fa: "شبکه درخشان مشارکت مردمی روی نقشه ایران",
+        en: "Glowing participation network over a map of Iran"
+      }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#1E90FF", accent: "#3DDC97" },
+      bg: "auto",
+      icon: "/icons/data.svg"
+    },
+    aiPrompt:
+      "Photorealistic futuristic data visual: glowing network lines connecting people across Iran on a transparent digital map. Citizens using smartphones to submit crisis data. Satellite hints above. 4K clarity, cinematic light, clean layout.",
+    aiNegativePrompt:
+      "messy overlaid text, western map outlines, low-res, cartoon style",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "minimal"
+    },
+    ctaPrimary: { label: { fa: "ثبت ایده", en: "Submit Idea" }, action: "openSubmitModal" },
+    ctaSecondary: { label: { fa: "جزئیات محور", en: "View Details" }, action: "goToDetail" },
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  },
+
+  {
+    id: 6,
+    slug: "volunteer-network-management",
+    title: { fa: "مدیریت شبکه داوطلبان و تسهیل کمک‌های اجتماعی", en: "Volunteer Network & Social Aid" },
+    subtitle: { fa: "غیرمالی، هماهنگ و مؤثر", en: "Non-financial, Coordinated, Effective" },
+    blurb: {
+      fa: "سامانه‌های هماهنگی افراد، مهارت‌ها و منابع برای اثرگذاری سریع.",
+      en: "Systems to coordinate people, skills, and resources for rapid impact."
+    },
+    description: {
+      fa: "مدیریت ظرفیت داوطلبان، لجستیک غیرمالی، و تطبیق نیاز-مهارت.",
+      en: "Volunteer capacity management, non-financial logistics, and need-skill matching."
+    },
+    tags: ["داوطلب", "اجتماعی", "لجستیک"],
+    order: 60,
+    status: "published",
+    image: {
+      src: "/images/tracks/volunteer-network.jpg",
+      src2x: "/images/tracks/volunteer-network@2x.jpg",
+      webp: "/images/tracks/volunteer-network.webp",
+      thumb: "/images/tracks/thumbs/volunteer-network.jpg",
+      alt: {
+        fa: "دایره‌ای از داوطلبان ایرانی با خطوط دیجیتال اتصال",
+        en: "Circle of Iranian volunteers connected by digital lines"
+      }
+    },
+    visualStyle: {
+      preset: "photorealistic-cinematic",
+      palette: { primary: "#0C1425", secondary: "#6C7A89", accent: "#3DDC97" },
+      bg: "light",
+      icon: "/icons/volunteer.svg"
+    },
+    aiPrompt:
+      "4K photorealistic illustration: diverse Iranian volunteers (men and women with modest attire, hijab for women) standing in a circle, glowing lines connecting them to symbolize coordination; holographic UI chips show logistics (shelter, transport, counseling). Warm, hopeful, clean composition.",
+    aiNegativePrompt:
+      "hand duplicates, western logos, revealing outfits, noisy background, low-res",
+    aiConstraints: {
+      culture: "Iran",
+      attire: "modest",
+      resolution: "4K",
+      style: "photorealistic + futuristic",
+      background: "clean"
+    },
+    ctaPrimary: { label: { fa: "ثبت ایده", en: "Submit Idea" }, action: "openSubmitModal" },
+    ctaSecondary: { label: { fa: "جزئیات محور", en: "View Details" }, action: "goToDetail" },
+    audit: { createdAt: "2025-09-21T00:00:00Z", updatedAt: "2025-09-21T00:00:00Z" }
+  }
+];

@@ -1,0 +1,233 @@
+/* ===============================
+   Fonts
+================================= */
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/Peyda/Peyda-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/Peyda/Peyda-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===============================
+   Design Tokens (Dark default)
+================================= */
+:root {
+  /* colors */
+  --bg: #0c1425;
+  --surface: #121b2f;
+  --surface-2: #0f1628;
+  --line: rgba(255,255,255,.10);
+  --text: #e6e7ea;
+  --muted: #b7bdc6;
+  --accent: #26c6da;
+
+  /* shapes / elevation */
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+
+  /* layout */
+  --container-max: 1200px;
+  --container-pad: 4vw;
+
+  /* motion */
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --transition: 160ms var(--ease);
+}
+
+/* Light theme */
+html[data-theme="light"] {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --surface-2: #ecf1f7;
+  --line: rgba(0,0,0,.12);
+  --text: #0f172a;
+  --muted: #3c4b63;
+  --accent: #0ea5b7;
+}
+
+/* ===============================
+   Base / Language
+================================= */
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html[data-lang="fa"] {
+  direction: rtl;
+  font-family: "Peyda", Vazirmatn, "IRANSansX", system-ui, sans-serif;
+}
+html[data-lang="en"] { direction: ltr; }
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* Selection */
+::selection {
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
+  color: #081018;
+}
+
+/* Scrollbar */
+* { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--accent) 50%, transparent) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--accent) 50%, transparent);
+  border-radius: 999px;
+}
+
+/* ===============================
+   Layout helpers
+================================= */
+.container {
+  width: min(var(--container-max), 100% - var(--container-pad));
+  margin: 0 auto;
+}
+.section { padding: clamp(20px, 5vw, 48px) 0; }
+.muted { color: var(--muted); }
+
+/* Headings */
+h1, h2, h3 { line-height: 1.25; margin: 0 0 .4em; }
+h1 { font-size: clamp(28px, 4vw, 44px); }
+h2 { font-size: clamp(20px, 2.6vw, 28px); }
+h3 { font-size: clamp(16px, 2vw, 20px); }
+
+/* Eyebrow / kicker */
+.eyebrow {
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: .08em;
+  opacity: .85;
+}
+
+/* ===============================
+   Buttons & Chips (atoms)
+================================= */
+.btn {
+  background: var(--accent);
+  color: #081018;
+  border: 0;
+  border-radius: 14px;
+  padding: .6rem 1rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow var(--transition), background var(--transition);
+}
+.btn:hover { box-shadow: 0 6px 20px color-mix(in oklab, var(--accent) 35%, transparent); }
+.btn:active { transform: translateY(1px); }
+
+.btn.ghost {
+  background: transparent;
+  outline: 1px solid var(--line);
+  color: inherit;
+}
+.btn.ghost:hover { outline-color: color-mix(in oklab, var(--accent) 60%, var(--line)); }
+
+.btn.cta { box-shadow: 0 6px 20px color-mix(in oklab, var(--accent) 35%, transparent); }
+.btn.full { width: 100%; }
+
+.chip {
+  padding: .45rem .8rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Toggle atoms (generic) */
+.theme-toggle {
+  background: var(--surface-2);
+  color: inherit;
+  border: 0;
+  border-radius: 999px;
+  width: 40px; height: 40px;
+  display: inline-grid; place-items: center;
+  cursor: pointer;
+}
+.lang-switch {
+  min-width: 52px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: .5px;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* ===============================
+   Cards
+================================= */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.card-cover { height: 110px; background: var(--surface-2); }
+.card-body { padding: 14px; display: grid; gap: 10px; }
+
+/* ===============================
+   Forms (basic)
+================================= */
+input, select, textarea {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: .6rem .8rem;
+  outline: none;
+  width: 100%;
+  transition: border-color var(--transition), background var(--transition);
+}
+input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--muted) 70%, transparent); }
+input:focus, select:focus, textarea:focus { border-color: color-mix(in oklab, var(--accent) 60%, var(--line)); }
+
+/* ===============================
+   Header shell (only shell; no nav styles)
+================================= */
+.site-header {
+  backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* ===============================
+   Responsive helpers
+================================= */
+@media (max-width: 560px) {
+  .btn.full-sm { width: 100%; }
+}
+
+/* ===============================
+   RTL small tweaks
+================================= */
+html[data-lang="fa"] .btn.cta { letter-spacing: 0; }

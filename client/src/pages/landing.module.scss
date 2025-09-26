@@ -1,0 +1,354 @@
+/* ------------------------------ Theme tokens ------------------------------ */
+:root {
+  --bg: #0c1425;
+  --surface: #101a30;
+  --surface-2: #0e172b;
+  --text: #e6e7ea;
+  --muted: #a6afc3;
+  --accent: #26c6da;
+  --border: rgba(255,255,255,.12);
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.22);
+  --shadow-soft: 0 8px 20px rgba(0,0,0,.16);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7fafc;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --text: #0f172a;
+    --muted: #5b6b83;
+    --accent: #2563eb;
+    --border: #e5e7eb;
+    --shadow: 0 10px 30px rgba(0,0,0,.08);
+    --shadow-soft: 0 8px 20px rgba(0,0,0,.06);
+  }
+}
+
+/* Explicit override via data-theme */
+html[data-theme="dark"] {
+  --bg: #0c1425;
+  --surface: #101a30;
+  --surface-2: #0e172b;
+  --text: #e6e7ea;
+  --muted: #a6afc3;
+  --accent: #26c6da;
+  --border: rgba(255,255,255,.12);
+  --shadow: 0 10px 30px rgba(0,0,0,.22);
+  --shadow-soft: 0 8px 20px rgba(0,0,0,.16);
+}
+html[data-theme="light"] {
+  --bg: #f7fafc;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --text: #0f172a;
+  --muted: #5b6b83;
+  --accent: #2563eb;
+  --border: #e5e7eb;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+  --shadow-soft: 0 8px 20px rgba(0,0,0,.06);
+}
+
+/* ------------------------------- Layout base ------------------------------ */
+.container {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding: clamp(16px, 2vw, 24px);
+  color: var(--text);
+}
+
+.hero {
+  display: grid;
+  gap: clamp(16px, 2.5vw, 24px);
+  grid-template-columns: 1fr;
+  align-items: start;
+  background: var(--bg);
+}
+
+/* >= md: two columns */
+@media (min-width: 860px) {
+  .hero {
+    grid-template-columns: 1.05fr .95fr;
+  }
+}
+
+/* ------------------------------- Hero left -------------------------------- */
+.heroText {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow {
+  opacity: .9;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.title {
+  font-size: clamp(28px, 4.2vw, 40px);
+  line-height: 1.18;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: .9;
+  max-width: 70ch;
+}
+
+.ctaRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.heroPoster {
+  margin-top: 16px;
+ // height: clamp(240px, 28vw, 360px);
+  height: 55rem ;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background:
+    url("/images/poster.jpg") center/cover no-repeat,
+    linear-gradient(120deg, #0e1b2e, #0c1626);
+  box-shadow: var(--shadow);
+}
+
+/* ------------------------------ Hero right -------------------------------- */
+.heroCards {
+  display: grid;
+  gap: 16px;
+  grid-auto-rows: 1fr;
+}
+
+/* ------------------------------- Card shell ------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.cardCover {
+  height: 120px;
+  background: var(--surface-2);
+  background-size: cover;
+  background-position: center;
+}
+
+.cardBody {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.cardHeading {
+  font-size: 18px;
+  margin: 0;
+}
+
+.cardText {
+  margin: 0;
+  opacity: .9;
+}
+
+.cardMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* -------------------------------- Buttons -------------------------------- */
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: var(--text);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.btn:hover { background: rgba(148,163,184,.15); }
+
+.btn[data-variant="primary"] {
+  background: var(--accent);
+  border: 0;
+  color: white;
+}
+.btn[data-variant="primary"]:hover {
+  filter: brightness(0.95);
+}
+
+.btnRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btnGhost {
+  composes: btn;
+  background: transparent;
+}
+
+/* -------------------------------- Carousel ------------------------------- */
+.carousel {
+  display: grid;
+  gap: 12px;
+}
+
+.heroThumb {
+  display: block;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  background-size: cover;
+  background-position: center;
+}
+
+.carouselBody {
+  display: grid;
+  gap: 6px;
+}
+
+.carouselControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,.28);
+  border: 0;
+  cursor: pointer;
+}
+html[data-theme="light"] .dot { background: rgba(15,23,42,.28); }
+.dotActive { background: var(--accent); }
+
+/* ------------------------------- Sections -------------------------------- */
+.sectionTitle {
+  font-size: clamp(20px, 3.2vw, 26px);
+  margin: 8px 0 12px;
+}
+
+.listVertical {
+  display: grid;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Timeline list */
+.timelineList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  display: grid;
+  gap: 6px;
+}
+
+/* Resources grid */
+.resourceGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* Contact grid */
+.contactGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .contactGrid { grid-template-columns: 1fr 1fr; }
+}
+.awardsGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 12px;
+}
+
+.awardCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+}
+/* ---------- Glass cards (timeline) ---------- */
+.glassGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .glassGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.glassCard {
+  position: relative;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.18);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+html[data-theme="light"] .glassCard {
+  border-color: rgba(15,23,42,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.6));
+}
+
+.glassHead {
+  padding: 10px 14px 0 14px;
+}
+
+.glassBody {
+  padding: 12px 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2, rgba(0,0,0,.15));
+  color: var(--text);
+}
+html[data-theme="light"] .badge {
+  background: rgba(15,23,42,.06);
+}
