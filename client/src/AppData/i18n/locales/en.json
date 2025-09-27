@@ -31,6 +31,33 @@
     "text": "Browse the thematic tracks and pick the best fit."
   },
 
+  "tracks": {
+  "defense": {
+    "title": "Enhancing Defense Capability in Emergencies",
+    "desc": "Focus on innovative solutions to strengthen national resilience, reduce infrastructure vulnerabilities, and ensure comprehensive preparedness against crises and unexpected threats."
+  },
+  "cyberDefense": {
+    "title": "Innovation in Cyber Power and Active/Passive Defense",
+    "desc": "Development of advanced cyber and defense technologies, including intelligent systems, active and passive defense mechanisms, to counter hybrid threats and complex attacks."
+  },
+  "aiInCrisis": {
+    "title": "Utilizing AI Capabilities in Crisis (Across All Domains)",
+    "desc": "Applying artificial intelligence and machine learning algorithms for monitoring, data analysis, and predicting critical conditions to accelerate decision-making and effective response."
+  },
+  "crisisSupport": {
+    "title": "Crisis-Time Services & Support (Clothing, Food, Treatment, Relief)",
+    "desc": "Creating innovative models for rapid provision of essential needs, efficient medical and relief services, and improved supply chain management in emergencies."
+  },
+  "dataParticipation": {
+    "title": "Novel Uses of Data and Public Participation",
+    "desc": "Developing data-driven platforms for crisis monitoring, big data analysis, and enabling smart citizen participation in crisis management with greater transparency."
+  },
+  "volunteerNetwork": {
+    "title": "Volunteer Network Management & Facilitating Social Support (Non-financial)",
+    "desc": "Designing innovative systems to organize, guide, and synergize volunteer capacities for delivering social, psychological, and spiritual support during emergencies."
+  }
+},
+
   "submitCard": {
     "title": "Submit your idea",
     "text": "Fill the form and upload your proposal.",
@@ -135,13 +162,14 @@
 
     "tracks": {
       "placeholder": "Select a track",
-      "resilience": "Resilience & Risk Reduction",
-      "crisisTech": "Crisis Technology & Early Warning",
-      "passiveDefense": "Passive Defense & Infrastructure",
-      "logistics": "Emergency Logistics",
-      "health": "Health & Humanitarian Aid",
-      "education": "Education & Public Awareness"
+      "defense": "Enhancing Defense Capability in Emergencies",
+      "cyberDefense": "Innovation in Cyber Power and Active/Passive Defense",
+      "aiInCrisis": "Utilizing AI Capabilities in Crisis (Across All Domains)",
+      "crisisSupport": "Crisis-Time Services & Support (Clothing, Food, Treatment, Relief)",
+      "dataParticipation": "Novel Uses of Data and Public Participation",
+      "volunteerNetwork": "Volunteer Network Management & Facilitating Social Support (Non-financial)"
     }
+
   },
   "account": {
     "title": "Account",

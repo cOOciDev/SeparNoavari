@@ -15,66 +15,24 @@ export type CommitteeMember = {
 export const COMMITTEE: CommitteeMember[] = [
   {
     id: 1,
-    name: "Dr. Rasoul Karimi",
-    role: "Chief Judge",
-    affiliation: "Web & Game Studio",
-    photo: "/images/committee/Dr_Karimi.png" ,
-    shortBio:
-      "Expert in disaster risk reduction and community resilience.",
+    name: "دکتر رسول کریمی",
+    role: "دبیر علمی رویداد",
+    affiliation: "دانشکده مهندسی مکانیک",
+    photo: "/images/committee/Dr_Karimi.png",
+    shortBio: "دکترای مهندسی مکانیک با تخصص در طراحی مکانیکی، بهینه‌سازی انرژی و توسعه سیستم‌های صنعتی تاب‌آور. پژوهشگر و استاد دانشگاه با تمرکز بر راهکارهای نوآورانه مهندسی برای افزایش کارآمدی و مدیریت بحران.",
     profileUrl: "#",
-    tags: ["Risk", "Resilience"],
+    tags: ["دبیر علمی", "مهندسی مکانیک", "نوآوری صنعتی", "تاب‌آوری"]
   },
   {
     id: 2,
-    name: "Dr. Ali Taheri",
-    role: "Judge",
-    affiliation: "University of Technology",
-    photo: "/images/committee/user.png",
-    shortBio:
-      "AI researcher focusing on crisis-tech and early warning systems.",
+    name: "ناخدا یکم کمیسر رسول قادر",
+    role: "دبیر اجرایی رویداد",
+    affiliation: "فرمانده پشتیبانی دانشگاه علوم دریایی امام خمینی (ره)",
+    photo: "/images/committee/Dr_Qaderi.png",
+    shortBio: "دبیر اجرایی رویداد با تجربه مدیریتی و سازمانی در حوزه پشتیبانی و هماهنگی. مسئولیت هدایت و پشتیبانی عملیاتی دانشگاه علوم دریایی امام خمینی (ره) را بر عهده دارد و نقش کلیدی در برگزاری و مدیریت اجرایی رویداد ایفا می‌کند.",
     profileUrl: "#",
-    tags: ["AI", "Early Warning"],
+    tags: ["دبیر اجرایی", "مدیریت", "پشتیبانی", "هماهنگی"]
+
   },
-  {
-    id: 3,
-    name: "Maryam Hosseini",
-    role: "Advisor",
-    affiliation: "Health & Humanitarian NGO",
-    photo: "/images/committee/user.png",
-    shortBio: "Humanitarian operations and health logistics specialist.",
-    profileUrl: "#",
-    tags: ["Logistics", "Health"],
-  },
-  {
-    id: 4,
-    name: "Reza Moghaddam",
-    role: "Judge",
-    affiliation: "Smart Infrastructure Lab",
-    photo: "/images/committee/user.png",
-    shortBio: "Critical infrastructure protection and passive defense.",
-    profileUrl: "#",
-    tags: ["Infrastructure", "Defense"],
-  },
-  {
-    id: 5,
-    name: "Dr. Neda Fathi",
-    role: "Judge",
-    affiliation: "Applied Education Institute",
-    photo: "/images/committee/user.png",
-    shortBio:
-      "Public awareness programs and simulation-based training.",
-    profileUrl: "#",
-    tags: ["Education", "Awareness"],
-  },
-  {
-    id: 6,
-    name: "Omid Karimi",
-    role: "Mentor",
-    affiliation: "Logistics & Supply Chain Expert",
-    photo: "/images/committee/user.png",
-    shortBio:
-      "Emergency logistics and last-mile optimization.",
-    profileUrl: "#",
-    tags: ["Logistics", "Optimization"],
-  },
+  
 ];
