@@ -28,7 +28,7 @@ export default function Header({
   // ⛳️ removed initialTheme/onThemeChange (we use ThemeContext)
   navItems,
   logoSrc = "/images/logo.png",
-  brandTitleFa = "رویداد سپر نوآوری",
+  brandTitleFa = "همایش ملی سپر نوآوری",
   brandTitleEn = "Spear Innovation Event",
   ctaLabelFa = "ثبت ایده",
   ctaLabelEn = "Submit Idea",
@@ -132,7 +132,17 @@ export default function Header({
       <div className={styles.container}>
         {/* Left: burger + brand */}
         <div className={styles.left}>
-          <button
+          <Brand
+            logoSrc={logoSrc}
+            title={brandTitle}
+            onHomeNavigate={() => navigate("/")}
+            lang={lang}
+          />
+          
+
+        </div>
+
+<button
             className={styles.burger}
             aria-controls="mobile-menu"
             aria-expanded={open}
@@ -151,15 +161,7 @@ export default function Header({
             <span></span>
             <span></span>
           </button>
-
-          <Brand
-            logoSrc={logoSrc}
-            title={brandTitle}
-            onHomeNavigate={() => navigate("/")}
-            lang={lang}
-          />
-        </div>
-
+          
         {/* Center: nav */}
         <nav
           className={styles.nav}
@@ -190,6 +192,7 @@ export default function Header({
 
         {/* Right: lang/theme + actions */}
         <div className={styles.right}>
+          
           <NavActions
             lang={lang}
             onLangChange={setLang}

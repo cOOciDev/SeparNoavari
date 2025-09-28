@@ -110,9 +110,9 @@ html[data-theme="light"] {
 
 .heroPoster {
   margin-top: 16px;
- // height: clamp(240px, 28vw, 360px);
-  height: 55rem ;
-  width: 100%;
+//  height: clamp(240px, 28vw, 360px);
+  height: 40rem ;
+  min-width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background:
@@ -120,7 +120,9 @@ html[data-theme="light"] {
     linear-gradient(120deg, #0e1b2e, #0c1626);
   box-shadow: var(--shadow);
 }
-
+@media (min-width: 720px) {
+  .heroPoster { height: 55rem ; }
+}
 /* ------------------------------ Hero right -------------------------------- */
 .heroCards {
  display: grid;

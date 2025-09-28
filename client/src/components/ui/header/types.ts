@@ -1,7 +1,7 @@
 // client/src/app/components/ui/header/types.ts
 
 export type Lang = "fa" | "en";
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark" ;
 
 export interface NavItem {
   id: string;

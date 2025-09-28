@@ -21,8 +21,7 @@ export default function NavActions({
   }
 
   function cycleTheme() {
-    const next: ThemeMode =
-      theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
+    const next: ThemeMode = theme === "light" ? "dark" : "light";
     onThemeChange(next);
   }
 
