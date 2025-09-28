@@ -58,6 +58,7 @@ html[data-theme="light"] {
   margin-inline: auto;
   padding: clamp(16px, 2vw, 24px);
   color: var(--text);
+  font-family: "Peyda";
 }
 
 .hero {
@@ -312,7 +313,7 @@ html[data-theme="light"] .dot { background: rgba(15,23,42,.28); }
 /* ---------- Glass cards (timeline) ---------- */
 .glassGrid {
   display: grid;
-  gap: 14px;
+  gap: 60px;
   grid-template-columns: 1fr;
 }
 @media (min-width: 720px) {
@@ -324,10 +325,13 @@ html[data-theme="light"] .dot { background: rgba(15,23,42,.28); }
   border-radius: var(--radius);
   border: 1px solid rgba(255,255,255,.18);
   background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  // background-color: #26c6da;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: var(--shadow-soft);
   overflow: hidden;
+  min-height: 10.5rem;
+  padding: 0 1rem;
 }
 
 html[data-theme="light"] .glassCard {
@@ -336,20 +340,28 @@ html[data-theme="light"] .glassCard {
 }
 
 .glassHead {
-  padding: 10px 14px 0 14px;
+  padding: 23px 14px 5px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  // background-color: #2563eb;
+
 }
 
 .glassBody {
   padding: 12px 14px 16px;
   display: grid;
   gap: 10px;
+  justify-content: center;
+  // background-color: #26c6da;
 }
 
 .badge {
   display: inline-block;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 1000;
+  padding: 7px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface-2, rgba(0,0,0,.15));
   color: var(--text);

@@ -35,7 +35,7 @@ export default function TrackCard({ track, onOpen }: Props) {
       />
       <div className={styles.body}>
         <h3 className={styles.h}>{t(track.titleKey)}</h3>
-        <p className={styles.p}>{t(track.shortKey)}</p>
+        <p className={styles.p}>{t(track.longKey).length > 80 ? t(track.longKey).slice(0, 80) + " … " : t(track.longKey)}</p>
         {!!track.tags?.length && (
           <div className={styles.tags}>
             {track.tags.map((tg, i) => (

@@ -1,0 +1,17 @@
+# Node.js dependencies
+/client/node_modules/
+/server/node_modules/
+node_modules/
+
+# SQLite database
+/server/database.db
+
+# npm cache and lock files
+npm-debug.log
+package-lock.json
+yarn.lock
+
+# Build artifacts
+/client/build/
+/client/dist/
+/uploads/

@@ -108,7 +108,7 @@ function TracksCarousel({ items, interval = 5000 }: { items: Track[]; interval?:
       />
       <div className={s.carouselBody}>
         <strong className={s.cardTitle}>{cur.title}</strong>
-        <p className={s.cardText}>{cur.blurb}</p>
+        <p className={s.cardText}>{cur.blurb.length > 50 ? cur.blurb.slice(0, 50) + "…" : cur.blurb}</p>
       </div>
 
       <div className={s.carouselControls}>
@@ -368,12 +368,13 @@ export default function Landing() {
           <article className={s.glassCard} aria-label="Submission deadline">
             <div className={s.glassHead}>
               <span className={s.badge}>{t("timeline.item.submission")}</span>
+              <strong><div className={s.muted }>{formatDate(submissionMs)}</div></strong>
+
             </div>
             <div className={s.glassBody}>
               {submissionMs ? (
                 <>
                   <Countdown targetISO={submissionMs} size="sm" />
-                  <div className={s.muted}>{formatDate(submissionMs)}</div>
                 </>
               ) : (
                 <div className={s.muted}>—</div>
@@ -385,29 +386,29 @@ export default function Landing() {
           <article className={s.glassCard} aria-label="Review and results">
             <div className={s.glassHead}>
               <span className={s.badge}>{t("timeline.item.review")}</span>
+                <strong>{resultsMs ? formatDate(resultsMs) : formatDate(RESULTS_DATE_ISO)}</strong>
+
             </div>
             <div className={s.glassBody}>
               <div className={s.row} style={{ justifyContent: "space-between" }}>
-                <span>{t("timeline.item.results")}</span>
-                <strong>{resultsMs ? formatDate(resultsMs) : formatDate(RESULTS_DATE_ISO)}</strong>
               </div>
-              {resultsMs && <Countdown targetISO={resultsMs} size="sm" showLabels={false} />}
+              {resultsMs && <Countdown targetISO={resultsMs} size="sm"  />}
             </div>
           </article>
 
           {/* Box 3: Closing ceremony */}
           <article className={s.glassCard} aria-label="Closing ceremony">
-            <div className={s.glassHead}>
+            <div className={s.glassHead} >
               <span className={s.badge}>
                 {t("countdown.closing", { defaultValue: isFa ? "اختتامیه رویداد" : "Closing Ceremony" })}
               </span>
+              <strong>{closingMs ? formatDate(closingMs) : "—"}</strong>
+
             </div>
             <div className={s.glassBody}>
               <div className={s.row} style={{ justifyContent: "space-between" }}>
-                <span>{t("countdown.closing", { defaultValue: isFa ? "اختتامیه" : "Closing" })}</span>
-                <strong>{closingMs ? formatDate(closingMs) : "—"}</strong>
               </div>
-              {closingMs && <Countdown targetISO={closingMs} size="sm" showLabels={false} />}
+              {closingMs && <Countdown targetISO={closingMs} size="sm"  />}
             </div>
           </article>
         </div>
@@ -600,7 +601,7 @@ export default function Landing() {
               <p>{isFa ? "مازندران، نوشهر، خیایابان رازی، خیابان 22 بهمن، کوچه مسجد، مرکز رشد واحد های فناور نوشهر" : "Mazandaran, Nowshahr, Razi Avenue, 22 Bahman Street, Masjed Alley, Nowshahr Technology Units Growth Center"}</p>
               {/* <!-- Map --> */}
               <div className="map-box" style={{ marginTop:'12px'}}>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3201.237403690493!2d51.49176907643178!3d36.64473897229189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzbCsDM4JzQxLjEiTiA1McKwMjknMzkuNiJF!5e0!3m2!1sen!2suk!4v1758657278667!5m2!1sen!2suk" width="600" height="450" style={{border:"0"}} allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3201.237403690493!2d51.49176907643178!3d36.64473897229189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzbCsDM4JzQxLjEiTiA1McKwMjknMzkuNiJF!5e0!3m2!1sen!2suk!4v1758657278667!5m2!1sen!2suk" width="600" height="450" style={{border:"0"}} allowFullScreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
               </div>
             </div>
           </div>

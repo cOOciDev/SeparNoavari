@@ -25,7 +25,7 @@ export const COMMITTEE: CommitteeMember[] = [
   },
   {
     id: 2,
-    name: "ناخدا یکم کمیسر رسول قادر",
+    name: "ناخدا یکم کمیسر رسول قادری",
     role: "دبیر اجرایی رویداد",
     affiliation: "فرمانده پشتیبانی دانشگاه علوم دریایی امام خمینی (ره)",
     photo: "/images/committee/Dr_Qaderi.png",

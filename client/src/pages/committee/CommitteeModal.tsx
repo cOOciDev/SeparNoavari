@@ -45,20 +45,21 @@ export default function CommitteeModal({ open, member, onClose }: Props) {
             <span className={styles.cardRole}>
               {member.role} — {member.affiliation}
             </span>
+            {member.shortBio && <p className={styles.modalBio}>{member.shortBio}</p>}
+
+            {(member.tags?.length ?? 0) > 0 && (
+              <div className={styles.tags} style={{ marginTop: 8 }}>
+                {member.tags!.map((tg: string, i: number) => (
+                  <span key={i} className={styles.tag}>{tg}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {member.shortBio && <p className={styles.modalBio}>{member.shortBio}</p>}
+        
 
-        {(member.tags?.length ?? 0) > 0 && (
-          <div className={styles.tags} style={{ marginTop: 8 }}>
-            {member.tags!.map((tg: string, i: number) => (
-              <span key={i} className={styles.tag}>{tg}</span>
-            ))}
-          </div>
-        )}
-
-        {member.profileUrl && (
+        {/* {member.profileUrl && (
           <a
             className="btn ghost"
             href={member.profileUrl}
@@ -68,7 +69,7 @@ export default function CommitteeModal({ open, member, onClose }: Props) {
           >
             View Profile
           </a>
-        )}
+        )} */}
       </div>
     </div>
   );

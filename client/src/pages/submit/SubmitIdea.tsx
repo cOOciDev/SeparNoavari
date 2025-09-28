@@ -20,20 +20,11 @@ import submitIdea, {
   type SubmitIdeaProps,
 } from "../../service/apis/idea/submitIdea/submitIdea";
 import { useAuth } from "../../contexts/AuthProvider";
+import { TRACKS } from "../../AppData/tracks";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
-
-const TRACKS = [
-  { value: "", labelKey: "submit.tracks.placeholder" },
-  { value: "resilience", labelKey: "submit.tracks.resilience" },
-  { value: "crisis-tech", labelKey: "submit.tracks.crisisTech" },
-  { value: "passive-defense", labelKey: "submit.tracks.passiveDefense" },
-  { value: "emergency-logistics", labelKey: "submit.tracks.logistics" },
-  { value: "health-humanitarian", labelKey: "submit.tracks.health" },
-  { value: "education-awareness", labelKey: "submit.tracks.education" },
-];
 
 export default function SubmitIdeaPage() {
   const { t, i18n } = useTranslation();
@@ -189,8 +180,8 @@ export default function SubmitIdeaPage() {
           >
             <Select size="large" placeholder={t("submit.tracks.placeholder")}>
               {TRACKS.map((opt) => (
-                <Option key={opt.value} value={opt.value}>
-                  {t(opt.labelKey)}
+                <Option key={opt.slug} value={opt.slug}>
+                  {t(opt.titleKey)}
                 </Option>
               ))}
             </Select>

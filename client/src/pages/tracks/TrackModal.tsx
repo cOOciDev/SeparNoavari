@@ -31,21 +31,22 @@ export default function TrackModal({ open, track, onClose }: Props) {
   return (
     <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="track-title" onClick={onClose}>
       <div className={styles.sheet} ref={ref} onClick={(e) => e.stopPropagation()}>
+        
         <div className={styles.sheetHead}>
           <h3 id="track-title" className={styles.sheetTitle}>{t(track.titleKey)}</h3>
           <button className={styles.close} onClick={onClose} aria-label={t("tracksPage.close")}>×</button>
         </div>
+        <div style={{display: "flex"}}>
 
         <div
           className={styles.sheetCover}
           style={{ backgroundImage: track.cover ? `url("${track.cover}")` : undefined }}
           aria-hidden="true"
         />
-
         <div className={styles.sheetBody}>
           <p style={{ margin: 0, opacity: .9 }}>{t(track.longKey)}</p>
 
-          {!!track.resources?.length && (
+          {/* {!!track.resources?.length && (
             <div className={styles.resList} aria-label={t("tracksPage.resources")}>
               {track.resources.map((r, i) => (
                 <a key={i} className={styles.resLink} href={r.href} target="_blank" rel="noopener noreferrer">
@@ -53,8 +54,10 @@ export default function TrackModal({ open, track, onClose }: Props) {
                 </a>
               ))}
             </div>
-          )}
+          )} */}
         </div>
+</div>
+
       </div>
     </div>
   );

@@ -10,9 +10,8 @@ export default function CommitteeCard({ member, onClick }: Props) {
   return (
     <article className={styles.card} role="button" onClick={onClick} tabIndex={0}>
       <div className={styles.cardPhoto}>
-
-      <div
-        className={styles.cardPhoto + " " + styles.card_photo_inner}
+        <div
+          className={styles.cardPhoto + " " + styles.card_photo_inner}
         style={{
           background:
             member.photo
@@ -20,8 +19,8 @@ export default function CommitteeCard({ member, onClick }: Props) {
               : "linear-gradient(120deg,#1a2740,#0f1c2e)",
         }}
         aria-label={member.name}
-        title={member.name}
-      />
+          title={member.name}
+        />
       </div>
 
       <div className={styles.cardBody}>
@@ -29,7 +28,7 @@ export default function CommitteeCard({ member, onClick }: Props) {
         <span className={styles.cardRole}>
           {member.role} — {member.affiliation}
         </span>
-        {member.shortBio && <p className={styles.cardBio}>{member.shortBio}</p>}
+        {member.shortBio && <p className={styles.modalBio}>{member.shortBio.length > 80 ? member.shortBio.slice(0, 80) + " … " : member.shortBio}</p>}
 
         {(member.tags?.length ?? 0) > 0 && (
           <div className={styles.tags}>
