@@ -26,7 +26,9 @@ export default function CommitteeCard({ member, onClick }: Props) {
       <div className={styles.cardBody}>
         <h3 className={styles.cardName}>{member.name}</h3>
         <span className={styles.cardRole}>
-          {member.role} — {member.affiliation}
+          {member.role} 
+          <br/>
+          {member.affiliation}
         </span>
         {member.shortBio && <p className={styles.modalBio}>{member.shortBio.length > 80 ? member.shortBio.slice(0, 80) + " … " : member.shortBio}</p>}
 
