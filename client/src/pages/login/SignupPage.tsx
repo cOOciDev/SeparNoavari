@@ -1,9 +1,10 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+﻿import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Form, Input, Button, Typography, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import SignUp from "../../service/apis/auth/SignUp/SingUp";
 import type { SingUpType } from "../../service/apis/auth/SignUp/type";
+import { useAuth } from "../../contexts/AuthProvider";
 
 type SignupForm = {
   name: string;
@@ -16,14 +17,19 @@ export default function SignupPage() {
   const isRTL = (i18n.language || "en").startsWith("fa");
   const [sp] = useSearchParams();
   const nav = useNavigate();
-  const next = sp.get("next") || "/";
-  // const { setUser } = useAuth();
+  const next = sp.get("next");
+  const { setUser } = useAuth();
 
   const { mutateAsync, status } = useMutation({
     mutationFn: SignUp,
     onSuccess: (res: SingUpType) => {
-      if (res?.userId && res?.userEmail && res?.userName) {
-        nav("/login");
+      if (res?.userId && res?.userEmail) {
+        setUser({
+          userName: res.userName || "",
+          userEmail: res.userEmail,
+          userId: res.userId,
+        });
+        nav("/account", { replace: true });
       }
     },
   });
@@ -56,7 +62,7 @@ export default function SignupPage() {
             label={t("auth.nameLabel")}
             rules={[{ required: true, message: t("auth.errors.required") }]}
           >
-            <Input placeholder={isRTL ? "نام" : "Name"} autoComplete="name" />
+              <Input placeholder={isRTL ? "نام کامل" : "Name"} autoComplete="name" />
           </Form.Item>
 
           {/* Email */}
@@ -84,7 +90,7 @@ export default function SignupPage() {
             ]}
           >
             <Input.Password
-              placeholder="••••••••"
+              placeholder="............."
               autoComplete="new-password"
             />
           </Form.Item>
@@ -103,7 +109,7 @@ export default function SignupPage() {
         </Form>
 
         <Typography.Paragraph style={{ marginTop: 8, fontSize: 13 }}>
-          {isRTL ? "حساب دارید؟ " : "Already have an account? "}
+          {isRTL ? "حساب کاربری دارید؟ " : "Already have an account? "}
           <Link to={`/login${next ? `?next=${encodeURIComponent(next)}` : ""}`}>
             {t("auth.toLogin")}
           </Link>
@@ -112,3 +118,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+

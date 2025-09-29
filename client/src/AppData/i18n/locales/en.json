@@ -1,111 +1,142 @@
 {
-  "brandName": "Separ Noavari",
-  "logoAlt": "Separ Noavari Logo",
+  "brandName": "Innovation Shield",
+  "logoAlt": "Innovation Shield Logo",
 
-  "program": "National Innovation Program",
-  "heroTitle": "Separ Noavari Innovation — Idea Challenge",
-  "heroSubtitle": "Empowering innovators to build resilient solutions for crisis management, passive defense, and social preparedness.",
+  "program": "National Conference",
+  "heroTitle": "National Innovation Shield Conference",
+  "heroSubtitle": "Ideation and innovation for crisis management, civil defense, and social resilience.",
 
   "ctaStart": "Submit Idea",
-  "ctaTracks": "See Tracks",
+  "ctaTracks": "View Tracks",
 
   "nav": {
     "tracks": "Tracks",
-    "committee": "Committee",
+    "committee": "Conference Secretariat",
     "timeline": "Timeline",
     "resources": "Resources",
     "contact": "Contact",
-    "account": "Account",
+    "account": "My Account",
     "login": "Login",
-    "signup": "Sign up"
+    "signup": "Sign Up"
   },
 
   "countdown": {
-    "title": "Submission deadline",
+    "title": "Submission Deadline",
     "tip": "Don’t miss the key dates.",
-    "seeTimeline": "See full timeline"
+    "seeTimeline": "View Full Timeline",
+    "submission": "Idea Submission",
+    "review": "Review & Evaluation",
+    "results": "Final Judging & Results",
+    "closing": "Closing Ceremony"
+  },
+
+  "timer": {
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "closed": "Closed"
   },
 
   "tracksCard": {
     "title": "Tracks",
-    "text": "Browse the thematic tracks and pick the best fit."
+    "text": "Explore the tracks and choose the best fit for your idea."
   },
-
-  "tracks": {
-  "defense": {
-    "title": "Enhancing Defense Capability in Emergencies",
-    "desc": "Focus on innovative solutions to strengthen national resilience, reduce infrastructure vulnerabilities, and ensure comprehensive preparedness against crises and unexpected threats."
-  },
-  "cyberDefense": {
-    "title": "Innovation in Cyber Power and Active/Passive Defense",
-    "desc": "Development of advanced cyber and defense technologies, including intelligent systems, active and passive defense mechanisms, to counter hybrid threats and complex attacks."
-  },
-  "aiInCrisis": {
-    "title": "Utilizing AI Capabilities in Crisis (Across All Domains)",
-    "desc": "Applying artificial intelligence and machine learning algorithms for monitoring, data analysis, and predicting critical conditions to accelerate decision-making and effective response."
-  },
-  "crisisSupport": {
-    "title": "Crisis-Time Services & Support (Clothing, Food, Treatment, Relief)",
-    "desc": "Creating innovative models for rapid provision of essential needs, efficient medical and relief services, and improved supply chain management in emergencies."
-  },
-  "dataParticipation": {
-    "title": "Novel Uses of Data and Public Participation",
-    "desc": "Developing data-driven platforms for crisis monitoring, big data analysis, and enabling smart citizen participation in crisis management with greater transparency."
-  },
-  "volunteerNetwork": {
-    "title": "Volunteer Network Management & Facilitating Social Support (Non-financial)",
-    "desc": "Designing innovative systems to organize, guide, and synergize volunteer capacities for delivering social, psychological, and spiritual support during emergencies."
-  }
-},
 
   "submitCard": {
-    "title": "Submit your idea",
-    "text": "Fill the form and upload your proposal.",
-    "start": "Start submission",
-    "template": "Download template"
+    "title": "Submit Idea",
+    "text": "Fill out the form and upload your proposal.",
+    "start": "Start Submission",
+    "template": "Download Template"
+  },
+
+  "committeeCard": {
+    "title": "Conference Secretariat",
+    "text": "Meet the secretariat team."
   },
 
   "timeline": {
-    "title": "Program Timeline",
+    "title": "Conference Timeline",
     "item": {
-      "submission": "Idea submission window",
-      "review": "Review and judging",
-      "results": "Results announced"
+      "submission": "Idea Submission Period",
+      "review": "Review & Evaluation",
+      "results": "Results Announcement"
     }
   },
 
   "resources": "Resources",
-  "resourcesPdf": "Call for Proposals (PDF)",
+  "resourcesPdf": "Call for Ideas (PDF)",
   "resourcesDoc": "Idea Template (DOCX)",
-  "resourcesZip": "Track Briefs Pack (ZIP)",
+  "resourcesZip": "Tracks Package (ZIP)",
 
-  "contact": "Contact",
+  "contact": "Get in Touch",
+  "support": "Support",
+  "messageUs": "Send a Message",
 
   "awards": {
-    "title": "Awards & Sponsors",
+    "title": "Awards & Support",
     "items": [
       "Special Financial Support",
-      "Best Team Award",
+      "Top Team Award",
       "Innovation Awards",
-      "International Networking",
-      "Media Coverage",
-      "Acceleration Opportunity"
+      "National Networking",
+      "Media Support",
+      "Acceleration Opportunities"
     ]
   },
 
   "buttons": {
     "seeAll": "See All",
-    "exploreTrack": "Explore Track",
+    "exploreTrack": "Explore Tracks",
     "viewIdea": "Details",
     "edit": "Edit",
     "downloadPdf": "Download PDF",
     "csv": "CSV"
   },
 
+  "tracksPage": {
+    "title": "Conference Tracks",
+    "subtitle": "Get to know the different tracks and choose the best path for your idea.",
+    "searchPh": "Search track..."
+  },
+
+  "tracks": {
+    "defense": {
+      "title": "Enhancing Defense Capabilities in Emergencies",
+      "desc": "Focusing on innovative solutions to strengthen national resilience, reduce infrastructure vulnerability, and build comprehensive preparedness for unexpected crises and threats.",
+      "text": "Increasing national resilience to unexpected crises and threats is one of the most important strategic priorities of any country.\nGiven the environmental, social, and technological complexities in today's world, countries face a variety of threats and crises; from natural disasters such as earthquakes, floods, and storms to human crises such as infectious diseases, cyberattacks, and even military and security threats.\nNational resilience means the ability of a society to resist, adapt, and recover from critical conditions.\nThis resilience becomes meaningful when all of the country's critical infrastructure, including energy, transportation, communications, information networks, water and food supply, and health and medical systems, have an appropriate level of safety, flexibility, and support.\nReducing the vulnerability of these infrastructures to unpredictable events is one of the main goals of sustainable development and national security.\nOne of the most important components of this The field is the use of new technologies for monitoring, forecasting, and crisis management.\nThe use of artificial intelligence, big data analysis, the Internet of Things (IoT), and smart early warning systems can significantly increase the country's ability to identify potential threats and respond quickly to them.\nAlso, the use of computer simulations and crisis scenario writing can help managers and decision-makers identify existing weaknesses and vulnerabilities and find practical solutions to reduce them.\nOn the other hand, promoting public culture and public education in the field of resilience is an integral part of this process.\nNo amount of technology and infrastructure can lead to sustainable results without community preparedness and public participation.\nCreating comprehensive preparedness means educating families, schools, organizations, and local institutions in the field of rapid response, first aid, resource management, and cooperation in times of crisis.\nAlso, cooperation between government agencies, the private sector, and Non-governmental organizations are of particular importance. Networking among various actors and establishing coordination at the national and regional levels ensures that resources are allocated quickly and correctly in times of crisis, and waste of time and money is avoided. Finally, strengthening scientific diplomacy and exchanging experiences with other countries can also enhance national capacities. Crises often do not know borders, and new threats such as cyberattacks or climate change require transnational responses. Therefore, participating in international networks and using global experiences, especially in the field of new crisis management technologies, can complement domestic efforts. In general, focusing on new solutions in this area means a comprehensive and multi-layered approach that ranges from technology to culture, from infrastructure to education, and from national management to international cooperation. The ultimate goal is to create a safer, more resilient and It is better prepared to deal with any unexpected threat." 
+    },
+    "cyberDefense": {
+      "title": "Innovation in Cybersecurity and Civil/Military Defense",
+      "desc": "Developing advanced cyber and defense technologies, including intelligent systems, active and passive defense against hybrid threats and complex attacks.",
+      "text": "Innovation in the field of cyber capabilities and defense, especially in the current digital age, is a vital necessity for national security and the protection of the country's sensitive infrastructure.\nCyber ​​threats are becoming more complex and integrated day by day; in such a way that cyber attacks affect not only information systems but also vital sectors such as energy, transportation, finance, and even healthcare services.\nIn these circumstances, relying solely on traditional defense methods is not enough and we must move towards utilizing new technologies and developing intelligent systems.\nActive defense means using tools and methods that directly identify and neutralize attacks; such as smart firewalls, intrusion detection systems (IDS/IPS), and machine learning algorithms to discover attack patterns.\nPassive defense also means designing and strengthening infrastructures in such a way that they are least vulnerable to attacks; Such as distributed network architecture, data encryption, and support system design.\nInnovation in this area can include the use of artificial intelligence to analyze network traffic in real time, identify unknown threats, and predict future attack patterns.\nAlso, utilizing blockchain technology to ensure data security and increase transaction transparency is considered one of the new capacities in cyber defense.\nAnother important point is to pay attention to the security of end users, because in many cases, attacks are carried out through social engineering or human weaknesses.\nTherefore, education and raising public awareness in the field of cybersecurity is as important as technological development.\nCooperation between security institutions, universities, knowledge-based companies, and the private sector is also the key to success in this area.\nIn general, innovation in cyber capabilities and defense not only helps increase national security, but also promotes public trust, the sustainability of critical services, and the growth of the country's digital economy."
+    },
+    "aiInCrisis": {
+      "title": "Leveraging AI Capabilities in Crisis (All Domains)",
+      "desc": "Applying AI and machine learning in monitoring, data analysis, and crisis forecasting to accelerate decision-making and effective response.",
+      "text": "Artificial intelligence, as one of the transformative technologies of the 21st century, has provided humanity with extensive capacities for crisis management.\nIn critical situations, speed and accuracy in decision-making play a vital role, and artificial intelligence algorithms can identify hidden patterns and provide more accurate predictions by analyzing big data.\nFor example, in the field of natural disasters, machine learning-based systems can predict earthquakes, floods, or storms by analyzing meteorological and geophysical data and provide quick and effective warnings.\nIn the field of health, artificial intelligence can play a role in quickly identifying infectious diseases, modeling the spread process, and optimizing the allocation of medical resources.\nAlso, in urban traffic management during a crisis, deep learning algorithms can suggest optimal routes for evacuating the population or transporting relief forces.\nUsing natural language processing (NLP) in monitoring Social networks also provide the ability to analyze public sentiment and identify people's immediate needs. Another important application is the use of smart robots and drones for search and rescue, distributing medicine and food, and collecting field data. Combining artificial intelligence with the Internet of Things and satellite data can also provide a comprehensive picture of the crisis situation. Of course, the widespread use of artificial intelligence in crisis management also brings challenges such as maintaining data privacy, ensuring algorithm transparency, and preventing system errors. For this reason, the development of ethical and legal frameworks alongside technological innovation is of great importance. Overall, the use of artificial intelligence capabilities in crises can increase the speed of response, reduce human and financial losses, and improve the level of national preparedness."
+    },
+    "crisisSupport": {
+      "title": "Crisis-Time Support & Services (Food, Clothing, Medical, Relief)",
+      "desc": "Innovative models for rapid supply of essentials, efficient medical and relief services, and improved supply chain management in emergencies.",
+      "text": "In a crisis, one of the first and most urgent needs is to provide support services, including food, clothing, medical care, and relief.\nThese services are directly related to people's lives and health, and the quality and speed of their provision can greatly reduce the amount of damage and casualties.\nInnovative supply chain management is particularly important in crises, because resources are limited and needs are widespread and urgent.\nThe use of new technologies such as smart warehouse management systems, drones for distribution of goods, and digital platforms can help optimize distribution.\nIn the field of treatment, the creation of mobile hospitals, the use of telemedicine, and remote monitoring systems can increase patients' access to vital services.\nAlso, training relief workers and volunteers in first aid and medical resource management plays a key role in reducing losses.\nIn the field of food and clothing, the design of ready-to-use packages that are resistant to harsh conditions can Facilitate responding to people's basic needs.\nParticipation of the private sector, NGOs, and international institutions can also strengthen the capacity to provide services.\nFinally, documenting experiences and receiving feedback from past relief operations is important to improve processes and prevent repetition of mistakes.\nTherefore, developing innovative models of support services in crises is a way to increase efficiency, equity in resource distribution, and promote public trust."
+    },
+    "dataParticipation": {
+      "title": "New Approaches to Data Use and Public Participation",
+      "desc": "Building data-driven platforms for crisis monitoring, big data analysis, and enabling smart public participation to increase transparency.",
+      "text": "In today's world, data is recognized as one of the most important strategic assets, and its role in crisis management is undeniable.\nNew uses of data can include real-time collection of information through sensors, social networks, satellite images, and IoT systems.\nBig data enables decision-makers to identify crisis patterns and respond more quickly.\nFor example, traffic and geographic data analysis can identify safe routes for emergency evacuation.\nHealth data can also be used to identify disease outbreaks and optimally allocate medical resources.\nOne important aspect is public participation in providing data; people can share their information through mobile applications, digital platforms, or local reports.\nIn addition to enhancing the accuracy of data, this participation also increases a sense of social responsibility and national solidarity. \nFor effective exploitation, it is necessary to establish specific frameworks to protect privacy and data security.\nTransparency in the use of data can increase public trust and prevent rumors and misinformation.\nAlso, collaboration between government agencies, universities, and the private sector is important in creating data-driven platforms.\nUltimately, new ways of using data and public participation can make crisis management smarter, faster, and more equitable."
+    },
+    "volunteerNetwork": {
+      "title": "Volunteer Network Management & Facilitating Social (Non-Financial) Aid",
+      "desc": "Designing innovative systems to organize, guide, and leverage volunteer capacities for social, psychological, and spiritual support in emergencies.",
+      "text": "Volunteers have always been one of the most important arms of relief in crisis situations, and their effective organization can make a big difference in the results of operations.\nVolunteer network management involves identifying, recruiting, training, and directing volunteers who are willing to serve without financial expectation.\nDesigning digital systems for registration, skill classification, and task assignment can facilitate the management process.\nFor example, someone with medical skills can be sent to health centers, while another with logistical skills can participate in the distribution of goods.\nSocial assistance in crises is not limited to food and medicine; psychological and spiritual support is also of great importance.\nCreating psychological counseling teams, spiritual support groups, and cultural programs can increase social resilience.\nAlso, continuous communication between volunteers and official institutions leads to better coordination and prevents waste of resources.\nTo strengthen this network, It is necessary to hold periodic training and crisis simulation exercises.\nAppreciation and support for volunteers also increase their motivation for sustainable participation.\nFinally, managing the volunteer network and facilitating social assistance is a strategic tool for increasing national solidarity and enhancing the capacity of society to face crises."
+    }
+  },
+
   "auth": {
-    "signup": "Sign up",
-    "signupSub": "Create your account to continue",
-    "signupSuccess": "Signup successful! Welcome aboard.",
+    "signup": "Sign Up",
+    "signupSub": "Create an account to continue",
+    "signupSuccess": "Sign-up successful. Welcome!",
     "emailLabel": "Email",
     "password": "Password",
     "toLogin": "Login",
@@ -113,29 +144,29 @@
 
     "login": "Login",
     "loginSub": "Enter your credentials to continue",
-    "loginSuccess": "Login successful! Welcome back.",
-    "idLabel": "Email or phone",
-    "toSignup": "Sign up",
+    "loginSuccess": "Login successful. Welcome!",
+    "idLabel": "Email or Phone Number",
+    "toSignup": "Sign Up",
 
     "errors": {
       "required": "This field is required",
-      "invalidEmail": "Please enter a valid email",
-      "minPassLength": "Password must be at least 6 characters long",
-      "server": "Something went wrong. Please try again.",
+      "invalidEmail": "Enter a valid email",
+      "minPassLength": "Password must be at least 6 characters",
+      "server": "An error occurred. Please try again.",
       "invalidCredentials": "Invalid email/phone or password"
     }
   },
 
   "submit": {
-    "title": "Submit Your Idea",
-    "submitterName": "Submitter Full Name",
+    "title": "Submit Idea",
+    "submitterName": "Full Name",
     "contactEmail": "Contact Email",
     "contactPhone": "Contact Phone",
     "track": "Track",
     "ideaTitle": "Idea Title",
     "executiveSummary": "Executive Summary",
-    "file": "Proposal File",
-    "file2": "Additional File (optional)",
+    "file": "File 1 (PDF)",
+    "file2": "File 2 (Word)",
     "uploadFile": "Upload File",
     "teamMembers": "Team Members",
     "addMember": "Add Member",
@@ -144,72 +175,70 @@
 
     "errors": {
       "fileRequired": "Please upload your proposal file.",
-      "file2Required": "Please upload the second required file.",
-      "fileType": "Only PDF or Word documents are allowed.",
-      "fileSize": "File must be smaller than 50MB.",
+      "file2Required": "Please upload the required second file.",
+      "fileType": "Only PDF or Word files are allowed.",
+      "fileSize": "File size must be under 50MB.",
       "submitterName": "Please enter your full name.",
       "phone": "Please enter your phone number.",
       "phoneValid": "Please enter a valid phone number.",
-      "email": "Please enter your email address.",
-      "emailValid": "Please enter a valid email address.",
+      "email": "Please enter your email.",
+      "emailValid": "Please enter a valid email.",
       "track": "Please select a track.",
-      "title": "Please enter the idea title.",
-      "summary": "Please enter an executive summary.",
+      "title": "Please enter your idea title.",
+      "summary": "Please enter the executive summary.",
       "summaryLength": "Summary must be at least 50 characters.",
       "submitFailed": "Submission failed. Please try again."
     },
 
     "success": {
       "title": "Idea Submitted Successfully!",
-      "text": "Thank you for your submission. We will review your idea and get back to you.",
-      "back": "Back to Account"
+      "text": "Thank you for your submission. Your idea will be reviewed and we will contact you.",
+      "back": "Back to My Account"
     },
 
     "tracks": {
-      "placeholder": "Select a track",
-      "defense": "Enhancing Defense Capability in Emergencies",
-      "cyberDefense": "Innovation in Cyber Power and Active/Passive Defense",
-      "aiInCrisis": "Utilizing AI Capabilities in Crisis (Across All Domains)",
-      "crisisSupport": "Crisis-Time Services & Support (Clothing, Food, Treatment, Relief)",
-      "dataParticipation": "Novel Uses of Data and Public Participation",
-      "volunteerNetwork": "Volunteer Network Management & Facilitating Social Support (Non-financial)"
+      "placeholder": "Select Track",
+      "defense": "Enhancing Defense Capabilities in Emergencies",
+      "cyberDefense": "Innovation in Cybersecurity and Civil/Military Defense",
+      "aiInCrisis": "Leveraging AI Capabilities in Crisis",
+      "crisisSupport": "Crisis-Time Support & Services",
+      "dataParticipation": "New Approaches to Data Use and Public Participation",
+      "volunteerNetwork": "Volunteer Network Management & Social Aid"
     }
-
   },
 
   "committee": {
-    "title": "Scientific Committee",
-    "text": "Meet the members of the jury and advisors.",
+    "title": "Conference Secretariat",
+    "text": "Meet the judges and advisors.",
     "seeAll": "See All",
-    "member1":  {
-        "name": "Dr. Rasoul Karimi",
-        "role": "Scientific Secretary of the Event",
-        "affiliation": "Faculty of Mechanical Engineering",
-        "shortBio": "PhD in Mechanical Engineering with expertise in mechanical design, energy optimization, and development of resilient industrial systems. University researcher and professor focused on innovative engineering solutions for efficiency and crisis management.",
-        "profileUrl": "#",
-        "tags": ["Scientific Secretary", "Mechanical Engineering", "Industrial Innovation", "Resilience"]
-      },
-      "member2": {
-        "name": "(Commissar) Rasoul Qaderi",
-        "role": "Executive Secretary of the Event",
-        "affiliation": "Commander of Support, Imam Khomeini Maritime University",
-        "shortBio": "Executive Secretary of the event with managerial and organizational experience in support and coordination. Responsible for operational leadership and support at Imam Khomeini Maritime University, playing a key role in the execution and management of the event.",
-        "profileUrl": "#",
-        "tags": ["Executive Secretary", "Management", "Support", "Coordination"]
-      }
-    
+    "member1": {
+      "name": "Dr. Rasoul Karimi",
+      "role": "Scientific Chair",
+      "affiliation": "Faculty Member, Head of West Mazandaran Technology Incubator",
+      "shortBio": "Expertise: Energy Optimization, Artificial Intelligence, Renewable Energy Systems, PhD in Mechanical Engineering.",
+      "profileUrl": "#",
+      "tags": ["Scientific Chair", "Mechanical Engineering", "Industrial Innovation", "Resilience"]
+    },
+    "member2": {
+      "name": "Commissioner Rasoul Ghaderi",
+      "role": "Executive Secretary",
+      "affiliation": "25 years of experience in logistics and support management",
+      "shortBio": "Expertise: Administrative and operational support, University Lecturer",
+      "profileUrl": "#",
+      "tags": ["Executive Secretary", "Management", "Support", "Coordination"]
+    }
   },
 
   "account": {
-    "title": "Account",
-    "activityTitle": "Activities (My Ideas)",
-    "loadError": "Error loading data",
+    "title": "My Account",
+    "activityTitle": "My Activities (Ideas)",
+    "loadError": "Load error",
     "retry": "Retry",
-    "noIdeas": "You haven’t submitted any ideas yet.",
+    "noIdeas": "No ideas submitted yet.",
     "submitNewIdea": "Submit New Idea",
     "deleteIdea": "Delete Idea",
-    "confirmDelete": "Delete idea «{title}»? This action cannot be undone.",
-    "deleteError": "Error deleting: {error}",
+    "confirmDelete": "Delete idea “{title}”? This action cannot be undone.",
+    "deleteError": "Delete error: {error}",
     "deleteFailed": "Delete failed",
     "track": "Track",
     "submittedAt": "Submitted At",
@@ -220,30 +249,30 @@
     "phone": "Phone",
     "teamMembers": "Team Members",
     "file": "File",
-    "viewUploadedFile": "View uploaded file",
+    "viewUploadedFile": "View Uploaded File",
     "download": "Download"
-  }
-  ,
+  },
+
   "footer": {
-    "template": "Download Template (word)",
-    "copyright": "© {{year}} cOOciDev , Nowshahr Growth Center , Imam Khomeini Naval University"
-  }
-  ,
+    "template": "Download Template (Word)",
+    "copyright": "© {{year}} cOOciDev, Noshahr Incubator, Imam Khomeini Maritime University"
+  },
+
   "theme": {
-    "toggle": "Toggle theme",
+    "toggle": "Toggle Theme",
     "light": "Light",
     "dark": "Dark"
-  }
-  ,
+  },
+
   "header": {
     "myAccount": "My Account",
-    "signInOrRegister": "Sign in / Register",
+    "signInOrRegister": "Login / Sign Up",
     "seeAll": "See All"
-  }
-  ,
+  },
+
   "social": {
     "whatsapp": "WhatsApp",
     "eitaa": "Eitaa",
-    "messagingHint": "For quick messages, use WhatsApp / Eitaa."
+    "messagingHint": "For instant messages use WhatsApp / Eitaa."
   }
 }

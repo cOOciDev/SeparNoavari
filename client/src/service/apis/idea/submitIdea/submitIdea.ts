@@ -9,7 +9,8 @@ export interface SubmitIdeaProps {
   track: string;
   idea_title: string;
   executive_summary: string;
-  file?: File | null;
+  pdf_file: File;
+  word_file: File;
   team_members: string[];
 }
 
@@ -34,7 +35,8 @@ const submitIdea = async (
     form.append("idea_title", data.idea_title);
     form.append("executive_summary", data.executive_summary);
     data.team_members.forEach((m, i) => form.append(`team_members[${i}]`, m));
-    if (data.file) form.append("file", data.file);
+    form.append("pdf_file", data.pdf_file);
+    form.append("word_file", data.word_file);
 
     const res = await api.post("submit-idea", form, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -53,3 +55,4 @@ const submitIdea = async (
 };
 
 export default submitIdea;
+

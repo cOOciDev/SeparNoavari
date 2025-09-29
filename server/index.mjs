@@ -8,18 +8,99 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const port = 5501;
 
 // Configure multer for file uploads
+const sanitizeFilenameComponent = (value) => {
+  return String(value ?? "")
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 100);
+};
+
+
 const storage = multer.diskStorage({
-  destination: "./uploads/",
+  destination: (req, file, cb) => {
+    const baseDir = path.resolve("./uploads");
+    const userEmail = req.user?.email || req.body?.contact_email;
+    if (!userEmail) {
+      return cb(new Error("USER_EMAIL_MISSING"));
+    }
+    const normalizedEmail = String(userEmail).trim();
+    const safeName = normalizedEmail.replace(/[^a-zA-Z0-9@._-]+/g, "_");
+    if (!safeName) {
+      return cb(new Error("USER_EMAIL_INVALID"));
+    }
+    const userDir = path.join(baseDir, safeName);
+    try {
+      fs.mkdirSync(userDir, { recursive: true });
+    } catch (e) {
+      return cb(e);
+    }
+    req.multerUploadDir = userDir;
+    cb(null, userDir);
+  },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const ideaTitleRaw = req.body?.idea_title ?? "";
+    const submitterRaw =
+      req.body?.submitter_full_name ??
+      req.user?.name ??
+      req.user?.email ??
+      "";
+    const ideaTitle = sanitizeFilenameComponent(ideaTitleRaw) || "idea";
+    const submitterName = sanitizeFilenameComponent(submitterRaw) || "user";
+    const timestamp = new Date();
+    const year = String(timestamp.getFullYear());
+    const month = String(timestamp.getMonth() + 1).padStart(2, "0");
+    const day = String(timestamp.getDate()).padStart(2, "0");
+    const hours = String(timestamp.getHours()).padStart(2, "0");
+    const minutes = String(timestamp.getMinutes()).padStart(2, "0");
+    const seconds = String(timestamp.getSeconds()).padStart(2, "0");
+    const dateStamp = year + month + day + "-" + hours + minutes + seconds;
+    const baseNameArray = [ideaTitle, submitterName, dateStamp].filter(Boolean);
+    const baseName = baseNameArray.join("_") || "file";
+    const ext = path.extname(file.originalname) || "";
+    const uploadDir = req.multerUploadDir || path.resolve("./uploads");
+    let finalName = baseName + ext;
+    let candidatePath = path.join(uploadDir, finalName);
+    let counter = 1;
+    while (fs.existsSync(candidatePath)) {
+      finalName = baseName + "_" + counter + ext;
+      candidatePath = path.join(uploadDir, finalName);
+      counter += 1;
+    }
+    cb(null, finalName);
   },
 });
-const upload = multer({ storage });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30MB per file
+  fileFilter: (req, file, cb) => {
+    // Enforce per-field mime types
+    if (file.fieldname === "pdf_file") {
+      if (file.mimetype === "application/pdf") return cb(null, true);
+      return cb(new Error("INVALID_PDF_TYPE"));
+    }
+    if (file.fieldname === "word_file") {
+      if (
+        file.mimetype === "application/msword" ||
+        file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      )
+        return cb(null, true);
+      return cb(new Error("INVALID_WORD_TYPE"));
+    }
+    // Unknown field
+    return cb(new Error("INVALID_FIELD"));
+  },
+});
 
 // Initialize database
 let db;
@@ -32,8 +113,23 @@ async function initializeDb() {
 initializeDb();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+const allowedOrigins = new Set([
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.has(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(
   session({
     secret: "stuff-happens-secret",
@@ -42,6 +138,7 @@ app.use(
     cookie: {
       secure: false, // For development (HTTP)
       httpOnly: true,
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
@@ -152,7 +249,7 @@ app.get("/api/user", (req, res) => {
   console.log("Session:", req.session);
   console.log("==================");
   if (req.isAuthenticated()) {
-    res.json({ user: { id: req.user.id, email: req.user.email } });
+    res.json({ user: { id: req.user.id, email: req.user.email, name: req.user.name } });
   } else {
     res.json({ user: null });
   }
@@ -166,15 +263,27 @@ app.post("/api/signup", async (req, res) => {
       "INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
       [email, hashedPassword, name]
     );
-    res
-      .status(201)
-      .json({
-        message: "User created",
-        userId: result.lastID,
-        userEmail: email,
-        userName: name,
-      });
+    const newUser = {
+      id: result.lastID,
+      email,
+      name,
+    };
+    req.logIn(newUser, (loginErr) => {
+      if (loginErr) {
+        console.error("Auto login after signup failed:", loginErr);
+        return res.status(500).json({ error: "Login after signup failed" });
+      }
+      res
+        .status(201)
+        .json({
+          message: "User created",
+          userId: newUser.id,
+          userEmail: newUser.email,
+          userName: newUser.name,
+        });
+    });
   } catch (err) {
+    console.error("Signup error:", err);
     res.status(400).json({ error: "Email already exists" });
   }
 });
@@ -182,7 +291,28 @@ app.post("/api/signup", async (req, res) => {
 app.post(
   "/api/submit-idea",
   ensureAuthenticated,
-  upload.single("file"),
+  (req, res, next) => {
+    // accept two different fields
+    const handler = upload.fields([
+      { name: "pdf_file", maxCount: 1 },
+      { name: "word_file", maxCount: 1 },
+    ]);
+    handler(req, res, (err) => {
+      if (err) {
+        if (err.message === "INVALID_PDF_TYPE") {
+          return res.status(400).json({ error: "Only PDF is allowed for pdf_file" });
+        }
+        if (err.message === "INVALID_WORD_TYPE") {
+          return res.status(400).json({ error: "Only Word (.doc/.docx) is allowed for word_file" });
+        }
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({ error: "Each file must be smaller than 30MB" });
+        }
+        return res.status(400).json({ error: "Upload failed" });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     console.log("=== Submit Idea Request ===");
     console.log("Request body:", req.body);
@@ -218,7 +348,22 @@ app.post(
     } else {
       team_members_str = "";
     }
-    const file_path = req.file ? req.file.path : null;
+    // Extract uploaded files
+    const pdf = req.files?.pdf_file?.[0] || null;
+    const word = req.files?.word_file?.[0] || null;
+    // Validate required files and sizes (30MB already enforced by multer)
+    if (!pdf) {
+      return res.status(400).json({ error: "PDF file is required" });
+    }
+    if (!word) {
+      return res.status(400).json({ error: "Word file is required" });
+    }
+    // Store relative paths for client links
+    const rel = (p) => (p ? p.replace(path.resolve("."), "").replace(/\\/g, "/").replace(/^\//, "") : null);
+    const file_path = JSON.stringify({
+      pdf: pdf ? rel(pdf.path) : null,
+      word: word ? rel(word.path) : null,
+    });
     try {
       const result = await db.run(
         "INSERT INTO ideas (user_id, contact_email, submitter_full_name, track, phone, team_members, idea_title, executive_summary, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -270,3 +415,4 @@ app.get("/api/recent-ideas", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+

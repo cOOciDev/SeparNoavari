@@ -10,8 +10,8 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
     fa: { translation: fa },
   },
-  lng: localStorage.getItem("lang") || "en", // زبان پیش‌فرض
-  fallbackLng: "en",
+  lng: localStorage.getItem("lang") || "fa", // زبان پیش‌فرض روی فارسی
+  fallbackLng: "fa",
   interpolation: {
     escapeValue: false,
   },

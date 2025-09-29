@@ -22,6 +22,8 @@ import submitIdea, {
 import { useAuth } from "../../contexts/AuthProvider";
 import { TRACKS } from "../../AppData/tracks";
 
+type SubmitIdeaFormValues = Omit<SubmitIdeaProps, "pdf_file" | "word_file" | "team_members">;
+
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
@@ -37,7 +39,8 @@ export default function SubmitIdeaPage() {
   const [done, setDone] = useState(false);
   const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [memberInput, setMemberInput] = useState("");
-  const [fileList, setFileList] = useState<UploadFile<RcFile>[]>([]);
+  const [pdfFileList, setPdfFileList] = useState<UploadFile<RcFile>[]>([]);
+  const [wordFileList, setWordFileList] = useState<UploadFile<RcFile>[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -46,19 +49,30 @@ export default function SubmitIdeaPage() {
   }, [user, nav]);
 
   useEffect(() => {
-    document.title = t("submit.title") + " — Separ Noavari";
+    document.title = t("submit.title") + "  Separ Noavari";
   }, [t]);
 
-  const onFinish = async (values: SubmitIdeaProps) => {
-    if (fileList.length === 0) {
+  const onFinish = async (values: SubmitIdeaFormValues) => {
+    const pdfFile = pdfFileList[0]?.originFileObj as File | undefined;
+    if (!pdfFile) {
       message.error(t("submit.errors.fileRequired"));
+      return;
+    }
+    const wordFile = wordFileList[0]?.originFileObj as File | undefined;
+    if (!wordFile) {
+      message.error(
+        t("submit.errors.wordRequired", {
+          defaultValue: t("submit.errors.fileRequired"),
+        })
+      );
       return;
     }
     setSubmitting(true);
 
-    const submitData = {
+    const submitData: SubmitIdeaProps = {
       ...values,
-      file: fileList[0].originFileObj,
+      pdf_file: pdfFile,
+      word_file: wordFile,
       team_members: teamMembers,
     };
 
@@ -76,6 +90,7 @@ export default function SubmitIdeaPage() {
     setSubmitting(false);
   };
 
+
   const onAddMember = () => {
     const name = memberInput.trim();
     if (name && !teamMembers.includes(name)) {
@@ -88,22 +103,18 @@ export default function SubmitIdeaPage() {
     setTeamMembers((prev) => prev.filter((m) => m !== name));
   };
 
-  const beforeUpload = (file: RcFile) => {
-    const isAllowed =
-      file.type === "application/pdf" ||
-      file.type === "application/msword" ||
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    if (!isAllowed) {
+  const beforeUploadPdf = (file: RcFile) => {
+    const isPdf = file.type === "application/pdf";
+    if (!isPdf) {
       message.error(t("submit.errors.fileType"));
       return Upload.LIST_IGNORE;
     }
-    const isLt50M = file.size / 1024 / 1024 < 50;
-    if (!isLt50M) {
+    const isLt30M = file.size / 1024 / 1024 < 30;
+    if (!isLt30M) {
       message.error(t("submit.errors.fileSize"));
       return Upload.LIST_IGNORE;
     }
-    setFileList([
+    setPdfFileList([
       {
         uid: file.uid,
         name: file.name,
@@ -111,7 +122,33 @@ export default function SubmitIdeaPage() {
         originFileObj: file,
       },
     ]);
-    return false; // prevent automatic upload
+    console.log("pdfFileList ", pdfFileList);
+    return false;
+  };
+
+  const beforeUploadWord = (file: RcFile) => {
+    const isWord =
+      file.type === "application/msword" ||
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    if (!isWord) {
+      message.error(t("submit.errors.fileType"));
+      return Upload.LIST_IGNORE;
+    }
+    const isLt30M = file.size / 1024 / 1024 < 30;
+    if (!isLt30M) {
+      message.error(t("submit.errors.fileSize"));
+      return Upload.LIST_IGNORE;
+    }
+    setWordFileList([
+      {
+        uid: file.uid,
+        name: file.name,
+        status: "done",
+        originFileObj: file,
+      },
+    ]);
+    return false;
   };
 
   if (done) {
@@ -172,6 +209,20 @@ export default function SubmitIdeaPage() {
             <Input size="large" placeholder="you@example.com" />
           </Form.Item>
 
+          <Form.Item
+            label={t("submit.contactPhone")}
+            name="phone"
+            rules={[
+              { required: true, message: t("submit.errors.phone") },
+              {
+                pattern: /^(\+?[0-9\-\s()]{7,20})$/,
+                message: t("submit.errors.phoneValid"),
+              },
+            ]}
+          >
+            <Input size="large" placeholder={isRTL ? "0912xxxxxxx" : "+98 (912) xxx-xxxx"} />
+          </Form.Item>
+
           {/* Track */}
           <Form.Item
             label={t("submit.track")}
@@ -208,14 +259,14 @@ export default function SubmitIdeaPage() {
             <TextArea rows={6} placeholder={t("submit.executiveSummary")} />
           </Form.Item>
 
-          {/* File Upload */}
+          {/* File Uploads */}
           <Form.Item label={t("submit.file")} required>
             <Upload
-              beforeUpload={beforeUpload}
-              fileList={fileList}
-              onRemove={() => setFileList([])}
+              beforeUpload={beforeUploadPdf}
+              fileList={pdfFileList}
+              onRemove={() => setPdfFileList([])}
               maxCount={1}
-              accept=".pdf,.doc,.docx"
+              accept=".pdf"
               style={{ width: "100%" }}
             >
               <Button
@@ -223,7 +274,26 @@ export default function SubmitIdeaPage() {
                 size="large"
                 style={{ width: "100%" }}
               >
-                {t("submit.uploadFile")}
+                {t("submit.uploadFile")} (PDF {"<"} 30MB)
+              </Button>
+            </Upload>
+          </Form.Item>
+
+          <Form.Item label={t("submit.file2")} required>
+            <Upload
+              beforeUpload={beforeUploadWord}
+              fileList={wordFileList}
+              onRemove={() => setWordFileList([])}
+              maxCount={1}
+              accept=".doc,.docx"
+              style={{ width: "100%" }}
+            >
+              <Button
+                icon={<UploadOutlined />}
+                size="large"
+                style={{ width: "100%" }}
+              >
+                {t("submit.uploadFile")} (Word {"<"} 30MB)
               </Button>
             </Upload>
           </Form.Item>
@@ -238,7 +308,7 @@ export default function SubmitIdeaPage() {
                   e.preventDefault();
                   onAddMember();
                 }}
-                placeholder={isRTL ? "نام عضو" : "Team member name"}
+                placeholder={isRTL ? "نام عضو تیم" : "Team member name"}
                 style={{ width: 240 }}
                 size="middle"
               />
@@ -282,3 +352,4 @@ export default function SubmitIdeaPage() {
     </main>
   );
 }
+
