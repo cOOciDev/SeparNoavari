@@ -180,6 +180,7 @@
   "committee": {
     "title": "Scientific Committee",
     "text": "Meet the members of the jury and advisors.",
+    "seeAll": "See All",
     "member1":  {
         "name": "Dr. Rasoul Karimi",
         "role": "Scientific Secretary of the Event",

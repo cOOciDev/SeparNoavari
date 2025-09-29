@@ -80,12 +80,12 @@ export default function Header({
         },
         {
           id: "committee",
-          label: lang === "fa" ? "هیئت علمی" : "Committee",
+          label: lang === "fa" ? "دبیرخانه" : "Committee",
           href: "/committee",
         },
         {
           id: "calendar",
-          label: lang === "fa" ? "تقویم رویداد" : "Timeline",
+          label: lang === "fa" ? "تقویم " : "Timeline",
           href: "#timeline",
         },
         {

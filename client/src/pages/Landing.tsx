@@ -196,7 +196,7 @@ function CommitteeCarousel({ items = COMMITTEE, interval = 5200 }: { items?: Mem
       </div>
 
       <a className={s.btn} href="/committee" data-variant="primary">
-        See All
+        {t("committee.seeAll")}
       </a>
     </div>
   );
