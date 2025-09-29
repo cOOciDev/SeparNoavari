@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./header.module.scss";
 import type { Lang } from "./types";
 import { useAuth } from "../../../contexts/AuthProvider";
@@ -39,6 +40,7 @@ export default function Actions({
   loginHref = "/login",
   accountHref = "/account",
 }: ActionsProps) {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   // اسکرول خودکار پس از برگشت به لندینگ (با چند تلاش کوتاه)
   useEffect(() => {
@@ -102,12 +104,8 @@ export default function Actions({
 
   const secondaryHref = user ? accountHref : loginHref;
   const secondaryLabel = user
-    ? lang === "fa"
-      ? "حساب کاربری"
-      : "My Account"
-    : lang === "fa"
-    ? "ورود / ثبت‌نام"
-    : "Sign in / Register";
+    ? t("header.myAccount", { defaultValue: lang === "fa" ? "حساب کاربری" : "My Account" })
+    : t("header.signInOrRegister", { defaultValue: lang === "fa" ? "ورود / ثبت‌نام" : "Sign in / Register" });
 
   return (
     <div className={styles.actions} data-qa="header-actions">
@@ -127,9 +125,15 @@ export default function Actions({
         aria-label={user ? secondaryLabel : undefined}
       >
         {user ? (
-          <span className="sr-only">{secondaryLabel}</span>
+          <>
+            <i className="fa-solid fa-user" aria-hidden="true" />
+            <span className="sr-only">{secondaryLabel}</span>
+          </>
         ) : (
-          secondaryLabel
+          <>
+            <i className="fa-solid fa-right-to-bracket" aria-hidden="true" style={{ marginInlineEnd: 6 }} />
+            {secondaryLabel}
+          </>
         )}
       </a>
 

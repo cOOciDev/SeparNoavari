@@ -1,4 +1,5 @@
 import s from "./contactCards.module.scss";
+import { useTranslation } from "react-i18next";
 
 export interface ContactCardsProps {
   isFa: boolean;
@@ -11,6 +12,7 @@ export interface ContactCardsProps {
 }
 
 export default function ContactCards(props: ContactCardsProps) {
+  const { t } = useTranslation();
   const {
     isFa,
     email,
@@ -90,36 +92,32 @@ export default function ContactCards(props: ContactCardsProps) {
 
           <div className={s.linkRow}>
             <a
-              className={s.appBtn}
+              className={`${s.card} ${s.whatsappBtn}`}
               href={`https://wa.me/${mobileIntl.replace("+", "")}`}
               target="_blank"
               rel="noopener"
               aria-label="WhatsApp"
               title="WhatsApp"
             >
-              <svg viewBox="0 0 32 32" width="16" height="16" fill="currentColor" aria-hidden="true">
-                <path d="M20.1 18.3c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.9 1-.9 1s-.2.2-.6.1c-.3-.1-1.2-.4-2.3-1.5-1-1-1.5-2.2-1.6-2.5-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.2-.2.2-.3.3-.5.1-.1.1-.3 0-.5-.1-.1-.7-1.7-.9-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.6 1 2.8c.1.2 1.8 3 4.3 4.3 2.5 1.3 2.5.9 3 .9.5 0 1.5-.6 1.7-1.1.2-.5.2-1 .1-1.1-.1-.1-.3-.2-.6-.3zM16 3C9.9 3 5 7.9 5 14c0 2.2.6 4.2 1.8 6L5 27l7.1-1.9c1.7 1 3.6 1.5 5.6 1.5 6.1 0 11-4.9 11-11S22.1 3 16 3z"/>
-              </svg>
-              WhatsApp
+              <i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
+              {t("social.whatsapp")}
             </a>
 
             <a
-              className={s.appBtn}
+              className={`${s.card} ${s.eitaaBtn}`}
               href={eitaaUrl}
               target="_blank"
               rel="noopener"
               aria-label="Eitaa"
               title="Eitaa"
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2}>
-                <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-              </svg>
-              Eitaa
+              <i className="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              {t("social.eitaa")}
             </a>
           </div>
 
           <div className={s.muted} style={{ marginTop: 8 }}>
-            {isFa ? "برای پیام فوری واتساپ / ایتا را بزنید." : "For quick messages, use WhatsApp / Eitaa."}
+            {t("social.messagingHint")}
           </div>
         </div>
       </article>

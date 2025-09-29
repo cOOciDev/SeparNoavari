@@ -1,9 +1,11 @@
 // ThemeSwitch.tsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export default function ThemeSwitch() {
   const { mode, setMode, toggle } = useTheme();
+  const { t } = useTranslation();
 
   const baseBtn =
     "inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition " +
@@ -19,17 +21,17 @@ export default function ThemeSwitch() {
         type="button"
         onClick={toggle}
         className={baseBtn}
-        aria-label="Toggle theme"
+        aria-label={t("theme.toggle", { defaultValue: "Toggle theme" })}
       >
         {mode === "dark" ? (
           <>
             <i className="fa-solid fa-moon"></i>
-            Dark
+            {t("theme.dark", { defaultValue: "Dark" })}
           </>
         ) : (
           <>
             <i className="fa-solid fa-sun text-yellow-500"></i>
-            Light
+            {t("theme.light", { defaultValue: "Light" })}
           </>
         )}
       </button>
@@ -41,7 +43,7 @@ export default function ThemeSwitch() {
           className={seg(mode === "light")}
           aria-pressed={mode === "light"}
           onClick={() => setMode("light")}
-          title="Light"
+          title={t("theme.light", { defaultValue: "Light" })}
         >
           <i className="fa-solid fa-sun text-yellow-500"></i>
         </button>
@@ -50,7 +52,7 @@ export default function ThemeSwitch() {
           className={seg(mode === "dark")}
           aria-pressed={mode === "dark"}
           onClick={() => setMode("dark")}
-          title="Dark"
+          title={t("theme.dark", { defaultValue: "Dark" })}
         >
           <i className="fa-solid fa-moon"></i>
         </button>

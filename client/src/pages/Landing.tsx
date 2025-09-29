@@ -5,59 +5,62 @@ import { COMMITTEE } from "../AppData/committee";
 import { useTranslation } from "react-i18next";
 import s from "./landing.module.scss";
 import ContactCards from "../components/common/ContactCards";
+import { TRACKS } from "../AppData/tracks";
+import type { Track } from "../AppData/tracks";
+import { Link } from "react-router-dom";
 
-type Track = { id: number; title: string; slug: string; image: string; blurb: string };
+// type Track = { id: number; title: string; slug: string; image: string; blurb: string };
 
-const TRACKS: Track[] = [
-  {
-    id: 1,
-    title: "ارتقاء توان دفاعی در شرایط اضطرار",
-    slug: "defense",
-    image: "/assets/tracks/defense.png",
-    blurb:
-      "تمرکز بر راهکارهای نوین برای افزایش تاب‌آوری ملی، کاهش آسیب‌پذیری زیرساخت‌ها و ایجاد آمادگی همه‌جانبه در مواجهه با بحران‌ها و تهدیدهای غیرمنتظره."
-  },
-  {
-    id: 2,
-    title: "نوآوری در توان سایبری و پدافند (عامل و غیرعامل)",
-    slug: "cyber-defense",
-    image: "/assets/tracks/cyberDefense.png",
-    blurb:
-      "توسعه فناوری‌های نوین سایبری و دفاعی، شامل سامانه‌های هوشمند و پدافند عامل و غیرعامل برای مقابله با تهدیدات ترکیبی و حملات پیچیده."
-  },
-  {
-    id: 3,
-    title: "استفاده از ظرفیت‌های هوش مصنوعی در بحران",
-    slug: "ai-in-crisis",
-    image: "/assets/tracks/aiInCrisis.png",
-    blurb:
-      "به‌کارگیری الگوریتم‌های هوش مصنوعی و یادگیری ماشین در پایش، تحلیل داده‌ها و پیش‌بینی شرایط بحرانی برای تسریع تصمیم‌گیری و واکنش مؤثر."
-  },
-  {
-    id: 4,
-    title: "خدمات و پشتیبانی در زمان بحران",
-    slug: "crisis-support",
-    image: "/assets/tracks/crisisSupport.png",
-    blurb:
-      "ایجاد مدل‌های نوآورانه در تأمین فوری نیازهای اساسی، ارائه خدمات درمانی و امدادی کارآمد و بهبود مدیریت زنجیره تأمین در شرایط اضطراری."
-  },
-  {
-    id: 5,
-    title: "روش‌های نوین استفاده از داده‌ها و مشارکت عمومی",
-    slug: "data-participation",
-    image: "/assets/tracks/dataParticipation.png",
-    blurb:
-      "توسعه بسترهای داده‌محور برای رصد بحران، تحلیل کلان‌داده‌ها و تسهیل مشارکت هوشمندانه مردم در مدیریت بحران‌ها و افزایش شفافیت."
-  },
-  {
-    id: 6,
-    title: "مدیریت شبکه داوطلبان و تسهیل کمک‌های اجتماعی",
-    slug: "volunteer-network",
-    image: "/assets/tracks/volunteerNetwork.png",
-    blurb:
-      "طراحی سامانه‌های نوآورانه برای سازماندهی، هدایت و هم‌افزایی ظرفیت داوطلبان در ارائه کمک‌های اجتماعی، روانی و معنوی در شرایط اضطرار."
-  }
-];
+// const TRACKS: Track[] = [
+//   {
+//     id: 1,
+//     title: "ارتقاء توان دفاعی در شرایط اضطرار",
+//     slug: "defense",
+//     image: "/assets/tracks/defense.png",
+//     blurb:
+//       "تمرکز بر راهکارهای نوین برای افزایش تاب‌آوری ملی، کاهش آسیب‌پذیری زیرساخت‌ها و ایجاد آمادگی همه‌جانبه در مواجهه با بحران‌ها و تهدیدهای غیرمنتظره."
+//   },
+//   {
+//     id: 2,
+//     title: "نوآوری در توان سایبری و پدافند (عامل و غیرعامل)",
+//     slug: "cyber-defense",
+//     image: "/assets/tracks/cyberDefense.png",
+//     blurb:
+//       "توسعه فناوری‌های نوین سایبری و دفاعی، شامل سامانه‌های هوشمند و پدافند عامل و غیرعامل برای مقابله با تهدیدات ترکیبی و حملات پیچیده."
+//   },
+//   {
+//     id: 3,
+//     title: "استفاده از ظرفیت‌های هوش مصنوعی در بحران",
+//     slug: "ai-in-crisis",
+//     image: "/assets/tracks/aiInCrisis.png",
+//     blurb:
+//       "به‌کارگیری الگوریتم‌های هوش مصنوعی و یادگیری ماشین در پایش، تحلیل داده‌ها و پیش‌بینی شرایط بحرانی برای تسریع تصمیم‌گیری و واکنش مؤثر."
+//   },
+//   {
+//     id: 4,
+//     title: "خدمات و پشتیبانی در زمان بحران",
+//     slug: "crisis-support",
+//     image: "/assets/tracks/crisisSupport.png",
+//     blurb:
+//       "ایجاد مدل‌های نوآورانه در تأمین فوری نیازهای اساسی، ارائه خدمات درمانی و امدادی کارآمد و بهبود مدیریت زنجیره تأمین در شرایط اضطراری."
+//   },
+//   {
+//     id: 5,
+//     title: "روش‌های نوین استفاده از داده‌ها و مشارکت عمومی",
+//     slug: "data-participation",
+//     image: "/assets/tracks/dataParticipation.png",
+//     blurb:
+//       "توسعه بسترهای داده‌محور برای رصد بحران، تحلیل کلان‌داده‌ها و تسهیل مشارکت هوشمندانه مردم در مدیریت بحران‌ها و افزایش شفافیت."
+//   },
+//   {
+//     id: 6,
+//     title: "مدیریت شبکه داوطلبان و تسهیل کمک‌های اجتماعی",
+//     slug: "volunteer-network",
+//     image: "/assets/tracks/volunteerNetwork.png",
+//     blurb:
+//       "طراحی سامانه‌های نوآورانه برای سازماندهی، هدایت و هم‌افزایی ظرفیت داوطلبان در ارائه کمک‌های اجتماعی، روانی و معنوی در شرایط اضطرار."
+//   }
+// ];
 
 
 type Member = {
@@ -75,6 +78,7 @@ type Member = {
 function TracksCarousel({ items, interval = 5000 }: { items: Track[]; interval?: number }) {
   const [i, setI] = useState(0);
   const has = items?.length > 0;
+  const { t } = useTranslation();
 
   const next = useCallback(() => setI((p) => (p + 1) % items.length), [items.length]);
   const prev = useCallback(() => setI((p) => (p === 0 ? items.length - 1 : p - 1)), [items.length]);
@@ -102,13 +106,13 @@ function TracksCarousel({ items, interval = 5000 }: { items: Track[]; interval?:
       <a
         href={`/tracks/${cur.slug}`}
         className={s.heroThumb}
-        aria-label={`Open ${cur.title}`}
-        title={cur.title}
-        style={{ backgroundImage: cur.image ? `url("${cur.image}")` : undefined }}
+        aria-label={`Open ${t(cur.titleKey)}`}
+        title={t(cur.titleKey)}
+        style={{ backgroundImage: cur.cover ? `url("${cur.cover}")` : undefined }}
       />
       <div className={s.carouselBody}>
-        <strong className={s.cardTitle}>{cur.title}</strong>
-        <p className={s.cardText}>{cur.blurb.length > 50 ? cur.blurb.slice(0, 50) + "…" : cur.blurb}</p>
+        <strong className={s.cardTitle}>{t(cur.titleKey)}</strong>
+        <p className={s.cardText}>{t(cur.shortKey).length > 50 ? t(cur.shortKey).slice(0, 50) + "…" : t(cur.shortKey)}</p>
       </div>
 
       <div className={s.carouselControls}>
@@ -132,7 +136,7 @@ function TracksCarousel({ items, interval = 5000 }: { items: Track[]; interval?:
 
       {/* دکمه پایینی: See All به /tracks */}
       <a className={s.btn} href="/tracks" data-variant="primary">
-        See All
+        {t("header.seeAll")}
       </a>
     </div>
   );
@@ -142,6 +146,7 @@ function TracksCarousel({ items, interval = 5000 }: { items: Track[]; interval?:
 function CommitteeCarousel({ items = COMMITTEE, interval = 5200 }: { items?: Member[]; interval?: number }) {
   const [i, setI] = useState(0);
   const has = items?.length > 0;
+  const { t } = useTranslation();
 
   const next = useCallback(() => setI((p) => (p + 1) % items.length), [items.length]);
   const prev = useCallback(() => setI((p) => (p === 0 ? items.length - 1 : p - 1)), [items.length]);
@@ -160,14 +165,14 @@ function CommitteeCarousel({ items = COMMITTEE, interval = 5200 }: { items?: Mem
       <a
         href={cur.profileUrl || "/committee"}
         className={s.heroThumb}
-        aria-label={`${cur.name} — ${cur.role}`}
-        title={cur.name}
+        aria-label={`${t(cur.name)} — ${t(cur.role)}`}
+        title={t(cur.name)}
         style={{ backgroundImage: cur.photo ? `url("${cur.photo}")` : undefined }}
       />
       <div className={s.carouselBody}>
-        <strong className={s.cardTitle}>{cur.name}</strong>
+        <strong className={s.cardTitle}>{t(cur.name)}</strong>
         <span className={s.cardMeta}>
-          {cur.role} — {cur.affiliation}
+          {t(cur.role)} — {t(cur.affiliation)}
         </span>
       </div>
 
@@ -277,9 +282,9 @@ export default function Landing() {
           <p className={s.subtitle}>{t("heroSubtitle")}</p>
 
           <div className={s.ctaRow}>
-            <a className={s.btn} href="/submit" data-variant="primary">{t("ctaStart")}</a>
+            {/* <a className={s.btn} href="/submit" data-variant="primary">{t("ctaStart")}</a> */}
             {/* CTA مسیرها → /tracks */}
-            <a className={s.btn} href="/tracks" data-variant="ghost">{t("ctaTracks")}</a>
+            {/* <a className={s.btn} href="/tracks" data-variant="ghost">{t("ctaTracks")}</a> */}
           </div>
 
           <div
@@ -327,7 +332,7 @@ export default function Landing() {
               <h3 className={s.cardHeading}>{t("submitCard.title")}</h3>
               <p className={s.cardText}>{t("submitCard.text")}</p>
               <div className={s.btnRow}>
-                <a className={s.btn} href="/submit" data-variant="primary">{t("submitCard.start")}</a>
+              <Link className={s.btn} to="/ideas/new" data-variant="primary">{t("submitCard.start")}</Link>
                 <a className={s.btn} href="/sample.docx" download data-variant="ghost">
                   {t("submitCard.template")}
                 </a>
@@ -590,7 +595,7 @@ export default function Landing() {
     landlineDisplay={isFa ? "011 5214 1173" : "+98 11 5214 1173"}
     mobileIntl="+989055784979"
     mobileDisplay={isFa ? "0905 578 4979" : "+98 905 578 4979"}
-    eitaaUrl="https://eitaa.com/YOUR_ID" // ← TODO: put your real Eitaa link
+    eitaaUrl="https://eitaa.com/MRN2025" 
   />
   {/* eslint-enable */}
           </section>

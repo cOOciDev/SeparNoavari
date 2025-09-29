@@ -42,7 +42,11 @@ export default function NavActions({
         aria-label={isFa ? "تغییر تم" : "Toggle theme"}
         title={theme.toUpperCase()}
       >
-        <span className={styles.themeIcon} aria-hidden="true" />
+        {theme === "dark" ? (
+          <i className="fa-solid fa-moon" aria-hidden="true"></i>
+        ) : (
+          <i className="fa-solid fa-sun" aria-hidden="true"></i>
+        )}
       </button>
     </div>
   );

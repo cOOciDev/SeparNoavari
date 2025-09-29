@@ -130,10 +130,12 @@
     "title": "Submit Your Idea",
     "submitterName": "Submitter Full Name",
     "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
     "track": "Track",
     "ideaTitle": "Idea Title",
     "executiveSummary": "Executive Summary",
     "file": "Proposal File",
+    "file2": "Additional File (optional)",
     "uploadFile": "Upload File",
     "teamMembers": "Team Members",
     "addMember": "Add Member",
@@ -142,9 +144,12 @@
 
     "errors": {
       "fileRequired": "Please upload your proposal file.",
+      "file2Required": "Please upload the second required file.",
       "fileType": "Only PDF or Word documents are allowed.",
       "fileSize": "File must be smaller than 50MB.",
       "submitterName": "Please enter your full name.",
+      "phone": "Please enter your phone number.",
+      "phoneValid": "Please enter a valid phone number.",
       "email": "Please enter your email address.",
       "emailValid": "Please enter a valid email address.",
       "track": "Please select a track.",
@@ -171,6 +176,29 @@
     }
 
   },
+
+  "committee": {
+    "title": "Scientific Committee",
+    "text": "Meet the members of the jury and advisors.",
+    "member1":  {
+        "name": "Dr. Rasoul Karimi",
+        "role": "Scientific Secretary of the Event",
+        "affiliation": "Faculty of Mechanical Engineering",
+        "shortBio": "PhD in Mechanical Engineering with expertise in mechanical design, energy optimization, and development of resilient industrial systems. University researcher and professor focused on innovative engineering solutions for efficiency and crisis management.",
+        "profileUrl": "#",
+        "tags": ["Scientific Secretary", "Mechanical Engineering", "Industrial Innovation", "Resilience"]
+      },
+      "member2": {
+        "name": "(Commissar) Rasoul Qaderi",
+        "role": "Executive Secretary of the Event",
+        "affiliation": "Commander of Support, Imam Khomeini Maritime University",
+        "shortBio": "Executive Secretary of the event with managerial and organizational experience in support and coordination. Responsible for operational leadership and support at Imam Khomeini Maritime University, playing a key role in the execution and management of the event.",
+        "profileUrl": "#",
+        "tags": ["Executive Secretary", "Management", "Support", "Coordination"]
+      }
+    
+  },
+
   "account": {
     "title": "Account",
     "activityTitle": "Activities (My Ideas)",
@@ -193,5 +221,28 @@
     "file": "File",
     "viewUploadedFile": "View uploaded file",
     "download": "Download"
+  }
+  ,
+  "footer": {
+    "template": "Download Template (word)",
+    "copyright": "© {{year}} cOOciDev , Nowshahr Growth Center , Imam Khomeini Naval University"
+  }
+  ,
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark"
+  }
+  ,
+  "header": {
+    "myAccount": "My Account",
+    "signInOrRegister": "Sign in / Register",
+    "seeAll": "See All"
+  }
+  ,
+  "social": {
+    "whatsapp": "WhatsApp",
+    "eitaa": "Eitaa",
+    "messagingHint": "For quick messages, use WhatsApp / Eitaa."
   }
 }

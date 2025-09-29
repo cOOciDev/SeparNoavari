@@ -101,17 +101,18 @@ export default function MobileMenu({
       <div className={styles.mobileBackdrop} />
       <div className={styles.mobilePanel} ref={panelRef}>
         {/* Top controls */}
+        {/* <div className={styles.mobileBlock}>
+          
+        </div> */}
+
+        {/* Primary CTA first for prominence */}
         <div className={styles.mobileBlock}>
-          <NavActions
+        <NavActions
             lang={lang}
             onLangChange={onLangChange}
             theme={theme}
             onThemeChange={onThemeChange}
           />
-        </div>
-
-        {/* Primary CTA first for prominence */}
-        <div className={styles.mobileBlock}>
           <Actions
             isAuthenticated={isAuthenticated}
             ctaLabel={ctaLabel}

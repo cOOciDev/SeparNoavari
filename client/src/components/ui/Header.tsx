@@ -199,7 +199,7 @@ export default function Header({
             theme={theme} // ← from ThemeContext
             onThemeChange={setTheme} // ← from ThemeContext
           />
-
+          <br/><br/>
           <Actions
             isAuthenticated={isAuthenticated} // ← from AuthContext
             ctaLabel={ctaLabel}

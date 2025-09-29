@@ -15,23 +15,23 @@ export type CommitteeMember = {
 export const COMMITTEE: CommitteeMember[] = [
   {
     id: 1,
-    name: "دکتر رسول کریمی",
-    role: "دبیر علمی رویداد",
-    affiliation: "دانشکده مهندسی مکانیک",
+    name: "committee.member1.name",
+    role: "committee.member1.role",
+    affiliation: "committee.member1.affiliation",
     photo: "/images/committee/Dr_Karimi.png",
-    shortBio: "دکترای مهندسی مکانیک با تخصص در طراحی مکانیکی، بهینه‌سازی انرژی و توسعه سیستم‌های صنعتی تاب‌آور. پژوهشگر و استاد دانشگاه با تمرکز بر راهکارهای نوآورانه مهندسی برای افزایش کارآمدی و مدیریت بحران.",
+    shortBio: "committee.member1.shortBio",
     profileUrl: "#",
-    tags: ["دبیر علمی", "مهندسی مکانیک", "نوآوری صنعتی", "تاب‌آوری"]
+    tags: ["committee.member1.tags"]
   },
   {
     id: 2,
-    name: "ناخدا یکم کمیسر رسول قادری",
-    role: "دبیر اجرایی رویداد",
-    affiliation: "فرمانده پشتیبانی دانشگاه علوم دریایی امام خمینی (ره)",
+    name: "committee.member2.name",
+    role: "committee.member2.role",
+    affiliation: "committee.member2.affiliation",
     photo: "/images/committee/Dr_Qaderi.png",
-    shortBio: "دبیر اجرایی رویداد با تجربه مدیریتی و سازمانی در حوزه پشتیبانی و هماهنگی. مسئولیت هدایت و پشتیبانی عملیاتی دانشگاه علوم دریایی امام خمینی (ره) را بر عهده دارد و نقش کلیدی در برگزاری و مدیریت اجرایی رویداد ایفا می‌کند.",
+    shortBio: "committee.member2.shortBio",
     profileUrl: "#",
-    tags: ["دبیر اجرایی", "مدیریت", "پشتیبانی", "هماهنگی"]
+    tags: ["committee.member2.tags"]
 
   },
   

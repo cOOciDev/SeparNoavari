@@ -18,6 +18,10 @@
   box-shadow: var(--shadow-soft);
   overflow: hidden;
   margin: 1rem;
+  min-width: 30%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .cardBody {
   padding: 14px;
@@ -65,7 +69,35 @@
 
 /* Action rows */
 .linkRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.whatsappBtn{
+  background-color: #25D366;
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 16px);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  margin: 1rem;
+  padding: 10px;
 
+  i{
+    padding:0 10px ;
+  }
+}
+.eitaaBtn{
+  background-color: #e17a30;
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 16px);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  margin: 1rem;
+  padding: 10px;
+
+  i{
+    padding:0 7px ;
+  }
+
+}
 /* Chips & buttons */
 .chip {
   direction: ltr;
