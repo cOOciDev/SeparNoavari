@@ -11,5 +11,5 @@ export default defineConfig({
       'separnoavari.ir',
       'www.separnoavari.ir'
     ]
-  }
+  },
 })

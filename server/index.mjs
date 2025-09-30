@@ -1,4 +1,8 @@
-﻿import express from "express";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+import express from "express";
 import cors from "cors";
 import session from "express-session";
 import passport from "passport";
@@ -113,27 +117,28 @@ async function initializeDb() {
 initializeDb();
 
 // Middleware
-const allowList = new Set([
-  "https://www.separnoavari.ir",
-  "https://separnoavari.ir",
-  
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-]);
-app.use(cors({
-  origin(origin, cb) {
-    if (!origin) return cb(null, true);           // allow curl/health, same-origin
-    if (allowList.has(origin)) return cb(null, true);
-    return cb(null, true); // TEMP: allow all to stop 500s; tighten later
-  },
-  credentials: true,
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization","X-Requested-With"],
-  optionsSuccessStatus: 204,
-}));
-// --------------------------------
-app.options("*", cors());
-// --------------------------------
+const rawAllowedOrigins = (process.env.ALLOWED_ORIGINS || "https://www.separnoavari.ir,https://separnoavari.ir,http://localhost:5173,http://127.0.0.1:5173")
+  .split(/[,\s]+/)
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set(rawAllowedOrigins);
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.has(origin)) return callback(null, true);
+      console.warn("Blocked CORS origin:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -143,9 +148,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // For development (HTTP)
+      secure: isProduction,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
@@ -422,4 +427,5 @@ app.get("/api/recent-ideas", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
 

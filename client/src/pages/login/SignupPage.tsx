@@ -1,4 +1,4 @@
-﻿import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Form, Input, Button, Typography, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
@@ -29,7 +29,7 @@ export default function SignupPage() {
           userEmail: res.userEmail,
           userId: res.userId,
         });
-        nav("/account", { replace: true });
+        nav(next ?? "/account", { replace: true });
       }
     },
   });
@@ -118,5 +118,6 @@ export default function SignupPage() {
     </div>
   );
 }
+
 
 

@@ -1,3 +1,7 @@
+// import DrKarimiPhoto from "@/assets/committee/Dr_Karimi.png";
+// import DrQaderiPhoto from "@/assets/committee/Dr_Qaderi.png";
+
+
 // واحدِ مرجع برای تایپ و دیتا
 
 export type CommitteeMember = {
@@ -18,7 +22,7 @@ export const COMMITTEE: CommitteeMember[] = [
     name: "committee.member1.name",
     role: "committee.member1.role",
     affiliation: "committee.member1.affiliation",
-    photo: "/images/committee/Dr_Karimi.png",
+    photo: "/images/committee/Dr_Karimi.png?v=20250930",
     shortBio: "committee.member1.shortBio",
     profileUrl: "#",
     tags: ["committee.member1.tags"]
@@ -28,7 +32,7 @@ export const COMMITTEE: CommitteeMember[] = [
     name: "committee.member2.name",
     role: "committee.member2.role",
     affiliation: "committee.member2.affiliation",
-    photo: "/images/committee/Dr_Qaderi.png",
+    photo: "/images/committee/Dr_Qaderi.png?v=20250930",
     shortBio: "committee.member2.shortBio",
     profileUrl: "#",
     tags: ["committee.member2.tags"]
