@@ -113,10 +113,10 @@ async function initializeDb() {
 initializeDb();
 
 // Middleware
-const allowedOrigins = new Set([
+const allowList = new Set([
   "https://www.separnoavari.ir",
   "https://separnoavari.ir",
-  // keep localhost for dev if you want:
+  
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ]);
