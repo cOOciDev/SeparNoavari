@@ -17,7 +17,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.defense.title",
     shortKey: "tracks.defense.desc",
     longKey: "tracks.defense.text",
-    cover: "/assets/tracks/defense.png",
+    cover: "/assets/tracks/defense.png?v=20250930",
     tags: ["Risk", "Safety", "Preparedness"],
     resources: [
       { labelKey: "tracks.resource.brief", href: "/docs/tracks/defense-brief.pdf" },
@@ -29,7 +29,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.crisisSupport.title",
     shortKey: "tracks.crisisSupport.desc",
     longKey: "tracks.crisisSupport.text",
-    cover: "/assets/tracks/crisisSupport.png",
+    cover: "/assets/tracks/crisisSupport.png?v=20250930",
     tags: ["AI", "Sensors", "Early Warning"],
   },
   {
@@ -38,7 +38,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.cyberDefense.title",
     shortKey: "tracks.cyberDefense.desc",
     longKey: "tracks.cyberDefense.text",
-    cover: "/assets/tracks/cyberDefense.png",
+    cover: "/assets/tracks/cyberDefense.png?v=20250930",
     tags: ["Infrastructure", "Continuity"],
   },
   {
@@ -47,7 +47,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.volunteerNetwork.title",
     shortKey: "tracks.volunteerNetwork.desc",
     longKey: "tracks.volunteerNetwork.text",
-    cover: "/assets/tracks/volunteerNetwork.png",
+    cover: "/assets/tracks/volunteerNetwork.png?v=20250930",
     tags: ["Supply", "Routing"],
   },
   {
@@ -56,7 +56,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.aiInCrisis.title",
     shortKey: "tracks.aiInCrisis.desc",
     longKey: "tracks.aiInCrisis.text",
-    cover: "/assets/tracks/aiInCrisis.png",
+    cover: "/assets/tracks/aiInCrisis.png?v=20250930",
     tags: ["Field", "Shelter"],
   },
   {
@@ -65,7 +65,7 @@ export const TRACKS: Track[] = [
     titleKey: "tracks.dataParticipation.title",
     shortKey: "tracks.dataParticipation.desc",
     longKey: "tracks.dataParticipation.text",
-    cover: "/assets/tracks/dataParticipation.png",
+    cover: "/assets/tracks/dataParticipation.png?v=20250930",
     tags: ["Training", "Community"],
   },
 ];
