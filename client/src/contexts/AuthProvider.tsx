@@ -1,65 +1,94 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
-import api from "../service/api";
+﻿import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import api from '../service/api';
 
-interface User {
+type Role = 'user' | 'admin' | 'judge';
+
+export interface AuthUser {
   userName: string;
   userEmail: string;
-  userId: number;
+  userId: number | string;
+  role: Role;
 }
 
 interface AuthContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
-  logout: () => void;
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  setUser: (user: AuthUser | null) => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+const STORAGE_KEY = 'user';
 
-  // Load user from localStorage on mount
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed) {
+          const normalizedRole: Role =
+            parsed.role === 'admin' ? 'admin' : parsed.role === 'judge' ? 'judge' : 'user';
+          setUser({
+            userName: parsed.userName ?? '',
+            userEmail: parsed.userEmail ?? '',
+            userId: parsed.userId ?? '',
+            role: normalizedRole,
+          });
+        }
+      } catch {
+        // ignore malformed storage
+      }
     }
+    setLoading(false);
   }, []);
 
-  // Save user to localStorage whenever it changes
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     } else {
-      localStorage.removeItem("user");
+      localStorage.removeItem(STORAGE_KEY);
     }
   }, [user]);
 
   const logout = async () => {
-    await api.post("logout", {}, { withCredentials: true });
+    try {
+      await api.post('logout', {}, { withCredentials: true });
+    } catch {
+      // ignore logout errors (likely already invalidated)
+    }
     setUser(null);
-    window.location.href = "/";
+    window.location.href = '/';
   };
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      loading,
+      setUser,
+      logout,
+    }),
+    [user, loading]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use the AuthContext easily
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
+
+
+
+
+

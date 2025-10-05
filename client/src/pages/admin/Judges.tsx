@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { listJudges, createJudge } from "../../api";
 import type { Judge } from "../../api";
 import s from "../../styles/panel.module.scss";
 
 export default function Judges() {
+  const { t } = useTranslation();
   const [data, setData] = useState<Judge[] | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,21 +24,21 @@ export default function Judges() {
 
   return (
     <div className={s.stack}>
-      <h1>Judges</h1>
+      <h1>{t('admin.judgesPage.title')}</h1>
 
       <div className={s.card}>
         <div className={s.cardBody}>
           <div className={s.filters}>
-            <input className={s.input} placeholder="Judge name…" value={name} onChange={e=>setName(e.target.value)} />
-            <input className={s.input} placeholder="Email (optional)…" value={email} onChange={e=>setEmail(e.target.value)} />
-            <button className={s.btnPrimary} onClick={add}>Add judge</button>
+            <input className={s.input} placeholder={t('admin.judgesPage.inputNamePlaceholder')} value={name} onChange={e=>setName(e.target.value)} />
+            <input className={s.input} placeholder={t('admin.judgesPage.inputEmailPlaceholder')} value={email} onChange={e=>setEmail(e.target.value)} />
+            <button className={s.btnPrimary} onClick={add}>{t('admin.judgesPage.addButton')}</button>
           </div>
         </div>
       </div>
 
       <div className={s.tableWrap}>
         <table className={s.table}>
-          <thead><tr><th>ID</th><th>Name</th><th>Email</th></tr></thead>
+          <thead><tr><th>{t('admin.judgesPage.table.id')}</th><th>{t('admin.judgesPage.table.name')}</th><th>{t('admin.judgesPage.table.email')}</th></tr></thead>
           <tbody>
             {data?.map(j=>(
               <tr key={j.id}>
@@ -45,7 +47,7 @@ export default function Judges() {
                 <td>{j.email || "—"}</td>
               </tr>
             ))}
-            {(!data || data.length===0) && <tr><td colSpan={3} className={s.muted}>No judges.</td></tr>}
+            {(!data || data.length===0) && <tr><td colSpan={3} className={s.muted}>{t('admin.judgesPage.noJudges')}</td></tr>}
           </tbody>
         </table>
       </div>

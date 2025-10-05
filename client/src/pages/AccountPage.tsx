@@ -22,6 +22,7 @@ import styles from "./account.module.scss";
 import { useAuth } from "../contexts/AuthProvider";
 import MyIdea from "../service/apis/account/MyIdea/MyIdea";
 import { TRACKS } from "../AppData/tracks";
+import { buildIdeaDownloadUrl } from "../utils/download";
 
 import type { FirstMyIdeaType } from "../service/apis/account/MyIdea/type";
 
@@ -33,37 +34,29 @@ type Attachment = {
   href: string;
 };
 
-const buildFileUrl = (relativePath: string) => {
-  if (!relativePath) return "";
-  const normalized = relativePath
-    .replace(/^\.\//, "")
-    .replace(/^\//, "")
-    .replace(/\\/g, "/");
-  if (/^https?:/i.test(normalized)) {
-    return normalized;
-  }
-  const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5501";
-  return `${apiBase}/${normalized}`;
-};
-
-const parseAttachments = (raw: string | null | undefined): Attachment[] => {
+const parseAttachments = (
+  ideaId: number,
+  raw: string | null | undefined
+): Attachment[] => {
   if (!raw) return [];
   try {
-    const parsed = JSON.parse(raw) as { pdf?: string | null; word?: string | null };
+    const parsed = JSON.parse(raw) as Record<string, string | null | undefined>;
     const entries: Attachment[] = [];
-    if (parsed.pdf) {
-      entries.push({ key: "pdf", label: "PDF", href: buildFileUrl(parsed.pdf) });
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      if (parsed.pdf) {
+        entries.push({ key: "pdf", label: "PDF", href: buildIdeaDownloadUrl(ideaId, "pdf") });
+      }
+      if (parsed.word) {
+        entries.push({ key: "word", label: "Word", href: buildIdeaDownloadUrl(ideaId, "word") });
+      }
+      if (entries.length) {
+        return entries;
+      }
     }
-    if (parsed.word) {
-      entries.push({ key: "word", label: "Word", href: buildFileUrl(parsed.word) });
-    }
-    if (entries.length) {
-      return entries;
-    }
-  } catch (err) {
-    // fall back to legacy path string
+  } catch {
+    // ignore JSON parse issues, fall back to legacy string
   }
-  return [{ key: "file", label: "File", href: buildFileUrl(raw) }];
+  return [{ key: "file", label: "File", href: buildIdeaDownloadUrl(ideaId, "file") }];
 };
 
 export default function AccountPage() {
@@ -81,7 +74,7 @@ export default function AccountPage() {
   const items: FirstMyIdeaType[] = data?.ideas ?? [];
 
   const fmtDate = (iso?: string) => {
-    if (!iso) return "—";
+    if (!iso) return "-";
     try {
       const parsed = iso.includes("T") || iso.includes("Z")
         ? new Date(iso)
@@ -103,7 +96,7 @@ export default function AccountPage() {
   };
 
   const getTrackLabel = (slug?: string) => {
-    if (!slug) return "—";
+    if (!slug) return "-";
     const match = TRACKS.find((entry) => entry.slug === slug);
     return match ? t(match.titleKey) : slug;
   };
@@ -184,7 +177,17 @@ export default function AccountPage() {
             {hasIdeas && (
               <div className={styles.ideaGrid}>
                 {items.map((idea) => {
-                  const attachments = parseAttachments(idea.file_path);
+                  const ideaOwnerId = Number(idea.user_id);
+                  const currentUserId =
+                    typeof user?.userId === "number"
+                      ? user.userId
+                      : Number(user?.userId);
+                  const canViewFiles =
+                    (user?.role === "admin") ||
+                    (Number.isInteger(currentUserId) && currentUserId === ideaOwnerId);
+                  const attachments = canViewFiles
+                    ? parseAttachments(idea.id, idea.file_path)
+                    : [];
                   return (
                     <Card
                       key={idea.id}
@@ -221,11 +224,11 @@ export default function AccountPage() {
                           </div>
                           <div className={styles.metaItem}>
                             <Text type="secondary">{t("account.submitterName")}</Text>
-                            <Text strong>{idea.submitter_full_name || "â€”"}</Text>
+                            <Text strong>{idea.submitter_full_name || "-"}</Text>
                           </div>
                           <div className={styles.metaItem}>
                             <Text type="secondary">{t("account.contactEmail")}</Text>
-                            <Text strong>{idea.contact_email || "â€”"}</Text>
+                            <Text strong>{idea.contact_email || "-"}</Text>
                           </div>
                           <div className={styles.metaItem}>
                             <Text type="secondary">{t("account.teamMembers")}</Text>
@@ -237,8 +240,8 @@ export default function AccountPage() {
                                       .sort()
                                       .map((key) => String((idea.team_members as Record<string, unknown>)[key]))
                                       .filter(Boolean)
-                                      .join(", ") || "â€”"
-                                  : idea.team_members || "â€”"}
+                                      .join(", ") || "-"
+                                  : idea.team_members || "-"}
                             </Text>
                           </div>
                         </div>
@@ -270,4 +273,5 @@ export default function AccountPage() {
     </main>
   );
 }
+
 

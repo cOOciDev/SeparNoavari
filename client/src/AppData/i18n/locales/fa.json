@@ -278,4 +278,97 @@
     "eitaa": "ایتا",
     "messagingHint": "برای پیام فوری واتساپ / ایتا را بزنید."
   }
+  ,
+  "admin": {
+    "sidebar": {
+      "dashboard": "داشبورد",
+      "ideas": "ایده‌ها",
+      "users": "کاربران",
+      "aria": "نوار کناری ادمین"
+    },
+    "dashboard": {
+      "title": "داشبورد",
+      "totalIdeas": "کل ایده‌ها",
+      "totalUsers": "کاربران ثبت‌نام‌شده",
+      "lastSubmission": "آخرین ارسال",
+      "latestIdeas": "آخرین ارسالی‌ها",
+      "untitled": "بدون عنوان",
+      "unknownSubmitter": "ارسال‌کننده نامشخص",
+      "noIdeas": "هنوز ایده‌ای ثبت نشده."
+    },
+    "ideas": {
+      "title": "ایده‌ها",
+      "searchPlaceholder": "جستجو بر اساس عنوان، ارسال‌کننده، ایمیل…",
+      "filterAllTracks": "تمام محورها",
+      "trackUnknown": "مشخص نشده",
+      "unknownSubmitter": "ارسال‌کننده نامشخص",
+      "downloadPdf": "PDF",
+      "downloadWord": "Word",
+      "empty": "هیچ ایده‌ای با فیلترهای شما مطابقت ندارد.",
+      "table": {
+        "title": "عنوان",
+        "submitter": "ارسال‌کننده",
+        "email": "ایمیل",
+        "track": "محور",
+        "submitted": "ارسال‌شده",
+        "files": "فایل‌ها"
+      }
+    },
+    "topbar": {
+      "title": "پنل ادمین"
+    },
+    "users": {
+      "title": "کاربران",
+      "table": {
+        "name": "نام",
+        "email": "ایمیل",
+        "role": "نقش",
+        "ideas": "ایده‌ها",
+        "lastSubmission": "آخرین ارسال"
+      },
+      "unnamed": "بدون نام",
+      "empty": "هیچ کاربری یافت نشد.",
+      "roles": {
+        "user": "کاربر",
+        "judge": "داور",
+        "admin": "ادمین"
+      },
+      "roleUpdated": "نقش با موفقیت تغییر کرد",
+      "roleUpdateFailed": "خطا در تغییر نقش",
+      "roleUpdatedWithValues": "نقش از {{prev}} به {{next}} تغییر کرد"
+    }
+    ,
+    "judgesPage": {
+      "title": "داوران",
+      "inputNamePlaceholder": "نام داور…",
+      "inputEmailPlaceholder": "ایمیل (اختیاری)…",
+      "addButton": "افزودن داور",
+      "table": { "id": "شناسه", "name": "نام", "email": "ایمیل" },
+      "noJudges": "هیچ داوری وجود ندارد."
+    },
+    "assignmentsPage": {
+      "title": "تخصیص‌ها",
+      "selectIdeaPlaceholder": "یک ایده انتخاب کنید…",
+      "selectIdeaAria": "انتخاب ایده",
+      "selectJudgesAria": "انتخاب داورها",
+      "assignButton": "تخصیص",
+      "assigning": "در حال تخصیص…",
+      "table": { "assignment": "تخصیص", "idea": "ایده", "judge": "داور", "status": "وضعیت" },
+      "noAssignments": "تخصیصی وجود ندارد."
+    },
+    "scoringPage": {
+      "title": "امتیازدهی",
+      "searchPlaceholder": "جستجو وظیفه/ایده/داور/وضعیت…",
+      "all": "همه",
+      "assigned": "تخصیص‌شده",
+      "done": "تمام‌شده",
+      "sort": { "newest": "جدیدترین", "oldest": "قدیمی‌ترین", "status": "بر اساس وضعیت", "score": "بالاترین امتیاز" },
+      "csv": "CSV",
+      "loading": "در حال بارگذاری…",
+      "reload": "بارگذاری مجدد",
+      "noRows": "ردیفی وجود ندارد.",
+      "table": { "assignment": "تخصیص", "idea": "ایده", "judge": "داور", "status": "وضعیت", "submitted": "ارسال‌شده", "score": "امتیاز", "open": "باز" },
+      "viewIdea": "نمایش ایده"
+    }
+  }
 }

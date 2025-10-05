@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+﻿import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -17,6 +17,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 const port = 5501;
+const uploadsRoot = path.resolve("./uploads");
 
 // Configure multer for file uploads
 const sanitizeFilenameComponent = (value) => {
@@ -32,7 +33,7 @@ const sanitizeFilenameComponent = (value) => {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const baseDir = path.resolve("./uploads");
+    const baseDir = uploadsRoot;
     const userEmail = req.user?.email || req.body?.contact_email;
     if (!userEmail) {
       return cb(new Error("USER_EMAIL_MISSING"));
@@ -71,7 +72,7 @@ const storage = multer.diskStorage({
     const baseNameArray = [ideaTitle, submitterName, dateStamp].filter(Boolean);
     const baseName = baseNameArray.join("_") || "file";
     const ext = path.extname(file.originalname) || "";
-    const uploadDir = req.multerUploadDir || path.resolve("./uploads");
+    const uploadDir = req.multerUploadDir || uploadsRoot;
     let finalName = baseName + ext;
     let candidatePath = path.join(uploadDir, finalName);
     let counter = 1;
@@ -113,6 +114,17 @@ async function initializeDb() {
     filename: "./database.db",
     driver: sqlite3.Database,
   });
+  // Ensure users table has a 'role' column. Add it if missing.
+  try {
+    const pragma = await db.all("PRAGMA table_info(users)");
+    const hasRole = pragma.some((c) => c.name === "role");
+    if (!hasRole) {
+      console.log("Adding 'role' column to users table (migration)");
+      await db.exec("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+    }
+  } catch (err) {
+    console.warn("Failed to ensure role column exists:", err);
+  }
 }
 initializeDb();
 
@@ -123,6 +135,65 @@ const rawAllowedOrigins = (process.env.ALLOWED_ORIGINS || "https://www.separnoav
   .filter(Boolean);
 const allowedOrigins = new Set(rawAllowedOrigins);
 const isProduction = process.env.NODE_ENV === "production";
+const sessionSecret =
+  process.env.SESSION_SECRET && process.env.SESSION_SECRET.trim()
+    ? process.env.SESSION_SECRET.trim()
+    : (isProduction ? null : "dev-session-secret");
+
+if (!sessionSecret) {
+  console.error("SESSION_SECRET must be set in environment variables.");
+  process.exit(1);
+}
+
+const adminUsername =
+  process.env.ADMIN_USERNAME && process.env.ADMIN_USERNAME.trim()
+    ? process.env.ADMIN_USERNAME.trim()
+    : null;
+const adminPassword =
+  typeof process.env.ADMIN_PASSWORD === "string"
+    ? process.env.ADMIN_PASSWORD
+    : null;
+const adminSessionToken = adminUsername ? "admin:" + adminUsername : null;
+const adminPasswordLooksHashed =
+  typeof adminPassword === "string" && adminPassword.startsWith("$2");
+
+const parseBoolean = (value) => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  if (["true", "1", "yes", "on"].includes(normalized)) return true;
+  if (["false", "0", "no", "off"].includes(normalized)) return false;
+  return null;
+};
+
+const cookieSecureOverrideRaw = process.env.SESSION_COOKIE_SECURE;
+let sessionCookieSecure = isProduction;
+if (typeof cookieSecureOverrideRaw === "string" && cookieSecureOverrideRaw.trim()) {
+  const parsed = parseBoolean(cookieSecureOverrideRaw);
+  if (parsed !== null) {
+    sessionCookieSecure = parsed;
+  }
+}
+
+const cookieSameSiteOverrideRaw = process.env.SESSION_COOKIE_SAMESITE;
+const validSameSiteValues = new Set(["lax", "strict", "none"]);
+let sessionCookieSameSite = null;
+if (typeof cookieSameSiteOverrideRaw === "string" && cookieSameSiteOverrideRaw.trim()) {
+  const normalized = cookieSameSiteOverrideRaw.trim().toLowerCase();
+  if (validSameSiteValues.has(normalized)) {
+    sessionCookieSameSite = normalized;
+  } else {
+    console.warn("Ignoring invalid SESSION_COOKIE_SAMESITE value:", cookieSameSiteOverrideRaw);
+  }
+}
+if (!sessionCookieSameSite) {
+  sessionCookieSameSite = sessionCookieSecure ? "none" : "lax";
+}
+
+if ((adminUsername && !adminPassword) || (!adminUsername && adminPassword)) {
+  console.warn(
+    "Both ADMIN_USERNAME and ADMIN_PASSWORD must be provided to enable admin login."
+  );
+}
 
 if (isProduction) {
   app.set("trust proxy", 1);
@@ -144,7 +215,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   session({
-    secret: "stuff-happens-secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -158,9 +229,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve uploaded files statically
-app.use("/uploads", express.static(path.resolve("./uploads")));
-
 // Passport configuration
 passport.use(
   new LocalStrategy(
@@ -168,21 +236,59 @@ passport.use(
     async (email, password, done) => {
       console.log("Attempting login with email:", email);
       try {
-        const user = await db.get("SELECT * FROM users WHERE email = ?", [
-          email,
-        ]);
+        const normalizedEmail = String(email || "").trim();
+
+        if (adminUsername && adminPassword && normalizedEmail === adminUsername) {
+          let isMatch = false;
+          try {
+            if (adminPasswordLooksHashed) {
+              isMatch = await bcrypt.compare(password, adminPassword);
+            } else {
+              isMatch = password === adminPassword;
+            }
+          } catch (err) {
+            console.error("Error validating admin password:", err);
+            return done(err);
+          }
+
+          if (!isMatch) {
+            console.log("Admin password mismatch for email:", normalizedEmail);
+            return done(null, false, { message: "Invalid password" });
+          }
+
+          const adminUser = {
+            id: "admin",
+            email: adminUsername,
+            name: "Administrator",
+            role: "admin",
+          };
+          console.log("Admin login successful");
+          return done(null, adminUser);
+        }
+
+        const user = await db.get(
+          "SELECT id, email, name, password FROM users WHERE email = ?",
+          [normalizedEmail]
+        );
         if (!user) {
-          console.log("User not found for email:", email);
+          console.log("User not found for email:", normalizedEmail);
           return done(null, false, { message: "Invalid email" });
         }
-        console.log("User found:", user);
+
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
-          console.log("Password mismatch for email:", email);
+          console.log("Password mismatch for email:", normalizedEmail);
           return done(null, false, { message: "Invalid password" });
         }
-        console.log("Login successful for email:", email);
-        return done(null, user);
+
+        const sanitizedUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: "user",
+        };
+        console.log("Login successful for email:", sanitizedUser.email);
+        return done(null, sanitizedUser);
       } catch (err) {
         console.error("Error during login:", err);
         return done(err);
@@ -192,15 +298,45 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  console.log("Serializing user ID:", user.id);
-  done(null, user.id);
+  if (user?.role === "admin" && adminSessionToken) {
+    console.log("Serializing admin user");
+    return done(null, adminSessionToken);
+  }
+  console.log("Serializing user ID:", user?.id);
+  done(null, String(user?.id));
 });
-passport.deserializeUser(async (id, done) => {
-  console.log("Deserializing user with ID:", id);
+passport.deserializeUser(async (token, done) => {
+  console.log("Deserializing user with token:", token);
   try {
-    const user = await db.get("SELECT * FROM users WHERE id = ?", [id]);
-    console.log("Deserialized user:", user);
-    done(null, user);
+    if (adminSessionToken && token === adminSessionToken) {
+      const adminUser = {
+        id: "admin",
+        email: adminUsername,
+        name: "Administrator",
+        role: "admin",
+      };
+      console.log("Deserialized admin user");
+      return done(null, adminUser);
+    }
+
+    const numericId = Number.parseInt(token, 10);
+    if (!Number.isInteger(numericId)) {
+      console.warn("Invalid session identifier:", token);
+      return done(null, false);
+    }
+
+    const user = await db.get(
+      "SELECT id, email, name FROM users WHERE id = ?",
+      [numericId]
+    );
+    if (!user) {
+      console.warn("User not found for id:", numericId);
+      return done(null, false);
+    }
+
+    const normalizedUser = { ...user, role: "user" };
+    console.log("Deserialized user:", normalizedUser);
+    done(null, normalizedUser);
   } catch (err) {
     console.error("Deserialize error:", err);
     done(err);
@@ -225,6 +361,24 @@ function ensureAuthenticated(req, res, next) {
   res.status(401).json({ error: "Unauthorized" });
 }
 
+const isAdminUser = (user) => Boolean(user && user.role === "admin");
+const getNumericUserId = (user) => {
+  if (!user) return null;
+  if (typeof user.id === "number" && Number.isFinite(user.id)) {
+    return user.id;
+  }
+  const parsed = Number.parseInt(user.id, 10);
+  return Number.isInteger(parsed) ? parsed : null;
+};
+
+function ensureAdmin(req, res, next) {
+  if (req.isAuthenticated() && isAdminUser(req.user)) {
+    return next();
+  }
+  return res.status(403).json({ error: "Forbidden" });
+}
+
+
 // Routes
 app.post("/api/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
@@ -242,7 +396,12 @@ app.post("/api/login", (req, res, next) => {
         return res.status(500).json({ error: "Login failed" });
       }
       console.log("User logged in successfully, session saved");
-      res.json({ id: user.id, email: user.email });
+      res.json({
+        id: user.id,
+        email: user.email,
+        name: user.name ?? "",
+        role: user.role ?? "user",
+      });
     });
   })(req, res, next);
 });
@@ -261,7 +420,14 @@ app.get("/api/user", (req, res) => {
   console.log("Session:", req.session);
   console.log("==================");
   if (req.isAuthenticated()) {
-    res.json({ user: { id: req.user.id, email: req.user.email, name: req.user.name } });
+    res.json({
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        role: req.user.role ?? "user",
+      },
+    });
   } else {
     res.json({ user: null });
   }
@@ -279,6 +445,7 @@ app.post("/api/signup", async (req, res) => {
       id: result.lastID,
       email,
       name,
+      role: "user",
     };
     req.logIn(newUser, (loginErr) => {
       if (loginErr) {
@@ -292,6 +459,7 @@ app.post("/api/signup", async (req, res) => {
           userId: newUser.id,
           userEmail: newUser.email,
           userName: newUser.name,
+          userRole: "user",
         });
     });
   } catch (err) {
@@ -339,6 +507,11 @@ app.post(
       executive_summary,
     } = req.body;
 
+    const ownerId = getNumericUserId(req.user);
+    if (!Number.isInteger(ownerId)) {
+      return res.status(403).json({ error: "Unauthorized submitter" });
+    }
+
     // Normalize team_members which may arrive as string | array | object
     let team_members_raw = req.body.team_members;
     let team_members_str = "";
@@ -380,7 +553,7 @@ app.post(
       const result = await db.run(
         "INSERT INTO ideas (user_id, contact_email, submitter_full_name, track, phone, team_members, idea_title, executive_summary, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          req.user.id,
+          ownerId,
           contact_email,
           submitter_full_name,
           track,
@@ -401,12 +574,279 @@ app.post(
   }
 );
 
+app.get("/api/ideas/:id/files/:key", ensureAuthenticated, async (req, res) => {
+  const ideaId = Number.parseInt(req.params.id, 10);
+  if (!Number.isInteger(ideaId)) {
+    return res.status(400).json({ error: "Invalid idea id" });
+  }
+
+  const fileKey = String(req.params.key || "").toLowerCase();
+  if (!["pdf", "word", "file"].includes(fileKey)) {
+    return res.status(400).json({ error: "Invalid file key" });
+  }
+
+  try {
+    const idea = await db.get(
+      "SELECT id, user_id, file_path FROM ideas WHERE id = ?",
+      [ideaId]
+    );
+    if (!idea) {
+      return res.status(404).json({ error: "Idea not found" });
+    }
+
+    const isAdmin = isAdminUser(req.user);
+    const ownerId = getNumericUserId(req.user);
+    if (!isAdmin && (!Number.isInteger(ownerId) || ownerId !== idea.user_id)) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const filePathRaw = idea.file_path;
+    if (!filePathRaw) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    let selectedRelative = null;
+    if (filePathRaw) {
+      try {
+        const parsed = JSON.parse(filePathRaw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          const candidate = parsed[fileKey];
+          if (typeof candidate === "string" && candidate.trim()) {
+            selectedRelative = candidate.trim();
+          }
+        }
+      } catch (err) {
+        // legacy plain string, ignore JSON errors
+      }
+    }
+
+    if (!selectedRelative && fileKey === "file" && typeof filePathRaw === "string") {
+      selectedRelative = filePathRaw;
+    }
+
+    if (!selectedRelative) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    const cleanedRelative = selectedRelative.replace(/\\/g, "/");
+    const withoutPrefix = cleanedRelative.startsWith("uploads/")
+      ? cleanedRelative.slice("uploads/".length)
+      : cleanedRelative.replace(/^\/+/, "");
+
+    const absolutePath = path.resolve(uploadsRoot, withoutPrefix);
+    if (!absolutePath.startsWith(uploadsRoot)) {
+      return res.status(400).json({ error: "Invalid file path" });
+    }
+
+    if (!fs.existsSync(absolutePath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    res.download(absolutePath, path.basename(absolutePath), (downloadErr) => {
+      if (downloadErr) {
+        console.error("Download error:", downloadErr);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Failed to download file" });
+        }
+      }
+    });
+  } catch (err) {
+    console.error("Error serving idea file:", err);
+    res.status(500).json({ error: "Failed to download file" });
+  }
+});
+
+app.get(
+  "/api/admin/overview",
+  ensureAuthenticated,
+  ensureAdmin,
+  async (req, res) => {
+    try {
+      const ideaCountRow = await db.get(
+        "SELECT COUNT(*) AS count FROM ideas"
+      );
+      const userCountRow = await db.get(
+        "SELECT COUNT(*) AS count FROM users"
+      );
+      const latestIdeaRow = await db.get(
+        "SELECT submitted_at FROM ideas ORDER BY submitted_at DESC LIMIT 1"
+      );
+
+      res.json({
+        totalIdeas: ideaCountRow?.count ?? 0,
+        totalUsers: userCountRow?.count ?? 0,
+        lastSubmissionAt: latestIdeaRow?.submitted_at ?? null,
+      });
+    } catch (err) {
+      console.error("Admin overview error:", err);
+      res.status(500).json({ error: "Failed to load overview" });
+    }
+  }
+);
+
+app.get(
+  "/api/admin/ideas",
+  ensureAuthenticated,
+  ensureAdmin,
+  async (req, res) => {
+    try {
+      const rows = await db.all(
+        "SELECT id, user_id, contact_email, submitter_full_name, track, idea_title, executive_summary, team_members, submitted_at, file_path FROM ideas ORDER BY submitted_at DESC"
+      );
+
+      const ideas = rows.map((row) => {
+        let teamMembers = [];
+        if (row.team_members) {
+          const raw = String(row.team_members || "");
+          if (raw.includes("[")) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) {
+                teamMembers = parsed.map((member) => String(member)).filter(Boolean);
+              }
+            } catch {
+              teamMembers = raw.split(/[,;]+/).map((v) => v.trim()).filter(Boolean);
+            }
+          } else {
+            teamMembers = raw.split(/[,;]+/).map((v) => v.trim()).filter(Boolean);
+          }
+        }
+
+        let fileMap = null;
+        if (row.file_path) {
+          try {
+            const parsed = JSON.parse(row.file_path);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              fileMap = {
+                pdf: parsed.pdf ?? null,
+                word: parsed.word ?? null,
+              };
+            }
+          } catch {
+            fileMap = { pdf: row.file_path, word: null };
+          }
+        }
+
+        return {
+          id: row.id,
+          ownerId: row.user_id,
+          title: row.idea_title,
+          track: row.track ?? "",
+          submitter: row.submitter_full_name ?? "",
+          contactEmail: row.contact_email ?? "",
+          submittedAt: row.submitted_at,
+          executiveSummary: row.executive_summary ?? "",
+          teamMembers,
+          files: fileMap,
+        };
+      });
+
+      res.json({ ideas });
+    } catch (err) {
+      console.error("Admin ideas error:", err);
+      res.status(500).json({ error: "Failed to load ideas" });
+    }
+  }
+);
+
+app.get(
+  "/api/admin/users",
+  ensureAuthenticated,
+  ensureAdmin,
+  async (req, res) => {
+    try {
+      const users = await db.all(
+        "SELECT id, email, name FROM users ORDER BY id ASC"
+      );
+      const aggregates = await db.all(
+        "SELECT user_id, COUNT(*) AS ideas, MAX(submitted_at) AS last_submission FROM ideas GROUP BY user_id"
+      );
+      const ideaMap = new Map();
+      for (const row of aggregates) {
+        ideaMap.set(row.user_id, {
+          ideas: row.ideas ?? 0,
+          lastSubmissionAt: row.last_submission ?? null,
+        });
+      }
+
+      const result = users.map((user) => {
+        const agg = ideaMap.get(user.id) ?? { ideas: 0, lastSubmissionAt: null };
+        return {
+          id: user.id,
+          email: user.email ?? "",
+          name: user.name ?? "",
+          role: user.role ?? "user",
+          ideasCount: agg.ideas ?? 0,
+          lastSubmissionAt: agg.lastSubmissionAt,
+        };
+      });
+
+      if (adminUsername) {
+        result.unshift({
+          id: "admin",
+          email: adminUsername,
+          name: "Administrator",
+          role: "admin",
+          ideasCount: null,
+          lastSubmissionAt: null,
+        });
+      }
+
+      res.json({ users: result });
+    } catch (err) {
+      console.error("Admin users error:", err);
+      res.status(500).json({ error: "Failed to load users" });
+    }
+  }
+);
+
+// Update a user's role (admin only)
+app.put(
+  "/api/admin/users/:id/role",
+  ensureAuthenticated,
+  ensureAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+      if (!role || !["user", "judge", "admin"].includes(role)) {
+        return res.status(400).json({ error: "Invalid role" });
+      }
+
+      if (id === "admin") {
+        return res.status(403).json({ error: "Cannot modify built-in admin" });
+      }
+
+      const result = await db.run("UPDATE users SET role = ? WHERE id = ?", [role, id]);
+      if (result.changes === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("Update user role error:", err);
+      res.status(500).json({ error: "Failed to update role" });
+    }
+  }
+);
 app.get("/api/user-ideas", ensureAuthenticated, async (req, res) => {
   try {
-    const ideas = await db.all(
-      "SELECT * FROM ideas WHERE user_id = ? ORDER BY submitted_at DESC",
-      [req.user.id]
-    );
+    const adminView = isAdminUser(req.user);
+    let ideas;
+    if (adminView) {
+      ideas = await db.all(
+        "SELECT * FROM ideas ORDER BY submitted_at DESC"
+      );
+    } else {
+      const ownerId = getNumericUserId(req.user);
+      if (!Number.isInteger(ownerId)) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+      ideas = await db.all(
+        "SELECT * FROM ideas WHERE user_id = ? ORDER BY submitted_at DESC",
+        [ownerId]
+      );
+    }
     res.json({ ideas });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch user ideas" });
@@ -427,5 +867,7 @@ app.get("/api/recent-ideas", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+
 
 

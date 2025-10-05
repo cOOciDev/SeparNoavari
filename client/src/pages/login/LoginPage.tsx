@@ -28,6 +28,7 @@ export default function LoginPage() {
           userName: res.userName,
           userEmail: res.email,
           userId: res.id,
+          role: res.role === "admin" ? "admin" : "user",
         });
         nav("/");
       }

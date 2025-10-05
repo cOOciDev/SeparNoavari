@@ -1,12 +1,15 @@
-import axios from "axios";
+import axios from 'axios';
+
+const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
+const baseURL = apiBase ? `${apiBase}/api` : '/api';
 
 const api = axios.create({
-  // baseURL: "/api", // for production
-  baseURL: "http://localhost:5501/api/",
+  baseURL,
   headers: {
-    "Accept-Language": "en-US",
+    'Accept-Language': 'en-US',
   },
   withCredentials: true,
 });
 
 export default api;
+

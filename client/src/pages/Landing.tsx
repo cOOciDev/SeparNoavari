@@ -578,7 +578,7 @@ export default function Landing() {
         <h2 className={s.sectionTitle}>{t("contact")}</h2>
         <div className={s.contactGrid}>
           {/* Contact */}
-          <section id="contact" className={s.container}>
+          <div>
 
   {/** Set your canonical contacts here **/}
   {/** ✅ EDIT just these three if needed **/}
@@ -598,7 +598,7 @@ export default function Landing() {
     eitaaUrl="https://eitaa.com/MRN2025" 
   />
   {/* eslint-enable */}
-          </section>
+          </div>
 
           <div className={s.card}>
             <div className={s.cardBody}>

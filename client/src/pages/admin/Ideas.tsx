@@ -1,85 +1,131 @@
-import { useEffect, useMemo, useState } from "react";
-import { listIdeas } from "../../api";
-import type { Idea, IdeaStatus } from "../../api";
+﻿import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Spin, Button } from "antd";
+import { useAdminIdeas } from "../../service/hooks/useAdminData";
+import { buildIdeaDownloadUrl } from "../../utils/download";
 import s from "../../styles/panel.module.scss";
 
+function normalize(value: string) {
+  return value.toLowerCase();
+}
+
 export default function Ideas() {
-  const [data, setData] = useState<Idea[] | null>(null);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"ALL" | IdeaStatus>("ALL");
-  const [sort, setSort] = useState<"newest"|"oldest"|"status"|"score">("newest");
+  const { t } = useTranslation();
+  const { ideas, isLoading } = useAdminIdeas();
+  const [search, setSearch] = useState("");
+  const [trackFilter, setTrackFilter] = useState("ALL");
 
-  useEffect(() => {
-    listIdeas().then(setData).catch(()=>setData([]));
-  }, []);
+  const tracks = useMemo(() => {
+    const set = new Set<string>();
+    ideas.forEach((idea) => {
+      if (idea.track) {
+        set.add(idea.track);
+      }
+    });
+    return Array.from(set).sort();
+  }, [ideas]);
 
-  const rows = useMemo(() => {
-    if (!data) return [];
-    let d = [...data];
-
-    if (q.trim()) {
-      const qq = q.toLowerCase();
-      d = d.filter(i => i.title.toLowerCase().includes(qq) || (i.track||"").toLowerCase().includes(qq));
-    }
-    if (status !== "ALL") d = d.filter(i => i.status === status);
-
-    switch (sort) {
-      case "oldest": d.sort((a,b)=>+new Date(a.submittedAt)-+new Date(b.submittedAt)); break;
-      case "status": d.sort((a,b)=>a.status.localeCompare(b.status)); break;
-      case "score":  d.sort((a,b)=>(b.scoreAvg||-1)-(a.scoreAvg||-1)); break;
-      default:       d.sort((a,b)=>+new Date(b.submittedAt)-+new Date(a.submittedAt));
-    }
-    return d;
-  }, [data, q, status, sort]);
+  const filtered = useMemo(() => {
+    const q = normalize(search.trim());
+    return ideas.filter((idea) => {
+      const matchesSearch = q
+        ? [idea.title, idea.submitter, idea.contactEmail, idea.track]
+            .filter(Boolean)
+            .some((field) => normalize(String(field)).includes(q))
+        : true;
+      const matchesTrack = trackFilter === 'ALL' ? true : idea.track === trackFilter;
+      return matchesSearch && matchesTrack;
+    });
+  }, [ideas, search, trackFilter]);
 
   return (
     <div className={s.stack}>
-      <h1>Ideas</h1>
+      <h1>{t('admin.ideas.title')}</h1>
 
       <div className={s.card}>
         <div className={s.cardBody}>
           <div className={s.filters}>
-            <input className={s.input} placeholder="Search…" value={q} onChange={e=>setQ(e.target.value)} />
-            <select className={s.select} value={status} onChange={e=>setStatus(e.target.value as "ALL" | IdeaStatus)}>
-              <option value="ALL">All</option>
-              <option value="UNDER_REVIEW">Under review</option>
-              <option value="PENDING">Pending</option>
-              <option value="ACCEPTED">Accepted</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
+            <input
+              className={s.input}
+              placeholder={t('admin.ideas.searchPlaceholder')}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
             <select
               className={s.select}
-              value={sort}
-              onChange={e => setSort(e.target.value as "newest" | "oldest" | "status" | "score")}
+              value={trackFilter}
+              onChange={(event) => setTrackFilter(event.target.value)}
             >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="status">By status</option>
-              <option value="score">Top score</option>
+              <option value="ALL">{t('admin.ideas.filterAllTracks')}</option>
+              {tracks.map((track) => (
+                <option key={track} value={track}>
+                  {track || t('admin.ideas.trackUnknown')}
+                </option>
+              ))}
             </select>
           </div>
         </div>
       </div>
 
       <div className={s.tableWrap}>
-        <table className={s.table}>
-          <thead><tr>
-            <th>ID</th><th>Title</th><th>Track</th><th>Status</th><th>Submitted</th><th>Score</th>
-          </tr></thead>
-          <tbody>
-            {rows.map(r=>(
-              <tr key={r.id}>
-                <td>{r.id}</td>
-                <td><a href={`/ideas/${r.id}`}>{r.title}</a></td>
-                <td>{r.track || "—"}</td>
-                <td>{r.status}</td>
-                <td>{new Date(r.submittedAt).toLocaleString()}</td>
-                <td>{r.scoreAvg ?? "—"}</td>
+        {isLoading ? (
+          <div className={s.center}><Spin /></div>
+        ) : (
+          <table className={s.table}>
+            <thead>
+              <tr>
+                <th>{t('admin.ideas.table.title')}</th>
+                <th>{t('admin.ideas.table.submitter')}</th>
+                <th>{t('admin.ideas.table.email')}</th>
+                <th>{t('admin.ideas.table.track')}</th>
+                <th>{t('admin.ideas.table.submitted')}</th>
+                <th>{t('admin.ideas.table.files')}</th>
               </tr>
-            ))}
-            {rows.length===0 && <tr><td colSpan={6} className={s.muted}>No ideas.</td></tr>}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((idea) => (
+                <tr key={idea.id}>
+                  <td>{idea.title}</td>
+                  <td>{idea.submitter || t('admin.ideas.unknownSubmitter')}</td>
+                  <td>{idea.contactEmail || '—'}</td>
+                  <td>{idea.track || t('admin.ideas.trackUnknown')}</td>
+                  <td>{new Date(idea.submittedAt).toLocaleString()}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <Button
+                        type="link"
+                        size="small"
+                        disabled={!idea.files?.pdf}
+                        href={buildIdeaDownloadUrl(idea.id, 'pdf')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('admin.ideas.downloadPdf')}
+                      </Button>
+                      <Button
+                        type="link"
+                        size="small"
+                        disabled={!idea.files?.word}
+                        href={buildIdeaDownloadUrl(idea.id, 'word')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('admin.ideas.downloadWord')}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} className={s.muted}>
+                    {t('admin.ideas.empty')}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

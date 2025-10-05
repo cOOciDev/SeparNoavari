@@ -26,6 +26,7 @@ const SignUp = async ({
       userEmail: "",
       userId: 0,
       userName: "",
+      userRole: "user",
     };
   }
 };

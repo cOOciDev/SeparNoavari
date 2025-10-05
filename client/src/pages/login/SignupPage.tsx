@@ -28,6 +28,7 @@ export default function SignupPage() {
           userName: res.userName || "",
           userEmail: res.userEmail,
           userId: res.userId,
+          role: res.userRole === "admin" ? "admin" : "user",
         });
         nav(next ?? "/account", { replace: true });
       }

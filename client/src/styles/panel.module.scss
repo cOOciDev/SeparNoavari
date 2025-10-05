@@ -115,3 +115,54 @@ html[data-theme="dark"] {
 .navItem a:hover, .navItem a[aria-current="page"] {
   background: rgba(148,163,184,.18);
 }
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.statsGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.statLabel {
+  display: block;
+  color: var(--panel-muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.cardTitle {
+  margin-bottom: 8px;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.simpleList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.listPrimary {
+  font-weight: 500;
+}
+
+.listMeta {
+  color: var(--panel-muted);
+  font-size: 0.85rem;
+}
+

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import s from "../../styles/panel.module.scss";
+import { useTranslation } from "react-i18next";
 import { listAssignments, listIdeas, listJudges } from "../../api";
 import type { Assignment, Idea, Judge } from "../../api";
 
@@ -11,6 +12,7 @@ type Row = Assignment & {
 };
 
 export default function Scoring() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -118,29 +120,29 @@ export default function Scoring() {
 
   return (
     <div className={s.stack}>
-      <h1>Scoring</h1>
+  <h1>{t('admin.scoringPage.title')}</h1>
 
       <div className={s.card}>
         <div className={s.cardBody}>
           <div className={s.filters}>
             <input
               className={s.input}
-              placeholder="Search assignment/idea/judge/status…"
+              placeholder={t('admin.scoringPage.searchPlaceholder')}
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
             <select className={s.select} value={status} onChange={(e) => setStatus(e.target.value as "ALL" | "ASSIGNED" | "DONE")}>
-              <option value="ALL">All</option>
-              <option value="ASSIGNED">Assigned</option>
-              <option value="DONE">Done</option>
+              <option value="ALL">{t('admin.scoringPage.all')}</option>
+              <option value="ASSIGNED">{t('admin.scoringPage.assigned')}</option>
+              <option value="DONE">{t('admin.scoringPage.done')}</option>
             </select>
             <select className={s.select} value={sort} onChange={(e) => setSort(e.target.value as "newest" | "oldest" | "status" | "score")}>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="status">By status</option>
-              <option value="score">Top score</option>
+              <option value="newest">{t('admin.scoringPage.sort.newest')}</option>
+              <option value="oldest">{t('admin.scoringPage.sort.oldest')}</option>
+              <option value="status">{t('admin.scoringPage.sort.status')}</option>
+              <option value="score">{t('admin.scoringPage.sort.score')}</option>
             </select>
-            <button className={s.btnGhost} onClick={exportCsv}>CSV</button>
+            <button className={s.btnGhost} onClick={exportCsv}>{t('admin.scoringPage.csv')}</button>
           </div>
         </div>
       </div>
@@ -170,13 +172,13 @@ export default function Scoring() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>Assignment</th>
-              <th>Idea</th>
-              <th>Judge</th>
-              <th>Status</th>
-              <th>Submitted</th>
-              <th>Score</th>
-              <th>Open</th>
+              <th>{t('admin.scoringPage.table.assignment')}</th>
+              <th>{t('admin.scoringPage.table.idea')}</th>
+              <th>{t('admin.scoringPage.table.judge')}</th>
+              <th>{t('admin.scoringPage.table.status')}</th>
+              <th>{t('admin.scoringPage.table.submitted')}</th>
+              <th>{t('admin.scoringPage.table.score')}</th>
+              <th>{t('admin.scoringPage.table.open')}</th>
             </tr>
           </thead>
           <tbody>
@@ -190,14 +192,14 @@ export default function Scoring() {
                 <td>{r.scoreAvg ?? "—"}</td>
                 <td>
                   <a className={s.btn} href={`/ideas/${r.ideaId}`} target="_blank" rel="noreferrer">
-                    View idea
+                    {t('admin.scoringPage.viewIdea')}
                   </a>
                 </td>
               </tr>
             ))}
             {data.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={7} className={s.muted}>No rows.</td>
+                <td colSpan={7} className={s.muted}>{t('admin.scoringPage.noRows')}</td>
               </tr>
             )}
           </tbody>

@@ -22,7 +22,7 @@
 
   "countdown": {
     "title": "Submission Deadline",
-    "tip": "Don’t miss the key dates.",
+    "tip": "Donâ€™t miss the key dates.",
     "seeTimeline": "View Full Timeline",
     "submission": "Idea Submission",
     "review": "Review & Evaluation",
@@ -109,7 +109,7 @@
     "cyberDefense": {
       "title": "Innovation in Cybersecurity and Civil/Military Defense",
       "desc": "Developing advanced cyber and defense technologies, including intelligent systems, active and passive defense against hybrid threats and complex attacks.",
-      "text": "Innovation in the field of cyber capabilities and defense, especially in the current digital age, is a vital necessity for national security and the protection of the country's sensitive infrastructure.\nCyber ​​threats are becoming more complex and integrated day by day; in such a way that cyber attacks affect not only information systems but also vital sectors such as energy, transportation, finance, and even healthcare services.\nIn these circumstances, relying solely on traditional defense methods is not enough and we must move towards utilizing new technologies and developing intelligent systems.\nActive defense means using tools and methods that directly identify and neutralize attacks; such as smart firewalls, intrusion detection systems (IDS/IPS), and machine learning algorithms to discover attack patterns.\nPassive defense also means designing and strengthening infrastructures in such a way that they are least vulnerable to attacks; Such as distributed network architecture, data encryption, and support system design.\nInnovation in this area can include the use of artificial intelligence to analyze network traffic in real time, identify unknown threats, and predict future attack patterns.\nAlso, utilizing blockchain technology to ensure data security and increase transaction transparency is considered one of the new capacities in cyber defense.\nAnother important point is to pay attention to the security of end users, because in many cases, attacks are carried out through social engineering or human weaknesses.\nTherefore, education and raising public awareness in the field of cybersecurity is as important as technological development.\nCooperation between security institutions, universities, knowledge-based companies, and the private sector is also the key to success in this area.\nIn general, innovation in cyber capabilities and defense not only helps increase national security, but also promotes public trust, the sustainability of critical services, and the growth of the country's digital economy."
+      "text": "Innovation in the field of cyber capabilities and defense, especially in the current digital age, is a vital necessity for national security and the protection of the country's sensitive infrastructure.\nCyber â€‹â€‹threats are becoming more complex and integrated day by day; in such a way that cyber attacks affect not only information systems but also vital sectors such as energy, transportation, finance, and even healthcare services.\nIn these circumstances, relying solely on traditional defense methods is not enough and we must move towards utilizing new technologies and developing intelligent systems.\nActive defense means using tools and methods that directly identify and neutralize attacks; such as smart firewalls, intrusion detection systems (IDS/IPS), and machine learning algorithms to discover attack patterns.\nPassive defense also means designing and strengthening infrastructures in such a way that they are least vulnerable to attacks; Such as distributed network architecture, data encryption, and support system design.\nInnovation in this area can include the use of artificial intelligence to analyze network traffic in real time, identify unknown threats, and predict future attack patterns.\nAlso, utilizing blockchain technology to ensure data security and increase transaction transparency is considered one of the new capacities in cyber defense.\nAnother important point is to pay attention to the security of end users, because in many cases, attacks are carried out through social engineering or human weaknesses.\nTherefore, education and raising public awareness in the field of cybersecurity is as important as technological development.\nCooperation between security institutions, universities, knowledge-based companies, and the private sector is also the key to success in this area.\nIn general, innovation in cyber capabilities and defense not only helps increase national security, but also promotes public trust, the sustainability of critical services, and the growth of the country's digital economy."
     },
     "aiInCrisis": {
       "title": "Leveraging AI Capabilities in Crisis (All Domains)",
@@ -237,7 +237,7 @@
     "noIdeas": "No ideas submitted yet.",
     "submitNewIdea": "Submit New Idea",
     "deleteIdea": "Delete Idea",
-    "confirmDelete": "Delete idea “{title}”? This action cannot be undone.",
+    "confirmDelete": "Delete idea â€œ{title}â€? This action cannot be undone.",
     "deleteError": "Delete error: {error}",
     "deleteFailed": "Delete failed",
     "track": "Track",
@@ -255,7 +255,7 @@
 
   "footer": {
     "template": "Download Template (Word)",
-    "copyright": "© {{year}} cOOciDev, Noshahr Incubator, Imam Khomeini Maritime University"
+    "copyright": " © {{year}} cOOciDev, Noshahr Incubator, Imam Khomeini Maritime University "
   },
 
   "theme": {
@@ -274,5 +274,98 @@
     "whatsapp": "WhatsApp",
     "eitaa": "Eitaa",
     "messagingHint": "For instant messages use WhatsApp / Eitaa."
+  }
+,
+  "admin": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "ideas": "Ideas",
+      "users": "Users",
+      "aria": "Admin sidebar"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalIdeas": "Total ideas",
+      "totalUsers": "Registered users",
+      "lastSubmission": "Last submission",
+      "latestIdeas": "Latest submissions",
+      "untitled": "Untitled idea",
+      "unknownSubmitter": "Unknown submitter",
+      "noIdeas": "No ideas yet."
+    },
+    "ideas": {
+      "title": "Ideas",
+      "searchPlaceholder": "Search by title, submitter, email…",
+      "filterAllTracks": "All tracks",
+      "trackUnknown": "Unspecified",
+      "unknownSubmitter": "Unknown submitter",
+      "downloadPdf": "PDF",
+      "downloadWord": "Word",
+      "empty": "No ideas match your filters.",
+      "table": {
+        "title": "Title",
+        "submitter": "Submitter",
+        "email": "Email",
+        "track": "Track",
+        "submitted": "Submitted",
+        "files": "Files"
+      }
+    },
+    "topbar": {
+      "title": "Admin Panel"
+    },
+    "users": {
+      "title": "Users",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "ideas": "Ideas",
+        "lastSubmission": "Last submission"
+      },
+      "unnamed": "Unnamed",
+      "empty": "No users found.",
+      "roles": {
+        "user": "User",
+        "judge": "Judge",
+        "admin": "Admin"
+      },
+      "roleUpdated": "Role updated",
+      "roleUpdateFailed": "Failed to update role",
+      "roleUpdatedWithValues": "Role changed from {{prev}} to {{next}}"
+    }
+    ,
+    "judgesPage": {
+      "title": "Judges",
+      "inputNamePlaceholder": "Judge name…",
+      "inputEmailPlaceholder": "Email (optional)…",
+      "addButton": "Add judge",
+      "table": { "id": "ID", "name": "Name", "email": "Email" },
+      "noJudges": "No judges."
+    },
+    "assignmentsPage": {
+      "title": "Assignments",
+      "selectIdeaPlaceholder": "Select an idea…",
+      "selectIdeaAria": "Select idea",
+      "selectJudgesAria": "Select judges",
+      "assignButton": "Assign",
+      "assigning": "Assigning…",
+      "table": { "assignment": "Assignment", "idea": "Idea", "judge": "Judge", "status": "Status" },
+      "noAssignments": "No assignments."
+    },
+    "scoringPage": {
+      "title": "Scoring",
+      "searchPlaceholder": "Search assignment/idea/judge/status…",
+      "all": "All",
+      "assigned": "Assigned",
+      "done": "Done",
+      "sort": { "newest": "Newest", "oldest": "Oldest", "status": "By status", "score": "Top score" },
+      "csv": "CSV",
+      "loading": "Loading…",
+      "reload": "Reload",
+      "noRows": "No rows.",
+      "table": { "assignment": "Assignment", "idea": "Idea", "judge": "Judge", "status": "Status", "submitted": "Submitted", "score": "Score", "open": "Open" },
+      "viewIdea": "View idea"
+    }
   }
 }

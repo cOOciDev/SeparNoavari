@@ -3,6 +3,7 @@ export interface LoginType {
   email: string;
   id: number;
   userName: string;
+  role: "user" | "admin";
 }
 
 export interface LoginProps {

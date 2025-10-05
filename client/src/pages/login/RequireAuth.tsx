@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthProvider";
 
 export default function RequireAuth({
   children,
@@ -20,7 +20,7 @@ export default function RequireAuth({
 
   if (roles && user && !roles.includes((user.role as any) ?? "user")) {
     // If logged in but not allowed, send to their home
-    return <Navigate to="/me" replace />;
+    return <Navigate to="/account" replace />;
   }
 
   return <>{children}</>;

@@ -8,7 +8,7 @@ import Actions from "./header/Actions";
 import MobileMenu from "./header/MobileMenu";
 import type { HeaderProps, Lang, NavItem } from "./header/types";
 
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthProvider";
 import { useTheme } from "../../contexts/ThemeContext";
 import i18n from "../../AppData/i18n";
 
@@ -40,7 +40,8 @@ export default function Header({
   const location = useLocation();
 
   // ---- Auth (single source of truth) ----
-  const { isAuthenticated /*, user, logout */ } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = Boolean(user);
 
   // ---- Theme from ThemeContext (no localStorage here) ----
   const { mode: theme, setMode: setTheme } = useTheme();

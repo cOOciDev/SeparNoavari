@@ -7,6 +7,7 @@ interface LoginResponse {
   id: number;
   email: string;
   name?: string | null;
+  role?: string;
   message?: string;
 }
 
@@ -28,6 +29,7 @@ const Login = async ({ email, password }: LoginProps): Promise<LoginType> => {
       email: payload.email ?? "",
       id: payload.id ?? 0,
       userName: payload.name ?? "",
+      role: payload.role === "admin" ? "admin" : "user",
     };
 
     toast.success(success.message);
@@ -43,6 +45,7 @@ const Login = async ({ email, password }: LoginProps): Promise<LoginType> => {
       email: "",
       id: 0,
       userName: "",
+      role: "user",
     };
   }
 };

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -10,6 +10,13 @@ export default defineConfig({
     allowedHosts: [
       'separnoavari.ir',
       'www.separnoavari.ir'
-    ]
+    ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5501',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })

@@ -1,5 +1,6 @@
-// client/src/app/panel/admin/Assignments.tsx
-import { useEffect, useState, type ChangeEvent } from "react";
+﻿import { useEffect, useState, type ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
+import { message } from "antd";
 import {
   createAssignment,
   listAssignments,
@@ -13,6 +14,7 @@ type IdeaLite = { id: string; title: string };
 type JudgeLite = { id: string; name: string };
 
 export default function Assignments() {
+  const { t } = useTranslation();
   const [assigns, setAssigns] = useState<Assignment[]>([]);
   const [ideas, setIdeas] = useState<IdeaLite[]>([]);
   const [judges, setJudges] = useState<JudgeLite[]>([]);
@@ -49,10 +51,10 @@ export default function Assignments() {
       const fresh = await listAssignments();
       setAssigns(fresh);
       setChosen([]);
-      alert("Assigned");
+      message.success("Assigned");
     } catch (err) {
       console.error("Assign failed", err);
-      alert("Failed to assign");
+      message.error("Failed to assign");
     } finally {
       setLoading(false);
     }
@@ -69,7 +71,7 @@ export default function Assignments() {
 
   return (
     <div className={s.stack}>
-      <h1>Assignments</h1>
+      <h1>{t('admin.assignmentsPage.title')}</h1>
 
       <div className={s.card}>
         <div className={s.cardBody}>
@@ -80,7 +82,7 @@ export default function Assignments() {
               onChange={onIdeaChange}
               aria-label="Select idea"
             >
-              <option value="">Select an idea…</option>
+              <option value="">{t('admin.assignmentsPage.selectIdeaPlaceholder')}</option>
               {ideas.map((i) => (
                 <option key={i.id} value={i.id}>
                   {i.title}
@@ -103,7 +105,7 @@ export default function Assignments() {
             </select>
 
             <button className={s.btnPrimary} onClick={doAssign} disabled={loading}>
-              {loading ? "Assigning…" : "Assign"}
+              {loading ? t('admin.assignmentsPage.assigning') : t('admin.assignmentsPage.assignButton')}
             </button>
           </div>
         </div>
@@ -113,10 +115,10 @@ export default function Assignments() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>Assignment</th>
-              <th>Idea</th>
-              <th>Judge</th>
-              <th>Status</th>
+              <th>{t('admin.assignmentsPage.table.assignment')}</th>
+              <th>{t('admin.assignmentsPage.table.idea')}</th>
+              <th>{t('admin.assignmentsPage.table.judge')}</th>
+              <th>{t('admin.assignmentsPage.table.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -131,7 +133,7 @@ export default function Assignments() {
             {assigns.length === 0 && (
               <tr>
                 <td colSpan={4} className={s.muted}>
-                  No assignments.
+                  {t('admin.assignmentsPage.noAssignments')}
                 </td>
               </tr>
             )}
@@ -141,3 +143,4 @@ export default function Assignments() {
     </div>
   );
 }
+
