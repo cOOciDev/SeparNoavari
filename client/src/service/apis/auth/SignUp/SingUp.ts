@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
 import api from "../../../api";
-import toast from "react-hot-toast";
 import type { SingUpProps, SingUpType } from "./type";
 
 interface ErrorResponse {
@@ -14,20 +13,27 @@ const SignUp = async ({
 }: SingUpProps): Promise<SingUpType> => {
   try {
     const res = await api.post("signup", { email, password, name }, { withCredentials: true });
-    toast.success(res.data?.message || "Signed up successfully.");
-    return res.data;
+    const payload = res.data as SingUpType | null;
+    if (!payload?.ok || !payload.user) {
+      throw new Error("Invalid signup response");
+    }
+    const role = payload.user.role;
+    return {
+      ok: true,
+      user: {
+        id: payload.user.id,
+        email: payload.user.email,
+        name: payload.user.name ?? "",
+        role: role === "admin" ? "admin" : role === "judge" ? "judge" : "user",
+      },
+    };
   } catch (error) {
     const err = error as AxiosError<ErrorResponse>;
     const errorMessage =
       err.response?.data?.error || err.message || "Something went wrong.";
-    toast.error(errorMessage);
-    return {
-      message: errorMessage,
-      userEmail: "",
-      userId: 0,
-      userName: "",
-      userRole: "user",
-    };
+    const authError: any = new Error(errorMessage);
+    authError.status = err.response?.status;
+    throw authError;
   }
 };
 

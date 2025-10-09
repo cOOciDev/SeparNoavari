@@ -1,10 +1,10 @@
 ﻿import { useTranslation } from "react-i18next";
-import { Spin, Select, message } from "antd";
+import { Spin, Select, message, Modal } from "antd";
 import { useAdminUsers } from "../../service/hooks/useAdminData";
 import s from "../../styles/panel.module.scss";
 import api from "../../service/api";
 import { useState } from "react";
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 function formatDate(iso?: string | null) {
   if (!iso) return '-';
@@ -18,6 +18,33 @@ export default function Users() {
   const { users, isLoading } = useAdminUsers();
   const [updating, setUpdating] = useState<Record<string, boolean>>({});
   const qc = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, role }: { id: string | number; role: string }) => {
+      await api.put(`/admin/users/${id}/role`, { role });
+    },
+    onMutate: async ({ id, role }) => {
+      // optimistic update: snapshot previous users
+      await qc.cancelQueries({ queryKey: ['admin', 'users'] });
+      const previous = qc.getQueryData<{ users: any[] }>(['admin', 'users']);
+      // update cache optimistically
+      qc.setQueryData(['admin', 'users'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          users: old.users.map((u: any) => (String(u.id) === String(id) ? { ...u, role } : u)),
+        };
+      });
+      return { previous };
+    },
+    onError: (err, vars, context: any) => {
+      if (context?.previous) qc.setQueryData(['admin', 'users'], context.previous);
+      message.error(t('admin.users.roleUpdateFailed'));
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
 
   return (
     <div className={s.stack}>
@@ -44,20 +71,23 @@ export default function Users() {
                     <td>
                       <Select
                         value={user.role}
-                        onChange={async (val) => {
+                        onChange={(val) => {
                           const prev = user.role;
-                          try {
-                            setUpdating((s) => ({ ...s, [String(user.id)]: true }));
-                            await api.put(`/admin/users/${user.id}/role`, { role: val });
-                            // refetch users list so UI stays in sync
-                            await qc.invalidateQueries({ queryKey: ['admin', 'users'] });
-                            message.success(t('admin.users.roleUpdatedWithValues', { prev, next: val }));
-                          } catch (err) {
-                            console.error(err);
-                            message.error(t('admin.users.roleUpdateFailed'));
-                          } finally {
-                            setUpdating((s) => ({ ...s, [String(user.id)]: false }));
-                          }
+                          Modal.confirm({
+                            title: t('admin.confirm.title'),
+                            content: t('admin.confirm.content', { name: user.name || user.email || user.id, prev, next: val }),
+                            onOk: async () => {
+                              try {
+                                setUpdating((s) => ({ ...s, [String(user.id)]: true }));
+                                await mutation.mutateAsync({ id: user.id, role: val });
+                                message.success(t('admin.users.roleUpdatedWithValues', { prev, next: val }));
+                              } catch (e) {
+                                console.error(e);
+                              } finally {
+                                setUpdating((s) => ({ ...s, [String(user.id)]: false }));
+                              }
+                            },
+                          });
                         }}
                         style={{ width: 140 }}
                         options={[

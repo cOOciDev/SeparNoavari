@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
 import api from "../../../api";
-import toast from "react-hot-toast";
 import type { MyIdeaType } from "./type";
 
 interface ErrorResponse {
@@ -13,10 +12,11 @@ const MyIdea = async (): Promise<MyIdeaType> => {
     return res.data; // should match MyIdeaType
   } catch (error) {
     const err = error as AxiosError<ErrorResponse>;
-    const errorMessage =
-      err.response?.data?.error || err.message || "Something went wrong.";
-    toast.error(errorMessage);
-    return { ideas: [] }; // fallback
+    const authError: any = new Error(
+      err.response?.data?.error || err.message || "Something went wrong."
+    );
+    authError.status = err.response?.status;
+    throw authError;
   }
 };
 

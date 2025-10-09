@@ -38,8 +38,10 @@ const submitIdea = async (
     form.append("pdf_file", data.pdf_file);
     form.append("word_file", data.word_file);
 
+    // Do NOT set Content-Type manually; the browser/axios will set the correct
+    // multipart/form-data boundary. Setting it manually can trigger preflight
+    // or send an incorrect header which leads to network/CORS failures.
     const res = await api.post("submit-idea", form, {
-      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true, // Ensure session cookie is sent
     });
 
@@ -49,7 +51,14 @@ const submitIdea = async (
     const err = error as AxiosError<ErrorResponse>;
     const errorMessage =
       err.response?.data?.error || err.message || "Something went wrong.";
+    // If unauthorized, rethrow so calling page can redirect to login
+    const status = err.response?.status;
     toast.error(errorMessage);
+    if (status === 401 || status === 403) {
+      const e: any = new Error(errorMessage);
+      e.status = status;
+      throw e;
+    }
     return { message: errorMessage };
   }
 };

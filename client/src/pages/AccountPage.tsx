@@ -1,5 +1,6 @@
 ﻿import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -10,6 +11,7 @@ import {
   Spin,
   Tag,
   Typography,
+  message,
   theme,
 } from "antd";
 import {
@@ -17,6 +19,7 @@ import {
   InboxOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { MdAdminPanelSettings } from 'react-icons/md';
 
 import styles from "./account.module.scss";
 import { useAuth } from "../contexts/AuthProvider";
@@ -65,11 +68,26 @@ export default function AccountPage() {
   const { user } = useAuth();
   const { token } = theme.useToken();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryFn: () => MyIdea(),
     queryKey: ["my-ideas"],
     enabled: !!user,
   });
+
+  useEffect(() => {
+    const authError = error as { status?: number } | null | undefined;
+    if (authError && (authError.status === 401 || authError.status === 403)) {
+      message.error(
+        t("account.sessionExpired", {
+          defaultValue: "Your session has expired. Please log in again.",
+        })
+      );
+      nav(`/login?next=${encodeURIComponent("/account")}`, { replace: true });
+    }
+  }, [error, nav, t]);
+
+  // Debug: log current auth user at render
+  if (import.meta.env.DEV) console.log('[AccountPage] user:', user);
 
   const items: FirstMyIdeaType[] = data?.ideas ?? [];
 
@@ -122,14 +140,30 @@ export default function AccountPage() {
                 </Title>
                 <Text type="secondary">{user?.userEmail}</Text>
               </div>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                size="large"
-                onClick={() => nav("/submit")}
-              >
-                {t("account.submitNewIdea")}
-              </Button>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  onClick={() => nav("/ideas/new")}
+                >
+                  {t("account.submitNewIdea")}
+                </Button>
+                {((String(user?.role || '').toLowerCase() === 'admin') ||
+                  (String(user?.userEmail || '').trim().toLowerCase() === 'hamedanian79@gmail.com') ||
+                  (String(user?.userId || '') === 'admin')) && (
+                  <Button
+                    className={styles.adminButton}
+                    type="default"
+                    size="large"
+                    onClick={() => nav('/panel/admin')}
+                    data-qa="admin-panel-btn"
+                  >
+                    <MdAdminPanelSettings style={{ marginInlineEnd: 8 }} />
+                    {t('admin.topbar.title') || 'Admin'}
+                  </Button>
+                )}
+              </div>
             </div>
           </Card>
 
@@ -166,7 +200,7 @@ export default function AccountPage() {
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => nav("/submit")}
+                    onClick={() => nav("/ideas/new")}
                   >
                     {t("account.submitNewIdea")}
                   </Button>

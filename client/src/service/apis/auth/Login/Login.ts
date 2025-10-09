@@ -1,14 +1,15 @@
 ﻿import { AxiosError } from "axios";
 import api from "../../../api";
-import toast from "react-hot-toast";
 import type { LoginProps, LoginType } from "./type";
 
 interface LoginResponse {
-  id: number;
-  email: string;
-  name?: string | null;
-  role?: string;
-  message?: string;
+  ok: boolean;
+  user?: {
+    id: number | string;
+    email: string;
+    name?: string;
+    role?: string;
+  };
 }
 
 interface ErrorResponse {
@@ -23,30 +24,28 @@ const Login = async ({ email, password }: LoginProps): Promise<LoginType> => {
       { withCredentials: true }
     );
 
-    const payload = response.data || ({} as LoginResponse);
-    const success: LoginType = {
-      message: payload.message || "Login successful.",
-      email: payload.email ?? "",
-      id: payload.id ?? 0,
-      userName: payload.name ?? "",
-      role: payload.role === "admin" ? "admin" : "user",
+    const payload = response.data || { ok: false };
+    if (!payload.ok || !payload.user) {
+      throw new Error("Invalid login response");
+    }
+    const role = payload.user.role;
+    return {
+      ok: true,
+      user: {
+        id: payload.user.id,
+        email: payload.user.email,
+        name: payload.user.name ?? "",
+        role: role === "admin" ? "admin" : role === "judge" ? "judge" : "user",
+      },
     };
-
-    toast.success(success.message);
-    return success;
   } catch (error) {
     const err = error as AxiosError<ErrorResponse>;
     const errorMessage =
       err.response?.data?.error || err.message || "Something went wrong.";
 
-    toast.error(errorMessage);
-    return {
-      message: errorMessage,
-      email: "",
-      id: 0,
-      userName: "",
-      role: "user",
-    };
+    const authError: any = new Error(errorMessage);
+    authError.status = err.response?.status;
+    throw authError;
   }
 };
 

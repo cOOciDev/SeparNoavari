@@ -11,6 +11,7 @@ import type { HeaderProps, Lang, NavItem } from "./header/types";
 import { useAuth } from "../../contexts/AuthProvider";
 import { useTheme } from "../../contexts/ThemeContext";
 import i18n from "../../AppData/i18n";
+import { useTranslation } from 'react-i18next';
 
 // keep your lang+dir helpers
 function applyLangAndDir(lang: Lang) {
@@ -36,12 +37,15 @@ export default function Header({
   signupHref = "/signup",
   accountHref = "/account",
 }: HeaderProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
   // ---- Auth (single source of truth) ----
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
+  // Debug: log auth state in header render (DEV only)
+  if (import.meta.env.DEV) console.log('[Header] user:', user);
 
   // ---- Theme from ThemeContext (no localStorage here) ----
   const { mode: theme, setMode: setTheme } = useTheme();
@@ -74,33 +78,13 @@ export default function Header({
   const items: NavItem[] = useMemo(
     () =>
       navItems ?? [
-        {
-          id: "submit",
-          label: lang === "fa" ? "ثبت ایده" : "Submit",
-          href: "/ideas/new",
-        },
-        {
-          id: "committee",
-          label: lang === "fa" ? "دبیرخانه" : "Committee",
-          href: "/committee",
-        },
-        {
-          id: "calendar",
-          label: lang === "fa" ? "تقویم " : "Timeline",
-          href: "#timeline",
-        },
-        {
-          id: "resources",
-          label: lang === "fa" ? "منابع" : "Resources",
-          href: "#resources",
-        },
-        {
-          id: "contact",
-          label: lang === "fa" ? "ارتباط" : "Contact",
-          href: "#contact",
-        },
+        { id: "submit", label: t("header.submit"), href: "/ideas/new" },
+        { id: "committee", label: t("header.committee"), href: "/committee" },
+        { id: "calendar", label: t("header.timeline"), href: "#timeline" },
+        { id: "resources", label: t("header.resources"), href: "#resources" },
+        { id: "contact", label: t("header.contact"), href: "#contact" },
       ],
-    [navItems, lang]
+    [navItems, t]
   );
 
   // ---- Router-aware navigate ----
@@ -116,8 +100,21 @@ export default function Header({
   // ---- Active state helper ----
   const activePath = location.pathname;
   const isActive = useCallback(
-    (href: string) => href === activePath,
-    [activePath]
+    (href: string) => {
+      // anchor links: match by hash
+      if (href.startsWith("#")) {
+        return location.hash === href;
+      }
+
+      // normalize paths (remove trailing slashes)
+  const norm = (p: string) => (p === "/" ? "/" : p.replace(/\/+$/, ""));
+      const hrefPath = norm(href.split('#')[0]);
+      const cur = norm(location.pathname);
+
+      // exact match or subpath (e.g., /tracks and /tracks/ai)
+      return cur === hrefPath || cur.startsWith(hrefPath + "/");
+    },
+    [location.pathname, location.hash]
   );
 
   // ---- Mobile menu ----
@@ -147,15 +144,8 @@ export default function Header({
             className={styles.burger}
             aria-controls="mobile-menu"
             aria-expanded={open}
-            aria-label={
-              lang === "fa"
-                ? open
-                  ? "بستن منو"
-                  : "باز کردن منو"
-                : open
-                ? "Close menu"
-                : "Open menu"
-            }
+            aria-haspopup="true"
+              aria-label={open ? t('header.closeMenu') : t('header.openMenu')}
             onClick={toggleMenu}
           >
             <span></span>
@@ -164,23 +154,14 @@ export default function Header({
           </button>
           
         {/* Center: nav */}
-        <nav
-          className={styles.nav}
-          aria-label={lang === "fa" ? "ناوبری اصلی" : "Primary navigation"}
+        <nav className={styles.nav} aria-label={t('header.primaryNavigation')}
         >
-          <ul
-            className={styles.menu}
-            role="menubar"
-            aria-orientation="horizontal"
-          >
+          <ul className={styles.menu} aria-orientation="horizontal">
             {items.map((it) => (
-              <li key={it.id} role="none">
+              <li key={it.id}>
                 <a
-                  role="menuitem"
                   href={it.href}
-                  className={`${styles.menuItem} ${
-                    isActive(it.href) ? styles.isActive : ""
-                  }`}
+                  className={`${styles.menuItem} ${isActive(it.href) ? styles.isActive : ""}`}
                   aria-current={isActive(it.href) ? "page" : undefined}
                   onClick={(e) => onNavigate(it.href, e)}
                 >
@@ -200,7 +181,6 @@ export default function Header({
             theme={theme} // ← from ThemeContext
             onThemeChange={setTheme} // ← from ThemeContext
           />
-          <br/><br/>
           <Actions
             isAuthenticated={isAuthenticated} // ← from AuthContext
             ctaLabel={ctaLabel}
@@ -210,6 +190,7 @@ export default function Header({
             loginHref={loginHref}
             signupHref={signupHref}
             accountHref={accountHref}
+            authUser={user}
           />
         </div>
       </div>

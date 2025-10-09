@@ -1,9 +1,11 @@
 export interface LoginType {
-  message: string;
-  email: string;
-  id: number;
-  userName: string;
-  role: "user" | "admin";
+  ok: boolean;
+  user?: {
+    id: number | string;
+    email: string;
+    name?: string;
+    role?: "user" | "admin" | "judge";
+  };
 }
 
 export interface LoginProps {

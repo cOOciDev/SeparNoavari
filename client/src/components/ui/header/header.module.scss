@@ -95,7 +95,7 @@ html[data-theme="dark"] {
   align-items: center;
   gap: 12px;
 }
-.right { justify-content: flex-end; }
+.right { justify-content: flex-end; display: flex; align-items: center; gap: 12px; }
 
 .brand { display: flex; align-items: center; }
 
@@ -184,6 +184,7 @@ html[data-theme="dark"] {
 
 /* Nav actions */
 .navActions { display: inline-flex; align-items: center; gap: 8px; }
+.actions { display: inline-flex; align-items: center; gap: 8px; }
 .langBtn, .themeBtn {
   background: var(--btn-bg);
   color: var(--btn-fg);

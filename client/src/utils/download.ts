@@ -8,3 +8,8 @@ export function buildIdeaDownloadUrl(ideaId: number | string, key: IdeaFileKey) 
   const normalizedKey: IdeaFileKey = key;
   return `${apiPrefix}/ideas/${idSegment}/files/${normalizedKey}`;
 }
+
+export function buildIdeaFolderDownloadUrl(ideaId: number | string) {
+  const idSegment = encodeURIComponent(String(ideaId).trim());
+  return `${apiPrefix}/ideas/${idSegment}/download`;
+}

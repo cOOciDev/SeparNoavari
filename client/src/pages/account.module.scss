@@ -32,6 +32,14 @@
   gap: 16px;
 }
 
+.adminButton {
+  border-radius: 8px;
+}
+
+.adminButton :global(svg) {
+  vertical-align: middle;
+}
+
 @media (min-width: 640px) {
   .heroContent {
     flex-direction: row;

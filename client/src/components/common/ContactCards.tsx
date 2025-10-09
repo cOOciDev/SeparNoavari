@@ -51,27 +51,27 @@ export default function ContactCards(props: ContactCardsProps) {
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.15 10.8 19.8 19.8 0 0 1 .08 2.18 2 2 0 0 1 2.06 0h3a2 2 0 0 1 2 1.72c.12.86.32 1.7.6 2.5a2 2 0 0 1-.45 2.11l-1.3 1.3a16 16 0 0 0 6.86 6.86l1.3-1.3a2 2 0 0 1 2.11-.45c.8.28 1.64.48 2.5.6A2 2 0 0 1 22 16.92z" />
               </svg>
             </span>
-            <strong>{isFa ? "تماس تلفنی" : "Call"}</strong>
+            <strong>{t("contact.call")}</strong>
           </div>
 
           <ul className={s.contactList}>
             <li className={s.contactItem}>
-              <div className={s.contactLabel}>{isFa ? "تلفن ثابت" : "Landline"}</div>
+              <div className={s.contactLabel}>{t("contact.landline")}</div>
               <div className={s.contactActions}>
-                <a className={s.chip} href={`tel:${landlineIntl}`} aria-label="Call landline">
+                <a className={s.chip} href={`tel:${landlineIntl}`} aria-label={t("contact.callLandline")}>
                   {landlineDisplay}
                 </a>
-                <button className={s.copyBtn} onClick={() => copy(landlineIntl)} aria-label="Copy landline">⧉</button>
+                <button className={s.copyBtn} onClick={() => copy(landlineIntl)} aria-label={t("contact.copyLandline")}>⧉</button>
               </div>
             </li>
 
             <li className={s.contactItem}>
-              <div className={s.contactLabel}>{isFa ? "موبایل" : "Mobile"}</div>
+              <div className={s.contactLabel}>{t("contact.mobile")}</div>
               <div className={s.contactActions}>
-                <a className={s.chip} href={`tel:${mobileIntl}`} aria-label="Call mobile">
+                <a className={s.chip} href={`tel:${mobileIntl}`} aria-label={t("contact.callMobile")}>
                   {mobileDisplay}
                 </a>
-                <button className={s.copyBtn} onClick={() => copy(mobileIntl)} aria-label="Copy mobile">⧉</button>
+                <button className={s.copyBtn} onClick={() => copy(mobileIntl)} aria-label={t("contact.copyMobile")}>⧉</button>
               </div>
             </li>
           </ul>
@@ -87,7 +87,7 @@ export default function ContactCards(props: ContactCardsProps) {
                 <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
               </svg>
             </span>
-            <strong>{isFa ? "پیام‌رسان‌ها" : "Messaging"}</strong>
+            <strong>{t("contact.messaging")}</strong>
           </div>
 
           <div className={s.linkRow}>
@@ -96,8 +96,8 @@ export default function ContactCards(props: ContactCardsProps) {
               href={`https://wa.me/${mobileIntl.replace("+", "")}`}
               target="_blank"
               rel="noopener"
-              aria-label="WhatsApp"
-              title="WhatsApp"
+              aria-label={t("social.whatsapp")}
+              title={t("social.whatsapp")}
             >
               <i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
               {t("social.whatsapp")}
@@ -108,8 +108,8 @@ export default function ContactCards(props: ContactCardsProps) {
               href={eitaaUrl}
               target="_blank"
               rel="noopener"
-              aria-label="Eitaa"
-              title="Eitaa"
+              aria-label={t("social.eitaa")}
+              title={t("social.eitaa")}
             >
               <i className="fa-solid fa-paper-plane" aria-hidden="true"></i>
               {t("social.eitaa")}
@@ -131,14 +131,14 @@ export default function ContactCards(props: ContactCardsProps) {
                 <path d="M4 4h16v16H4z" /><path d="M22 6l-10 7L2 6" />
               </svg>
             </span>
-            <strong>{isFa ? "ایمیل" : "Email"}</strong>
+            <strong>{t("contact.email")}</strong>
           </div>
 
           <div className={s.linkRow}>
-            <a className={s.chip} href={`mailto:${email}`} aria-label="Send email">
+            <a className={s.chip} href={`mailto:${email}`} aria-label={t("contact.sendEmail")}>
               {email}
             </a>
-            <button className={s.copyBtn} onClick={() => copy(email)} aria-label="Copy email">⧉</button>
+            <button className={s.copyBtn} onClick={() => copy(email)} aria-label={t("contact.copyEmail")}>⧉</button>
           </div>
         </div>
       </article>
@@ -149,7 +149,7 @@ export default function ContactCards(props: ContactCardsProps) {
           <strong>{isFa ? "آدرس" : "Address"}</strong>
           <p className={s.cardText}>
             {isFa
-              ? "مازندران، نوشهر، خیابان رازی، خیابان 22 بهمن، کوچه مسجد، مرکز رشد واحدهای فناور نوشهر"
+              ? "مازندران، نوشهر، خیابان رازی، خیابان 22 بهمن، کوچهٔ مسجد، مرکز رشد واحدهای فناور نوشهر"
               : "Mazandaran, Nowshahr, Razi Ave, 22 Bahman St, Masjed Alley, Nowshahr Technology Units Growth Center"}
           </p>
           <div className="map-box" style={{ marginTop: 12 }}>
