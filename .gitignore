@@ -5,6 +5,7 @@ node_modules/
 
 # SQLite database
 /server/database.db
+/server/backups1/
 
 # npm cache and lock files
 npm-debug.log
