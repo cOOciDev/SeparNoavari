@@ -1,4 +1,4 @@
-﻿import dotenv from "dotenv";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -14,6 +14,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import cookieParser from "cookie-parser";
+import archiver from "archiver";
 
 const app = express();
 const port = 5501;
@@ -114,6 +115,30 @@ async function initializeDb() {
     filename: "./database.db",
     driver: sqlite3.Database,
   });
+
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      name TEXT,
+      role TEXT DEFAULT 'user'
+    );
+    CREATE TABLE IF NOT EXISTS ideas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      contact_email TEXT,
+      submitter_full_name TEXT,
+      track TEXT,
+      phone TEXT,
+      team_members TEXT,
+      idea_title TEXT,
+      executive_summary TEXT,
+      file_path TEXT,
+      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+  `);
   // Ensure users table has a 'role' column. Add it if missing.
   try {
     const pragma = await db.all("PRAGMA table_info(users)");
@@ -129,11 +154,6 @@ async function initializeDb() {
 initializeDb();
 
 // Middleware
-const rawAllowedOrigins = (process.env.ALLOWED_ORIGINS || "https://www.separnoavari.ir,https://separnoavari.ir,http://localhost:5173,http://127.0.0.1:5173")
-  .split(/[,\s]+/)
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-const allowedOrigins = new Set(rawAllowedOrigins);
 const isProduction = process.env.NODE_ENV === "production";
 const sessionSecret =
   process.env.SESSION_SECRET && process.env.SESSION_SECRET.trim()
@@ -144,6 +164,14 @@ if (!sessionSecret) {
   console.error("SESSION_SECRET must be set in environment variables.");
   process.exit(1);
 }
+
+const clientOriginEnv =
+  process.env.CLIENT_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173";
+const clientOrigins = clientOriginEnv
+  .split(/[,\s]+/)
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOrigin = clientOrigins.length === 1 ? clientOrigins[0] : clientOrigins;
 
 const adminUsername =
   process.env.ADMIN_USERNAME && process.env.ADMIN_USERNAME.trim()
@@ -157,37 +185,20 @@ const adminSessionToken = adminUsername ? "admin:" + adminUsername : null;
 const adminPasswordLooksHashed =
   typeof adminPassword === "string" && adminPassword.startsWith("$2");
 
-const parseBoolean = (value) => {
-  if (typeof value !== "string") return null;
-  const normalized = value.trim().toLowerCase();
-  if (["true", "1", "yes", "on"].includes(normalized)) return true;
-  if (["false", "0", "no", "off"].includes(normalized)) return false;
-  return null;
+const sessionCookieOptions = {
+  httpOnly: true,
+  sameSite: isProduction ? 'none' : 'lax',
+  secure: isProduction,
+  maxAge: 24 * 60 * 60 * 1000,
+  path: '/',
 };
 
-const cookieSecureOverrideRaw = process.env.SESSION_COOKIE_SECURE;
-let sessionCookieSecure = isProduction;
-if (typeof cookieSecureOverrideRaw === "string" && cookieSecureOverrideRaw.trim()) {
-  const parsed = parseBoolean(cookieSecureOverrideRaw);
-  if (parsed !== null) {
-    sessionCookieSecure = parsed;
-  }
-}
-
-const cookieSameSiteOverrideRaw = process.env.SESSION_COOKIE_SAMESITE;
-const validSameSiteValues = new Set(["lax", "strict", "none"]);
-let sessionCookieSameSite = null;
-if (typeof cookieSameSiteOverrideRaw === "string" && cookieSameSiteOverrideRaw.trim()) {
-  const normalized = cookieSameSiteOverrideRaw.trim().toLowerCase();
-  if (validSameSiteValues.has(normalized)) {
-    sessionCookieSameSite = normalized;
-  } else {
-    console.warn("Ignoring invalid SESSION_COOKIE_SAMESITE value:", cookieSameSiteOverrideRaw);
-  }
-}
-if (!sessionCookieSameSite) {
-  sessionCookieSameSite = sessionCookieSecure ? "none" : "lax";
-}
+const mapUserForClient = (user) => ({
+  id: user?.id ?? "",
+  email: user?.email ?? "",
+  name: user?.name ?? "",
+  role: user?.role === "admin" ? "admin" : user?.role === "judge" ? "judge" : "user",
+});
 
 if ((adminUsername && !adminPassword) || (!adminUsername && adminPassword)) {
   console.warn(
@@ -201,28 +212,25 @@ if (isProduction) {
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.has(origin)) return callback(null, true);
-      console.warn("Blocked CORS origin:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
+    origin: corsOrigin,
     credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(
   session({
+    name: "connect.sid",
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
+    proxy: isProduction,
     cookie: {
-      secure: isProduction,
       httpOnly: true,
       sameSite: isProduction ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: isProduction,
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
@@ -267,7 +275,7 @@ passport.use(
         }
 
         const user = await db.get(
-          "SELECT id, email, name, password FROM users WHERE email = ?",
+          "SELECT id, email, name, password, role FROM users WHERE email = ?",
           [normalizedEmail]
         );
         if (!user) {
@@ -285,7 +293,7 @@ passport.use(
           id: user.id,
           email: user.email,
           name: user.name,
-          role: "user",
+          role: user.role === "admin" ? "admin" : user.role === "judge" ? "judge" : "user",
         };
         console.log("Login successful for email:", sanitizedUser.email);
         return done(null, sanitizedUser);
@@ -326,7 +334,7 @@ passport.deserializeUser(async (token, done) => {
     }
 
     const user = await db.get(
-      "SELECT id, email, name FROM users WHERE id = ?",
+      "SELECT id, email, name, role FROM users WHERE id = ?",
       [numericId]
     );
     if (!user) {
@@ -334,7 +342,7 @@ passport.deserializeUser(async (token, done) => {
       return done(null, false);
     }
 
-    const normalizedUser = { ...user, role: "user" };
+    const normalizedUser = { ...user, role: user.role === "admin" ? "admin" : user.role === "judge" ? "judge" : "user" };
     console.log("Deserialized user:", normalizedUser);
     done(null, normalizedUser);
   } catch (err) {
@@ -346,16 +354,21 @@ passport.deserializeUser(async (token, done) => {
 // Authentication middleware with detailed logging
 function ensureAuthenticated(req, res, next) {
   console.log("=== Authentication Check ===");
-  console.log("Session ID:", req.sessionID);
+  // User-requested explicit debug lines
+  console.log('Cookie?', req.headers.cookie);
+  console.log('SessionID?', req.sessionID);
+  console.log('Is authenticated?', req.isAuthenticated?.());
+
+  // Additional diagnostics (keep existing helpful logs)
   console.log("Session object:", req.session);
-  console.log("Is authenticated:", req.isAuthenticated());
   if (req.session && req.session.passport) {
     console.log("Passport user ID in session:", req.session.passport.user);
   }
   console.log("req.user:", req.user);
   console.log("Cookies:", req.cookies);
   console.log("====================");
-  if (req.isAuthenticated()) {
+
+  if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
   }
   res.status(401).json({ error: "Unauthorized" });
@@ -395,21 +408,44 @@ app.post("/api/login", (req, res, next) => {
         console.error("Login error:", err);
         return res.status(500).json({ error: "Login failed" });
       }
-      console.log("User logged in successfully, session saved");
-      res.json({
-        id: user.id,
-        email: user.email,
-        name: user.name ?? "",
-        role: user.role ?? "user",
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session save error after login:", saveErr);
+          return res.status(500).json({ error: "Login failed" });
+        }
+        console.log("User logged in successfully, session saved");
+        res.cookie("connect.sid", req.sessionID, sessionCookieOptions);
+        return res.status(200).json({
+          ok: true,
+          user: mapUserForClient(user),
+        });
       });
     });
-  })(req, res, next);
-});
+    })(req, res, next);
+  });
 
 app.post("/api/logout", (req, res) => {
   req.logout((err) => {
     if (err) return res.status(500).json({ error: "Logout failed" });
     res.json({ message: "Logout successful" });
+  });
+});
+
+// Return current authenticated user info
+app.get('/api/me', (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
+  res.json(mapUserForClient(req.user));
+});
+
+// Temporary debug route (dev) to inspect incoming cookies and session state
+app.get('/api/_debug', (req, res) => {
+  res.json({
+    cookieHeaderExists: Boolean(req.headers && req.headers.cookie),
+    cookieHeader: req.headers && req.headers.cookie ? req.headers.cookie : null,
+    sessionID: req.sessionID || null,
+    isAuth: typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : false,
+    hasUser: Boolean(req.user),
+    session: req.session || null,
   });
 });
 
@@ -421,12 +457,7 @@ app.get("/api/user", (req, res) => {
   console.log("==================");
   if (req.isAuthenticated()) {
     res.json({
-      user: {
-        id: req.user.id,
-        email: req.user.email,
-        name: req.user.name,
-        role: req.user.role ?? "user",
-      },
+      user: mapUserForClient(req.user),
     });
   } else {
     res.json({ user: null });
@@ -452,15 +483,17 @@ app.post("/api/signup", async (req, res) => {
         console.error("Auto login after signup failed:", loginErr);
         return res.status(500).json({ error: "Login after signup failed" });
       }
-      res
-        .status(201)
-        .json({
-          message: "User created",
-          userId: newUser.id,
-          userEmail: newUser.email,
-          userName: newUser.name,
-          userRole: "user",
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session save error after signup:", saveErr);
+          return res.status(500).json({ error: "Signup session save failed" });
+        }
+        res.cookie("connect.sid", req.sessionID, sessionCookieOptions);
+        res.status(201).json({
+          ok: true,
+          user: mapUserForClient(newUser),
         });
+      });
     });
   } catch (err) {
     console.error("Signup error:", err);
@@ -653,6 +686,67 @@ app.get("/api/ideas/:id/files/:key", ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Error serving idea file:", err);
     res.status(500).json({ error: "Failed to download file" });
+  }
+});
+
+// Download a zip containing the idea's files (pdf + word + ppt if present)
+app.get('/api/ideas/:id/download', ensureAuthenticated, async (req, res) => {
+  const ideaId = Number.parseInt(req.params.id, 10);
+  if (!Number.isInteger(ideaId)) return res.status(400).json({ error: 'Invalid idea id' });
+
+  try {
+    const idea = await db.get('SELECT id, user_id, file_path, idea_title FROM ideas WHERE id = ?', [ideaId]);
+    if (!idea) return res.status(404).json({ error: 'Idea not found' });
+
+    const isAdmin = isAdminUser(req.user);
+    const ownerId = getNumericUserId(req.user);
+    if (!isAdmin && (!Number.isInteger(ownerId) || ownerId !== idea.user_id)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    let files = [];
+    if (idea.file_path) {
+      try {
+        const parsed = JSON.parse(idea.file_path);
+        if (parsed && typeof parsed === 'object') {
+          if (parsed.pdf) files.push({ key: 'pdf', path: parsed.pdf });
+          if (parsed.word) files.push({ key: 'word', path: parsed.word });
+          if (parsed.ppt || parsed.pptx) files.push({ key: 'ppt', path: parsed.ppt || parsed.pptx });
+        }
+      } catch (err) {
+        // legacy single string
+        files.push({ key: 'file', path: idea.file_path });
+      }
+    }
+
+    if (files.length === 0) return res.status(404).json({ error: 'No files to download' });
+
+    // stream a zip
+    const zipName = `idea-${ideaId}-files.zip`;
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    archive.on('error', (err) => {
+      console.error('Archive error:', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Failed to create archive' });
+    });
+    archive.pipe(res);
+
+    for (const f of files) {
+      const cleanedRelative = String(f.path).replace(/\\/g, '/');
+      const withoutPrefix = cleanedRelative.startsWith('uploads/') ? cleanedRelative.slice('uploads/'.length) : cleanedRelative.replace(/^\/+/, '');
+      const absolutePath = path.resolve(uploadsRoot, withoutPrefix);
+      if (!absolutePath.startsWith(uploadsRoot)) continue;
+      if (!fs.existsSync(absolutePath)) continue;
+      const filename = path.basename(absolutePath);
+      archive.file(absolutePath, { name: filename });
+    }
+
+    archive.finalize();
+  } catch (err) {
+    console.error('Idea download error:', err);
+    res.status(500).json({ error: 'Failed to prepare download' });
   }
 });
 

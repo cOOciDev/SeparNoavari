@@ -15,7 +15,15 @@ export default function RequireAuth({
   if (loading) return null; // or a spinner
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: loc }} replace />;
+    const next = `${loc.pathname}${loc.search}${loc.hash}`;
+    const nextParam = encodeURIComponent(next);
+    return (
+      <Navigate
+        to={`/login?next=${nextParam}`}
+        state={{ from: loc }}
+        replace
+      />
+    );
   }
 
   if (roles && user && !roles.includes((user.role as any) ?? "user")) {

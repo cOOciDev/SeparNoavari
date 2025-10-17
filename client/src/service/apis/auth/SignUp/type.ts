@@ -1,9 +1,11 @@
 export interface SingUpType {
-  message: string;
-  userEmail: string;
-  userId: number;
-  userName: string;
-  userRole: "user" | "admin";
+  ok: boolean;
+  user?: {
+    id: number | string;
+    email: string;
+    name?: string;
+    role?: "user" | "admin" | "judge";
+  };
 }
 
 export interface SingUpProps {

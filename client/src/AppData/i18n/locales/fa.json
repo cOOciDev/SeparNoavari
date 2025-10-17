@@ -1,10 +1,47 @@
-{
+﻿{
   "brandName": "سپر نوآوری",
   "logoAlt": "لوگوی سپر نوآوری",
 
   "program": "همایش ملی",
   "heroTitle": "همایش ملی سپر نوآوری",
   "heroSubtitle": "ایده‌پردازی و نوآوری برای مدیریت بحران-پدافند غیرعامل و تاب‌آوری اجتماعی.",
+
+  "landing": {
+    "committeeHeading": "هیئت علمی",
+    "committeeText": "با داوران و مشاوران ما آشنا شوید.",
+    "committeeSeeAll": "مشاهده همه",
+    "committeeAria": "چرخنده دبیرخانه",
+    "heroPosterAlt": "پوستر رویداد",
+    "timelineSubmission": "مهلت ارسال",
+    "closingCeremony": "اختتامیه",
+    "awardsTitle": "جوایز و حمایت‌ها",
+    "supportsBadges": [
+      "۱۰ برگزیده «ایده‌برتر»",
+      "جایگزین خدمت نخبگان",
+      "شتاب‌دهی پارک"
+    ],
+    "prizeTotalLabel": "مجموع جوایز نقدی رویداد",
+  "prizePersianShort": "۲ میلیارد ریال جوایز نقدی",
+    "prizeBreakdown": {
+      "first": { "title": "ایده اول", "amount": "۵۰۰ میلیون ریال" },
+      "second": { "title": "ایده دوم", "amount": "۴۰۰ میلیون ریال" },
+      "third": { "title": "ایده سوم", "amount": "۳۰۰ میلیون ریال" },
+      "others": { "title": "ایده چهارم تا دهم", "amount": "هرکدام ۱۰۰ میلیون ریال" }
+    },
+    "supportTiles": [
+      { "title": "گواهی «ایده‌برتر» + گواهی شرکت", "desc": "اعطای گواهی «ایده‌برتر» برای ۱۰ ایده منتخب و صدور گواهی رسمی برای تمامی شرکت‌کنندگان." },
+      { "title": "جایگزین خدمت نخبگان", "desc": "به‌کارگیری ایده‌های برتر در قالب طرح‌های جایگزین خدمت نخبگان و کاهش مدت خدمت سربازی." },
+      { "title": "کمک بلاعوض دانش‌بنیان", "desc": "ده میلیارد ریال کمک بلاعوض برای دو ایده برتر که تا مرحله ثبت دانش‌بنیان اقدام نمایند." },
+      { "title": "شتاب‌دهی و جذب به پارک", "desc": "حمایت پارک علم و فناوری برای توسعه، منتورینگ، و جذب به عنوان هسته و واحد فناور." },
+      { "title": "پشتیبانی رسانه‌ای و معرفی", "desc": "رپورتاژ، شبکه‌سازی و معرفی برگزیدگان به سرمایه‌گذاران و صنایع همکار." },
+      { "title": "اتصال به صنعت و بازار", "desc": "تسهیل تفاهم‌نامه‌های صنعتی، امکان پایلوت‌گیری، و دسترسی به بازار هدف." }
+    ],
+    "resourcesPdf": "فراخوان (PDF)",
+    "resourcesDoc": "قالب ایده (DOCX)",
+    "resourcesZip": "بسته معرفی مسیرها (ZIP)",
+    "addressLabel": "آدرس",
+    "addressText": "مازندران، نوشهر، خیابان رازی، خیابان 22 بهمن، کوچهٔ مسجد، مرکز رشد واحدهای فناور نوشهر"
+  },
 
   "ctaStart": "ثبت ایده",
   "ctaTracks": "مشاهده محورها",
@@ -70,7 +107,19 @@
   "resourcesDoc": "قالب ایده (DOCX)",
   "resourcesZip": "بسته معرفی مسیرها (ZIP)",
 
-  "contact": "برقراری ارتباط",
+  "contact": {
+    "call": "تماس",
+    "landline": "تلفن ثابت",
+    "mobile": "موبایل",
+    "email": "ایمیل",
+    "messaging": "پیام‌رسان‌ها",
+    "callLandline": "تماس با تلفن ثابت",
+    "callMobile": "تماس با موبایل",
+    "copyLandline": "کپی تلفن ثابت",
+    "copyMobile": "کپی موبایل",
+    "copyEmail": "کپی ایمیل",
+    "sendEmail": "ارسال ایمیل"
+  },
   "support": "پشتیبانی",
   "messageUs": "پیام دهید",
 
@@ -141,6 +190,8 @@
     "emailLabel": "ایمیل",
     "password": "رمز عبور",
     "toLogin": "ورود",
+    "alreadyHaveAccount": "حساب کاربری دارید؟ ",
+    "noAccount": "حساب ندارید؟ ",
     "nameLabel": "نام کامل",
 
     "login": "ورود",
@@ -173,6 +224,9 @@
     "addMember": "افزودن عضو",
     "send": "ارسال",
     "sending": "در حال ارسال...",
+  "emailPlaceholder": "you@example.com",
+  "contactPhonePlaceholder": "+98 (912) xxx-xxxx",
+  "teamMemberPlaceholder": "نام عضو تیم",
 
     "errors": {
       "fileRequired": "لطفاً فایل پروپوزال خود را بارگذاری کنید.",
@@ -188,7 +242,8 @@
       "title": "لطفاً عنوان ایده را وارد کنید.",
       "summary": "لطفاً خلاصه اجرایی را وارد کنید.",
       "summaryLength": "خلاصه باید حداقل ۵۰ کاراکتر باشد.",
-      "submitFailed": "ارسال ناموفق بود. لطفاً دوباره تلاش کنید."
+      "submitFailed": "ارسال ناموفق بود. لطفاً دوباره تلاش کنید.",
+      "unauthorized": "برای ارسال ایده باید وارد شوید."
     },
 
     "success": {
@@ -270,7 +325,16 @@
   "header": {
     "myAccount": "حساب کاربری",
     "signInOrRegister": "ورود / ثبت‌نام",
-    "seeAll": "مشاهده همه"
+    "seeAll": "مشاهده همه",
+    "openMenu": "باز کردن منو",
+    "closeMenu": "بستن منو",
+    "primaryNavigation": "ناوبری اصلی",
+    "mobileMenu": "منوی موبایل",
+    "submit": "ثبت ایده",
+    "committee": "دبیرخانه",
+    "timeline": "تقویم",
+    "resources": "منابع",
+    "contact": "ارتباط"
   }
   ,
   "social": {
@@ -302,8 +366,9 @@
       "filterAllTracks": "تمام محورها",
       "trackUnknown": "مشخص نشده",
       "unknownSubmitter": "ارسال‌کننده نامشخص",
-      "downloadPdf": "PDF",
-      "downloadWord": "Word",
+  "downloadPdf": "PDF",
+  "downloadWord": "Word",
+  "downloadFolder": "دانلود پوشه",
       "empty": "هیچ ایده‌ای با فیلترهای شما مطابقت ندارد.",
       "table": {
         "title": "عنوان",
@@ -336,6 +401,11 @@
       "roleUpdated": "نقش با موفقیت تغییر کرد",
       "roleUpdateFailed": "خطا در تغییر نقش",
       "roleUpdatedWithValues": "نقش از {{prev}} به {{next}} تغییر کرد"
+    }
+    ,
+    "confirm": {
+      "title": "تأیید تغییر نقش",
+      "content": "آیا نقش کاربر {{name}} را از {{prev}} به {{next}} تغییر می‌دهید؟"
     }
     ,
     "judgesPage": {

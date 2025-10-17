@@ -206,6 +206,11 @@ function CommitteeCarousel({ items = COMMITTEE, interval = 5200 }: { items?: Mem
 export default function Landing() {
   const { t, i18n } = useTranslation();
 
+  const PRIZE_TOTAL = 2000000000;
+  const formattedPrize = (i18n?.language || "").startsWith("fa")
+    ? PRIZE_TOTAL.toLocaleString("fa-IR")
+    : PRIZE_TOTAL.toLocaleString();
+
   //Fallback theme tokens (if globals not present)
   useEffect(() => {
     const r = document.documentElement;
@@ -275,7 +280,7 @@ export default function Landing() {
   return (
     <main>
       {/* HERO */}
-      <section className={`${s.container} ${s.hero}`}>
+  <section className={`${s.container} ${s.hero}`}>
         <div className={s.heroText}>
           <p className={s.eyebrow}>{t("program")}</p>
           <h1 className={s.title}>{t("heroTitle")}</h1>
@@ -289,8 +294,8 @@ export default function Landing() {
 
           <div
             className={s.heroPoster}
-            aria-label={isFa ? "پوستر رویداد" : "Event Poster"}
-            title={isFa ? "پوستر رویداد" : "Event Poster"}
+            aria-label={t('landing.heroPosterAlt')}
+            title={t('landing.heroPosterAlt')}
           />
         </div>
 
@@ -354,10 +359,8 @@ export default function Landing() {
           <article id="committee" className={s.card}>
             <div className={s.cardCover} style={{ backgroundImage: `url("/images/cards/committee.png")` }} />
             <div className={s.cardBody}>
-              <h3 className={s.cardHeading}>{isFa ? "هیئت علمی" : "Scientific Committee"}</h3>
-              <p className={s.cardText}>
-                {isFa ? "با داوران و مشاوران ما آشنا شوید." : "Meet our judges and advisors."}
-              </p>
+              <h3 className={s.cardHeading}>{t('landing.committeeHeading')}</h3>
+              <p className={s.cardText}>{t('landing.committeeText')}</p>
               <CommitteeCarousel />
             </div>
           </article>
@@ -366,11 +369,11 @@ export default function Landing() {
 
       {/* Timeline → سه باکس شیشه‌ای */}
       <section id="timeline" className={s.container}>
-        <h2 className={s.sectionTitle}>{t("timeline.title")}</h2>
+  <h2 className={s.sectionTitle}>{t("timeline.title")}</h2>
 
         <div className={s.glassGrid}>
           {/* Box 1: Submission deadline */}
-          <article className={s.glassCard} aria-label="Submission deadline">
+          <article className={s.glassCard} aria-label={t('landing.timelineSubmission')}>
             <div className={s.glassHead}>
               <span className={s.badge}>{t("timeline.item.submission")}</span>
               <strong><div className={s.muted }>{formatDate(submissionMs)}</div></strong>
@@ -388,7 +391,7 @@ export default function Landing() {
           </article>
 
           {/* Box 2: Review & Results */}
-          <article className={s.glassCard} aria-label="Review and results">
+          <article className={s.glassCard} aria-label={t('timeline.item.review')}>
             <div className={s.glassHead}>
               <span className={s.badge}>{t("timeline.item.review")}</span>
                 <strong>{resultsMs ? formatDate(resultsMs) : formatDate(RESULTS_DATE_ISO)}</strong>
@@ -402,7 +405,7 @@ export default function Landing() {
           </article>
 
           {/* Box 3: Closing ceremony */}
-          <article className={s.glassCard} aria-label="Closing ceremony">
+          <article className={s.glassCard} aria-label={t('landing.closingCeremony')}>
             <div className={s.glassHead} >
               <span className={s.badge}>
                 {t("countdown.closing", { defaultValue: isFa ? "اختتامیه رویداد" : "Closing Ceremony" })}
@@ -421,67 +424,55 @@ export default function Landing() {
 
       {/* Awards & Sponsors (RTL, 6 items) */}
       <section id="supports" className={s.container}>
-        <h2 className={s.sectionTitle}>{isFa ? "جوایز و حمایت‌ها" : "Awards & Sponsors"}</h2>
+  <h2 className={s.sectionTitle}>{t('landing.awardsTitle')}</h2>
 
         <div className={s.supportsWrap}>
           {/* Top card: badges + prize hero */}
           <article className={s.card}>
             <div className={s.cardBody}>
               <div className={s.supportsHead}>
-                <div className={s.supportsBadges} aria-label="برچسب‌های برجسته">
-                  <span className={s.badge}>
-                    {/* trophy */}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4a3 3 0 0 0 3 3v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V7a3 3 0 0 0 3-3"/>
-                    </svg>
-                    ۱۰ برگزیده «ایده‌برتر»
-                  </span>
-                  <span className={s.badge}>
-                    {/* shield */}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 22c6-3 8-7 8-11V6l-8-4-8 4v5c0 4 2 8 8 11"/>
-                    </svg>
-                    جایگزین خدمت نخبگان
-                  </span>
-                  <span className={s.badge}>
-                    {/* rocket */}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 15a7 7 0 0 0 4 4"/><path d="M15 5a7 7 0 0 0-4 4"/><path d="M14 10l-4 4"/><path d="M7 7l3 3"/>
-                    </svg>
-                    شتاب‌دهی پارک علم‌وفناوری
-                  </span>
+                <div className={s.supportsBadges} aria-label={t('landing.awardsTitle')}>
+                  {(t('landing.supportsBadges', { returnObjects: true }) as string[]).map((b: string, idx: number) => (
+                    <span key={idx} className={s.badge} dangerouslySetInnerHTML={{ __html: b }} />
+                  ))}
                 </div>
               </div>
 
               <div className={s.prizeHero} role="group" aria-label="جوایز نقدی">
                 <div className={s.prizeFigure} aria-live="polite">
-                  <div className={s.prizeAmount} dir="ltr">
-                    <span className="num" data-count="2000000000">2,000,000,000</span>
-                    <span>&nbsp;ریال</span>
+                  <div className={s.prizeAmount} dir={isFa ? "rtl" : "ltr"}>
+                    {isFa ? (
+                      <span>{t('landing.prizePersianShort')}</span>
+                    ) : (
+                      <>
+                        <span className="num" data-count={PRIZE_TOTAL}>{formattedPrize}</span>
+                        <span>&nbsp;Rial</span>
+                      </>
+                    )}
                   </div>
-                  <div className={s.prizeSub}>مجموع جوایز نقدی رویداد</div>
+                  <div className={s.prizeSub}>{t('landing.prizeTotalLabel')}</div>
                 </div>
 
                 <div className={s.breakdown}>
                   <div className={s.tile}>
                     {/* medal 1 */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="14" r="4"/><path d="M9 4h6l-1 4h-4z"/></svg>
-                    <div><strong>ایده اول</strong><small>۵۰۰ میلیون ریال</small></div>
+                    <div><strong>{t('landing.prizeBreakdown.first.title')}</strong><small>{t('landing.prizeBreakdown.first.amount')}</small></div>
                   </div>
                   <div className={s.tile}>
                     {/* medal 2 */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="14" r="4"/><path d="M7 4h10l-2 4H9z"/></svg>
-                    <div><strong>ایده دوم</strong><small>۴۰۰ میلیون ریال</small></div>
+                    <div><strong>{t('landing.prizeBreakdown.second.title')}</strong><small>{t('landing.prizeBreakdown.second.amount')}</small></div>
                   </div>
                   <div className={s.tile}>
                     {/* medal 3 */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="14" r="4"/><path d="M8 4h8l-3 4h-2z"/></svg>
-                    <div><strong>ایده سوم</strong><small>۳۰۰ میلیون ریال</small></div>
+                    <div><strong>{t('landing.prizeBreakdown.third.title')}</strong><small>{t('landing.prizeBreakdown.third.amount')}</small></div>
                   </div>
                   <div className={s.tile}>
                     {/* medal 4..10 */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 7h16"/><path d="M4 11h16"/><path d="M4 15h16"/></svg>
-                    <div><strong>ایده چهارم تا دهم</strong><small>هرکدام ۱۰۰ میلیون ریال</small></div>
+                    <div><strong>{t('landing.prizeBreakdown.others.title')}</strong><small>{t('landing.prizeBreakdown.others.amount')}</small></div>
                   </div>
                 </div>
               </div>
@@ -490,66 +481,11 @@ export default function Landing() {
 
           {/* Reward tiles as real cards */}
           <div className={s.supportsGrid}>
-            {[
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16v12H4z"/><path d="M8 22l4-2 4 2v-6H8z"/>
-                  </svg>
-                ),
-                title: "گواهی «ایده‌برتر» + گواهی شرکت",
-                desc: "اعطای گواهی «ایده‌برتر» برای ۱۰ ایده منتخب و صدور گواهی رسمی برای تمامی شرکت‌کنندگان."
-              },
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 8h3M15 12h3M15 16h3"/>
-                  </svg>
-                ),
-                title: "جایگزین خدمت نخبگان",
-                desc: "به‌کارگیری ایده‌های برتر در قالب طرح‌های جایگزین خدمت نخبگان و کاهش مدت خدمت سربازی."
-              },
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 11v6c0 1.7 4 3 9 3s9-1.3 9-3v-6"/>
-                  </svg>
-                ),
-                title: "کمک بلاعوض دانش‌بنیان",
-                desc: "ده میلیارد ریال کمک بلاعوض برای دو ایده برتر که تا مرحله ثبت دانش‌بنیان اقدام نمایند."
-              },
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4.5 16.5L9 12l3 3 4.5-4.5"/><path d="M12 2l4 4-7 7-4-4z"/><path d="M5 19l2-2"/>
-                  </svg>
-                ),
-                title: "شتاب‌دهی و جذب به پارک",
-                desc: "حمایت پارک علم و فناوری برای توسعه، منتورینگ، و جذب به عنوان هسته و واحد فناور."
-              },
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 11v2a4 4 0 0 0 4 4h1"/><path d="M15 11a5 5 0 0 1 0 2L5 17V7z"/><path d="M18 8v8"/>
-                  </svg>
-                ),
-                title: "پشتیبانی رسانه‌ای و معرفی",
-                desc: "رپورتاژ، شبکه‌سازی و معرفی برگزیدگان به سرمایه‌گذاران و صنایع همکار."
-              },
-              {
-                icon: (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 11l4-4 4 4 4-4 4 4"/><path d="M2 12l4 4 4-4 4 4 4-4 4 4"/>
-                  </svg>
-                ),
-                title: "اتصال به صنعت و بازار",
-                desc: "تسهیل تفاهم‌نامه‌های صنعتی، امکان پایلوت‌گیری، و دسترسی به بازار هدف."
-              }
-            ].map((it, idx) => (
+            {(t('landing.supportTiles', { returnObjects: true }) as any[]).map((it: any, idx: number) => (
               <article key={idx} className={s.card}>
                 <div className={s.cardBody}>
                   <div className={s.rHead}>
-                    {it.icon}
+                    {/* icon placeholders kept in markup */}
                     <h3 className={s.rTitle}>{it.title}</h3>
                   </div>
                   <p className={s.cardText}>{it.desc}</p>
@@ -565,7 +501,7 @@ export default function Landing() {
       <section id="resources" className={s.container}>
         <h2 className={s.sectionTitle}>{t("resources")}</h2>
         <div className={s.resourceGrid}>
-          {[t("resourcesPdf"), t("resourcesDoc"), t("resourcesZip")].map((r, idx) => (
+          {[t("landing.resourcesPdf"), t("landing.resourcesDoc"), t("landing.resourcesZip")].map((r, idx) => (
             <a key={idx} className={s.card} href="#">
               <div className={s.cardBody}><strong>{r}</strong></div>
             </a>
@@ -602,8 +538,8 @@ export default function Landing() {
 
           <div className={s.card}>
             <div className={s.cardBody}>
-              <strong>{isFa ? "آدرس" : "Address"}</strong>
-              <p>{isFa ? "مازندران، نوشهر، خیایابان رازی، خیابان 22 بهمن، کوچه مسجد، مرکز رشد واحد های فناور نوشهر" : "Mazandaran, Nowshahr, Razi Avenue, 22 Bahman Street, Masjed Alley, Nowshahr Technology Units Growth Center"}</p>
+              <strong>{t('landing.addressLabel')}</strong>
+              <p>{t('landing.addressText')}</p>
               {/* <!-- Map --> */}
               <div className="map-box" style={{ marginTop:'12px'}}>
                 <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3201.237403690493!2d51.49176907643178!3d36.64473897229189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMzbCsDM4JzQxLjEiTiA1McKwMjknMzkuNiJF!5e0!3m2!1sen!2suk!4v1758657278667!5m2!1sen!2suk" width="600" height="450" style={{border:"0"}} allowFullScreen={true} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>

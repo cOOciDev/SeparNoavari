@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 import { Spin, Button } from "antd";
 import { useAdminIdeas } from "../../service/hooks/useAdminData";
-import { buildIdeaDownloadUrl } from "../../utils/download";
+import { buildIdeaDownloadUrl, buildIdeaFolderDownloadUrl } from "../../utils/download";
 import s from "../../styles/panel.module.scss";
 
 function normalize(value: string) {
@@ -111,6 +111,15 @@ export default function Ideas() {
                         rel="noopener noreferrer"
                       >
                         {t('admin.ideas.downloadWord')}
+                      </Button>
+                      <Button
+                        type="link"
+                        size="small"
+                        href={buildIdeaFolderDownloadUrl(idea.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('admin.ideas.downloadFolder')}
                       </Button>
                     </div>
                   </td>

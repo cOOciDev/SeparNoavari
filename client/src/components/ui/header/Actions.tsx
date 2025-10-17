@@ -4,6 +4,7 @@ import styles from "./header.module.scss";
 import type { Lang } from "./types";
 import { useAuth } from "../../../contexts/AuthProvider";
 import { RxExit } from "react-icons/rx";
+import { FiUser, FiLogIn } from "react-icons/fi";
 
 interface ActionsProps {
   isAuthenticated: boolean;
@@ -15,6 +16,8 @@ interface ActionsProps {
   loginHref?: string;
   signupHref?: string;
   accountHref?: string;
+  // optional: the header can pass the canonical user object to avoid context mismatch
+  authUser?: { userName?: string; userEmail?: string; userId?: number | string; role?: string } | null;
 }
 
 const SCROLL_KEY = "pendingScrollId";
@@ -39,9 +42,14 @@ export default function Actions({
   lang,
   loginHref = "/login",
   accountHref = "/account",
+  authUser = null,
 }: ActionsProps) {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const authContext = useAuth();
+  const { logout } = authContext;
+  // Prefer the user object passed from Header (authUser) to avoid mismatch between contexts
+  const user = authUser ?? (authContext as any).user;
+  if (import.meta.env.DEV) console.log('[Header.Actions] user (resolved):', user);
   // اسکرول خودکار پس از برگشت به لندینگ (با چند تلاش کوتاه)
   useEffect(() => {
     let id: string | null = null;
@@ -103,15 +111,13 @@ export default function Actions({
   }, []);
 
   const secondaryHref = user ? accountHref : loginHref;
-  const secondaryLabel = user
-    ? t("header.myAccount", { defaultValue: lang === "fa" ? "حساب کاربری" : "My Account" })
-    : t("header.signInOrRegister", { defaultValue: lang === "fa" ? "ورود / ثبت‌نام" : "Sign in / Register" });
+  const secondaryLabel = user ? t("header.myAccount") : t("header.signInOrRegister");
 
   return (
     <div className={styles.actions} data-qa="header-actions">
       <a
         href={secondaryHref}
-        className={`${styles.secondary} ${user ? styles.secondaryAuthed : ""}`}
+        className={`${styles.secondary} ${user ? styles.secondaryAuthed : ""} header-secondary`}
         onClick={() => {
           if (!user) {
             try {
@@ -126,12 +132,12 @@ export default function Actions({
       >
         {user ? (
           <>
-            <i className="fa-solid fa-user" aria-hidden="true" />
+            <FiUser aria-hidden="true" style={{ marginInlineEnd: 6 }} />
             <span className="sr-only">{secondaryLabel}</span>
           </>
         ) : (
           <>
-            <i className="fa-solid fa-right-to-bracket" aria-hidden="true" style={{ marginInlineEnd: 6 }} />
+            <FiLogIn aria-hidden="true" style={{ marginInlineEnd: 6 }} />
             {secondaryLabel}
           </>
         )}

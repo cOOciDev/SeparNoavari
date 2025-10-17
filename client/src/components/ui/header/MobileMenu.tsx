@@ -78,7 +78,15 @@ export default function MobileMenu({
   // Focus trap
   useEffect(() => {
     if (!open) return;
-    firstFocusRef.current?.focus();
+    // Prefer focusing the first real focusable element inside the panel
+    const panel = panelRef.current;
+    if (panel) {
+      const focusables = panel.querySelectorAll<HTMLElement>('a[href], button:not([aria-hidden="true"]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const firstReal = Array.from(focusables).find((el) => !!(el.offsetParent || el.getAttribute('tabindex')));
+      (firstReal as HTMLElement | undefined)?.focus();
+    } else {
+      firstFocusRef.current?.focus();
+    }
 
     const trap = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;

@@ -6,6 +6,43 @@
   "heroTitle": "National Innovation Shield Conference",
   "heroSubtitle": "Ideation and innovation for crisis management, civil defense, and social resilience.",
 
+  "landing": {
+    "committeeHeading": "Scientific Committee",
+    "committeeText": "Meet our judges and advisors.",
+    "committeeSeeAll": "See all",
+    "committeeAria": "Committee carousel",
+    "heroPosterAlt": "Event Poster",
+    "timelineSubmission": "Submission deadline",
+    "closingCeremony": "Closing Ceremony",
+    "awardsTitle": "Awards & Sponsors",
+    "supportsBadges": [
+      "10 selected top ideas",
+      "Service alternative for elites",
+      "Park acceleration"
+    ],
+    "prizeTotalLabel": "Total cash awards",
+    "prizePersianShort": "2 billion Rial cash prizes",
+    "prizeBreakdown": {
+      "first": { "title": "First idea", "amount": "500,000,000 Rial" },
+      "second": { "title": "Second idea", "amount": "400,000,000 Rial" },
+      "third": { "title": "Third idea", "amount": "300,000,000 Rial" },
+      "others": { "title": "Fourth to tenth ideas", "amount": "Each 100,000,000 Rial" }
+    },
+    "supportTiles": [
+      { "title": "Top idea certificate + participation certificate", "desc": "Awarding top idea certificates for 10 selected ideas and issuing official certificates to all participants." },
+      { "title": "Service alternative for elites", "desc": "Using top ideas as alternative service plans for elites and reducing conscription length." },
+      { "title": "Non-refundable knowledge-based grant", "desc": "10 billion Rial non-refundable grant for two top ideas that proceed to knowledge-based registration." },
+      { "title": "Acceleration and park admission", "desc": "Park support for development, mentoring, and admission as a tech team or company." },
+      { "title": "Media support and introduction", "desc": "PR, networking and introducing winners to investors and industry partners." },
+      { "title": "Industry & market connection", "desc": "Facilitating MOUs, pilot opportunities, and access to target markets." }
+    ],
+    "resourcesPdf": "Call for Ideas (PDF)",
+    "resourcesDoc": "Idea Template (DOCX)",
+    "resourcesZip": "Tracks Package (ZIP)",
+    "addressLabel": "Address",
+    "addressText": "Mazandaran, Nowshahr, Razi Avenue, 22 Bahman Street, Masjed Alley, Nowshahr Technology Units Growth Center"
+  },
+
   "ctaStart": "Submit Idea",
   "ctaTracks": "View Tracks",
 
@@ -69,7 +106,20 @@
   "resourcesDoc": "Idea Template (DOCX)",
   "resourcesZip": "Tracks Package (ZIP)",
 
-  "contact": "Get in Touch",
+  
+  "contact": {
+    "call": "Call",
+    "landline": "Landline",
+    "mobile": "Mobile",
+    "email": "Email",
+    "messaging": "Messaging",
+    "callLandline": "Call landline",
+    "callMobile": "Call mobile",
+    "copyLandline": "Copy landline",
+    "copyMobile": "Copy mobile",
+    "copyEmail": "Copy email",
+    "sendEmail": "Send email"
+  },
   "support": "Support",
   "messageUs": "Send a Message",
 
@@ -148,6 +198,9 @@
     "idLabel": "Email or Phone Number",
     "toSignup": "Sign Up",
 
+  "alreadyHaveAccount": "Already have an account? ",
+  "noAccount": "No account? ",
+
     "errors": {
       "required": "This field is required",
       "invalidEmail": "Enter a valid email",
@@ -172,6 +225,9 @@
     "addMember": "Add Member",
     "send": "Submit",
     "sending": "Submitting...",
+  "emailPlaceholder": "you@example.com",
+  "contactPhonePlaceholder": "+98 (912) xxx-xxxx",
+  "teamMemberPlaceholder": "Team member name",
 
     "errors": {
       "fileRequired": "Please upload your proposal file.",
@@ -187,7 +243,8 @@
       "title": "Please enter your idea title.",
       "summary": "Please enter the executive summary.",
       "summaryLength": "Summary must be at least 50 characters.",
-      "submitFailed": "Submission failed. Please try again."
+      "submitFailed": "Submission failed. Please try again.",
+      "unauthorized": "You must be logged in to submit an idea."
     },
 
     "success": {
@@ -206,6 +263,7 @@
       "volunteerNetwork": "Volunteer Network Management & Social Aid"
     }
   },
+
 
   "committee": {
     "title": "Conference Secretariat",
@@ -267,7 +325,16 @@
   "header": {
     "myAccount": "My Account",
     "signInOrRegister": "Login / Sign Up",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "primaryNavigation": "Primary navigation",
+    "mobileMenu": "Mobile menu",
+    "submit": "Submit",
+    "committee": "Committee",
+    "timeline": "Timeline",
+    "resources": "Resources",
+    "contact": "Contact"
   },
 
   "social": {
@@ -299,8 +366,9 @@
       "filterAllTracks": "All tracks",
       "trackUnknown": "Unspecified",
       "unknownSubmitter": "Unknown submitter",
-      "downloadPdf": "PDF",
+  "downloadPdf": "PDF",
       "downloadWord": "Word",
+  "downloadFolder": "Download folder",
       "empty": "No ideas match your filters.",
       "table": {
         "title": "Title",
@@ -333,6 +401,11 @@
       "roleUpdated": "Role updated",
       "roleUpdateFailed": "Failed to update role",
       "roleUpdatedWithValues": "Role changed from {{prev}} to {{next}}"
+    }
+    ,
+    "confirm": {
+      "title": "Confirm role change",
+      "content": "Change role for {{name}} from {{prev}} to {{next}}?"
     }
     ,
     "judgesPage": {

@@ -1,4 +1,5 @@
 import styles from "./header.module.scss";
+import { FiMoon, FiSun } from 'react-icons/fi';
 import type { Lang, ThemeMode } from "./types";
 
 interface NavActionsProps {
@@ -43,9 +44,9 @@ export default function NavActions({
         title={theme.toUpperCase()}
       >
         {theme === "dark" ? (
-          <i className="fa-solid fa-moon" aria-hidden="true"></i>
+          <FiMoon size={20} aria-hidden="true" />
         ) : (
-          <i className="fa-solid fa-sun" aria-hidden="true"></i>
+          <FiSun size={20} aria-hidden="true" />
         )}
       </button>
     </div>

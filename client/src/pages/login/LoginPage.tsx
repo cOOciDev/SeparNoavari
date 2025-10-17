@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Form, Input, Button, Typography, message, Card } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import Login from "../../service/apis/auth/Login/Login";
-import { useAuth } from "../../contexts/AuthProvider";
 import type { LoginType } from "../../service/apis/auth/Login/type";
+import { useAuth } from "../../contexts/AuthProvider";
 
 type LoginForm = {
   email: string;
@@ -16,27 +16,66 @@ export default function LoginPage() {
   const isRTL = (i18n.language || "en").startsWith("fa");
   const [sp] = useSearchParams();
   const nav = useNavigate();
-  const next = sp.get("next") || "/";
-  const { setUser } = useAuth();
+  const nextParam = sp.get("next");
+  const next = nextParam && nextParam.startsWith("/") ? nextParam : "/";
+  const { refreshUser, setUser } = useAuth();
 
-  const { mutateAsync, status } = useMutation({
-    mutationFn: Login,
-    onSuccess: (res: LoginType) => {
-      console.log(res);
-      if (res?.id && res?.email) {
+  const { mutateAsync, status } = useMutation<LoginType, any, LoginForm>({
+    mutationFn: async (variables) => Login(variables),
+    onSuccess: async (res) => {
+      if (res?.user) {
         setUser({
-          userName: res.userName,
-          userEmail: res.email,
-          userId: res.id,
-          role: res.role === "admin" ? "admin" : "user",
+          userId: res.user.id,
+          userEmail: res.user.email,
+          userName: res.user.name ?? "",
+          role:
+            res.user.role === "admin"
+              ? "admin"
+              : res.user.role === "judge"
+              ? "judge"
+              : "user",
         });
-        nav("/");
+      }
+      const attempts = 3;
+      let result: "ok" | "unauthorized" | "error" = "error";
+      for (let i = 0; i < attempts; i += 1) {
+        result = await refreshUser({ clearOnFail: i === attempts - 1 });
+        if (result === "ok") break;
+        if (i < attempts - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 150));
+        }
       }
 
-      // message.success(t("auth.loginSuccess"));
+      if (result === "ok") {
+        nav(next, { replace: true });
+        return;
+      }
+
+      setUser(null);
+      const messageKey =
+        result === "unauthorized"
+          ? "auth.errors.invalidCredentials"
+          : "auth.errors.sessionFailed";
+      message.error(
+        t(messageKey) ||
+          (result === "unauthorized"
+            ? "Invalid email or password."
+            : "Could not verify your session. Please try again.")
+      );
     },
-    onError: () => {
-      message.error(t("auth.errors.invalidCredentials"));
+    onError: (error: any) => {
+      const status = error?.status;
+      const key =
+        status === 401 || status === 403
+          ? "auth.errors.invalidCredentials"
+          : "auth.errors.sessionFailed";
+      setUser(null);
+      message.error(
+        t(key) ||
+          (status === 401 || status === 403
+            ? "Invalid email or password."
+            : "Login failed. Please try again.")
+      );
     },
   });
 
@@ -68,7 +107,7 @@ export default function LoginPage() {
             rules={[{ required: true, message: t("auth.errors.required") }]}
           >
             <Input
-              placeholder={isRTL ? "ایمیل یا شماره موبایل" : "Email or phone"}
+              placeholder={t("auth.idLabel")}
               autoComplete="username"
             />
           </Form.Item>
@@ -80,7 +119,7 @@ export default function LoginPage() {
             rules={[{ required: true, message: t("auth.errors.required") }]}
           >
             <Input.Password
-              placeholder="••••••••"
+              placeholder={t("auth.password")}
               autoComplete="current-password"
             />
           </Form.Item>
@@ -99,9 +138,11 @@ export default function LoginPage() {
         </Form>
 
         <Typography.Paragraph style={{ marginTop: 8, fontSize: 13 }}>
-          {isRTL ? "حساب ندارید؟ " : "No account? "}
+          {t("auth.noAccount")}
           <Link
-            to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ""}`}
+            to={`/signup${
+              nextParam ? `?next=${encodeURIComponent(nextParam)}` : ""
+            }`}
           >
             {t("auth.toSignup")}
           </Link>

@@ -1,4 +1,4 @@
-import { useAuth } from "../../contexts/AuthProvider";
+import { useAuth } from "../../contexts/AuthContext";
 
 export function useAuthFetch() {
   const { token } = useAuth();

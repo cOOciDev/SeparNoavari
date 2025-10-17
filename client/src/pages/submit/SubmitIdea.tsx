@@ -32,7 +32,7 @@ export default function SubmitIdeaPage() {
   const { t, i18n } = useTranslation();
   const nav = useNavigate();
   const isRTL = (i18n.language || "en").startsWith("fa");
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
@@ -43,10 +43,11 @@ export default function SubmitIdeaPage() {
   const [wordFileList, setWordFileList] = useState<UploadFile<RcFile>[]>([]);
 
   useEffect(() => {
-    if (!user) {
+    // wait until auth provider finishes loading session check
+    if (!authLoading && !user) {
       nav(`/login?next=${encodeURIComponent("/submit")}`, { replace: true });
     }
-  }, [user, nav]);
+  }, [user, nav, authLoading]);
 
   useEffect(() => {
     document.title = t("submit.title") + "  Separ Noavari";
@@ -84,7 +85,13 @@ export default function SubmitIdeaPage() {
       } else {
         message.error(t("submit.errors.submitFailed"));
       }
-    } catch {
+    } catch (err: any) {
+      // if unauthorized, redirect to login
+      if (err && (err.status === 401 || err.status === 403)) {
+        message.error(t('submit.errors.unauthorized') || t("submit.errors.submitFailed"));
+        nav(`/login?next=${encodeURIComponent('/submit')}`);
+        return;
+      }
       message.error(t("submit.errors.submitFailed"));
     }
     setSubmitting(false);
@@ -206,7 +213,7 @@ export default function SubmitIdeaPage() {
               { type: "email", message: t("submit.errors.emailValid") },
             ]}
           >
-            <Input size="large" placeholder="you@example.com" />
+            <Input size="large" placeholder={t("submit.emailPlaceholder")} />
           </Form.Item>
 
           <Form.Item
@@ -220,7 +227,7 @@ export default function SubmitIdeaPage() {
               },
             ]}
           >
-            <Input size="large" placeholder={isRTL ? "0912xxxxxxx" : "+98 (912) xxx-xxxx"} />
+            <Input size="large" placeholder={t("submit.contactPhonePlaceholder")} />
           </Form.Item>
 
           {/* Track */}
@@ -308,7 +315,7 @@ export default function SubmitIdeaPage() {
                   e.preventDefault();
                   onAddMember();
                 }}
-                placeholder={isRTL ? "نام عضو تیم" : "Team member name"}
+                placeholder={t("submit.teamMemberPlaceholder")}
                 style={{ width: 240 }}
                 size="middle"
               />
