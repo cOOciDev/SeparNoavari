@@ -5,14 +5,17 @@
     "module": "ESNext",
 
     "moduleResolution": "bundler",
-    "jsx": "react-jsx",           // ← مهم
-    "types": ["react"],           // ← برای JSX namespace
+    "jsx": "react-jsx",
 
-    "skipLibCheck": true,
+    "types": ["vite/client"],
+
     "strict": true,
+    "skipLibCheck": true,
     "noEmit": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "useDefineForClassFields": true
   },
-  "include": ["src"]
+  "include": ["src", "env.d.ts"]
 }

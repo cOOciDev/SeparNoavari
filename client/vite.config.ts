@@ -1,22 +1,25 @@
-﻿import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-    allowedHosts: [
-      'separnoavari.ir',
-      'www.separnoavari.ir'
-    ],
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5501',
-        changeOrigin: true,
-        secure: false,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  const backendPort = env.VITE_DEV_SERVER_PORT || env.PORT || "5501";
+  const proxyTarget =
+    env.VITE_DEV_SERVER_URL || `http://127.0.0.1:${backendPort}`;
+  const devPort = Number(env.VITE_DEV_PORT || 5173);
+
+  return {
+    plugins: [react()],
+    server: {
+      host: "0.0.0.0",
+      port: devPort,
+      allowedHosts: ["separnoavari.ir", "www.separnoavari.ir"],
+      proxy: {
+        "/api": {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
       },
     },
-  },
-})
+  };
+});

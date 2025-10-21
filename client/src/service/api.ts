@@ -1,12 +1,10 @@
-import axios from 'axios';
-
-const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
-const baseURL = apiBase ? `${apiBase}/api` : '/api';
+import axios from "axios";
+import { API_BASE_URL } from "./http";
 
 const api = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
   headers: {
-    'Accept-Language': 'en-US',
+    "Accept-Language": "en-US",
   },
   withCredentials: true,
 });
