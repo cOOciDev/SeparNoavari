@@ -1,30 +1,36 @@
 {
-  "name": "stuff-happens-server",
-  "version": "1.0.0",
+  "name": "separ-noavari-server",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.mjs",
-    "init-db": "node init-db.mjs"
+    "start": "node ./src/index.js",
+    "dev": "nodemon --watch src --exec node ./src/index.js",
+    "migrate:sqlite-to-mongo": "node ./scripts/migrate-sqlite-to-mongo.js",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand"
   },
   "dependencies": {
     "archiver": "^7.0.1",
-    "axios": "^1.12.2",
-    "axios-cookiejar-support": "^6.0.4",
     "bcrypt": "^5.1.0",
+    "compression": "^1.7.4",
+    "connect-mongo": "^5.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.3.1",
     "express-session": "^1.17.3",
-    "form-data": "^4.0.4",
+    "helmet": "^7.1.0",
     "multer": "^2.0.2",
+    "mongoose": "^8.8.0",
+    "morgan": "^1.10.0",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.6",
-    "tough-cookie": "^5.1.2"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "sqlite3": "^5.1.7",
+    "supertest": "^6.3.4"
   }
 }
