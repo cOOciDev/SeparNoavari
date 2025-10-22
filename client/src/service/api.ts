@@ -1,13 +1,42 @@
 import axios from "axios";
-import { API_BASE_URL } from "./http";
+import i18n from "../AppData/i18n";
+import { logoutAndRedirect } from "../utils/session";
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Accept-Language": "en-US",
-  },
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE || "/api",
   withCredentials: true,
 });
+
+api.interceptors.request.use((config) => {
+  config.headers = config.headers || {};
+  config.headers["Accept-Language"] = i18n.language || "fa";
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => {
+    if (response?.data?.ok === false) {
+      const error: any = new Error(response.data?.message || "Request failed");
+      error.code = response.data?.code;
+      error.details = response.data?.details;
+      throw error;
+    }
+    return response;
+  },
+  (error) => {
+    const status = error?.response?.status;
+    const requestUrl = error?.config?.url || "";
+
+    if (
+      (status === 401 || status === 419) &&
+      requestUrl.includes("/auth/me")
+    ) {
+      logoutAndRedirect();
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 
