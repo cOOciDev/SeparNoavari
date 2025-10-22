@@ -26,9 +26,32 @@ const AssignmentModal = ({ open, onClose, ideaId, ideaIds, defaultCount = 3 }: A
         count: number;
         strategy: "AUTO" | "MANUAL";
       };
+
+      const normalizedIdeaIds = Array.isArray(ideaIds)
+        ? ideaIds
+            .filter(
+              (value): value is string | number =>
+                value !== null && value !== undefined
+            )
+            .map((value) => String(value))
+        : [];
+      const normalizedIdeaId = ideaId ? String(ideaId) : undefined;
+
+      const combinedIdeaIds =
+        normalizedIdeaIds.length > 0
+          ? normalizedIdeaIds
+          : normalizedIdeaId
+          ? [normalizedIdeaId]
+          : [];
+
+      if (combinedIdeaIds.length === 0) {
+        setError("هیچ ایده‌ای انتخاب نشده است.");
+        return;
+      }
+
       const payload = {
-        ideaId,
-        ideaIds,
+        ideaId: normalizedIdeaId,
+        ideaIds: combinedIdeaIds,
         judgeIds: values.strategy === "MANUAL" ? values.judges : undefined,
         countPerIdea: values.count,
         strategy: values.strategy,
@@ -119,3 +142,4 @@ const AssignmentModal = ({ open, onClose, ideaId, ideaIds, defaultCount = 3 }: A
 };
 
 export default AssignmentModal;
+

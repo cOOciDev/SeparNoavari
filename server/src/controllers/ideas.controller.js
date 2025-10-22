@@ -65,6 +65,22 @@ const canViewIdea = async (idea, user) => {
 class IdeasController {
   static async create(req, res, next) {
     try {
+      const rawTeam =
+        req.body?.teamMembers ??
+        req.body?.["teamMembers[]"] ??
+        [];
+
+      const normalizedTeam = Array.isArray(rawTeam)
+        ? rawTeam
+        : typeof rawTeam === "string"
+        ? [rawTeam]
+        : [];
+
+      const rawBody = {
+        ...req.body,
+        teamMembers: normalizedTeam,
+      };
+
       const {
         body: {
           title,
@@ -75,14 +91,31 @@ class IdeasController {
           phone,
           teamMembers,
         },
-      } = createIdeaSchema.parse({ body: req.body });
+      } = createIdeaSchema.parse({ body: rawBody });
 
       const files = resolveFilesPayload(req.files);
-      if (files.length === 0) {
+      const proposalDoc = files.find((f) => f.fieldName === "proposalDoc");
+      const proposalPdf = files.find((f) => f.fieldName === "proposalPdf");
+
+      if (!proposalDoc && !proposalPdf) {
         return res.status(400).json({
           ok: false,
           code: "FILES_REQUIRED",
-          message: "At least one file must be uploaded",
+          message: "فایل‌های Word و PDF ایده باید بارگذاری شوند.",
+        });
+      }
+      if (!proposalDoc) {
+        return res.status(400).json({
+          ok: false,
+          code: "WORD_REQUIRED",
+          message: "فایل Word (DOC یا DOCX) الزامی است.",
+        });
+      }
+      if (!proposalPdf) {
+        return res.status(400).json({
+          ok: false,
+          code: "PDF_REQUIRED",
+          message: "فایل PDF الزامی است.",
         });
       }
 
@@ -95,7 +128,7 @@ class IdeasController {
         submitterName,
         phone: phone || "",
         teamMembers,
-        files,
+        files: [proposalDoc, proposalPdf],
       });
 
       return res.status(201).json({

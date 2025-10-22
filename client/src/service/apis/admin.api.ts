@@ -1,5 +1,6 @@
 import api from "../api";
 import type { Idea, Judge, Role, User } from "../../types/domain";
+import { normalizeIdea, normalizeIdeaCollection } from "../transformers";
 
 type Paginated<T> = {
   items: T[];
@@ -14,8 +15,9 @@ export async function getAdminIdeas(params: {
   pageSize?: number;
 }): Promise<Paginated<Idea>> {
   const { data } = await api.get("/admin/ideas", { params });
+  const rawItems = data.items ?? data.ideas ?? [];
   return {
-    items: (data.items ?? data.ideas ?? []) as Idea[],
+    items: normalizeIdeaCollection(rawItems),
     total: data.total ?? data.count ?? 0,
   };
 }
@@ -31,12 +33,49 @@ export async function createJudge(payload: {
 
 export async function bulkAssign(payload: {
   ideaId?: string;
-  ideaIds?: string[];
-  judgeIds?: string[];
+  ideaIds?: Array<string | null | undefined>;
+  judgeIds?: Array<string | null | undefined>;
   countPerIdea?: number;
   strategy?: "AUTO" | "MANUAL";
 }): Promise<{ assignments: any[] }> {
-  const { data } = await api.post("/admin/assignments/bulk", payload);
+  const normalizedIdeaIds = Array.from(
+    new Set(
+      [
+        ...(payload.ideaIds ?? []),
+        payload.ideaId,
+      ]
+        .filter((value): value is string => Boolean(value))
+        .map((value) => value!)
+    )
+  );
+
+  if (normalizedIdeaIds.length === 0) {
+    throw new Error("هیچ ایده‌ای انتخاب نشده است.");
+  }
+
+  const normalizedJudgeIds = payload.judgeIds
+    ? Array.from(
+        new Set(
+          payload.judgeIds
+            .filter((value): value is string => Boolean(value))
+            .map((value) => value!)
+        )
+      )
+    : undefined;
+
+  const body: Record<string, unknown> = {
+    ideaIds: normalizedIdeaIds,
+  };
+
+  if (normalizedJudgeIds && normalizedJudgeIds.length > 0) {
+    body.judgeIds = normalizedJudgeIds;
+  }
+
+  if (payload.countPerIdea !== undefined) {
+    body.requiredCount = payload.countPerIdea;
+  }
+
+  const { data } = await api.post("/admin/assignments/bulk", body);
   return { assignments: data.assignments ?? [] };
 }
 

@@ -1,4 +1,7 @@
-﻿{
+{
+  "program": "Innovation Program",
+  "heroTitle": "Innovation for Resilience",
+  "heroSubtitle": "Submit ideas that strengthen crisis response and social resilience.",
   "common": {
     "view": "View",
     "assign": "Assign",
@@ -28,6 +31,9 @@
       "submit": "Submit Your Idea",
       "tracks": "Explore Tracks"
     },
+    "heroPosterAlt": "Innovation poster",
+    "committeeHeading": "Scientific Committee",
+    "committeeText": "Meet the experts supporting your submissions.",
     "tracks": {
       "title": "Tracks",
       "subtitle": "Choose the track that best matches your concept. Each track is supported by expert mentors.",
@@ -43,7 +49,42 @@
       "subtitle": "Submit your proposal today and collaborate with leading experts to bring your innovation to life.",
       "register": "Create account",
       "note": "Need more information? Explore the tracks or contact the support team."
+    },
+    "prizePool": "Prize Pool"
+  },
+  "countdown": {
+    "title": "Next Milestone",
+    "tip": "Stay on time and plan your submission.",
+    "seeTimeline": "See timeline",
+    "closing": "Closing Ceremony"
+  },
+  "submitCard": {
+    "title": "Submit your proposal",
+    "text": "Use the official template and upload.",
+    "start": "Start now",
+    "template": "Download template"
+  },
+  "tracksCard": {
+    "title": "Tracks",
+    "text": "Pick the track that matches your concept."
+  },
+  "timeline": {
+    "title": "Timeline",
+    "item": {
+      "submission": "Submission deadline",
+      "review": "Review & Results"
     }
+  },
+  "committee": {
+    "seeAll": "See all"
+  },
+  "header": {
+    "seeAll": "See all"
+  },
+  "carousel": {
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "goto": "Go to slide {{n}}"
   },
   "auth": {
     "login": "Login",

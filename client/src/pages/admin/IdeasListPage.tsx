@@ -1,5 +1,15 @@
-﻿import { useMemo, useState } from "react";
-import { Card, Space, Input, Select, Spin, Alert, Button } from "antd";
+﻿
+import { useMemo, useState } from "react";
+import {
+  Card,
+  Space,
+  Input,
+  Select,
+  Spin,
+  Alert,
+  Button,
+  message,
+} from "antd";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
@@ -8,7 +18,12 @@ import AssignmentModal from "../../components/judges/AssignmentModal";
 import { useAdminIdeas } from "../../service/hooks";
 import type { Idea, IdeaStatus } from "../../types/domain";
 
-const STATUS_VALUES: IdeaStatus[] = ["SUBMITTED", "UNDER_REVIEW", "DONE", "REJECTED"];
+const STATUS_VALUES: IdeaStatus[] = [
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "DONE",
+  "REJECTED",
+];
 
 const IdeasListPage = () => {
   const { t } = useTranslation();
@@ -35,13 +50,17 @@ const IdeasListPage = () => {
     () =>
       STATUS_VALUES.map((value) => ({
         value,
-        label: t(`ideas.status.${value.toLowerCase()}`, { defaultValue: value }),
+        label: t(`ideas.status.${value.toLowerCase()}`, {
+          defaultValue: value,
+        }),
       })),
     [t]
   );
 
   const categoryChoices = useMemo(() => {
-    const distinct = Array.from(new Set(dataSource.map((idea) => idea.category).filter(Boolean)));
+    const distinct = Array.from(
+      new Set(dataSource.map((idea: { category: unknown; }) => idea.category).filter(Boolean))
+    );
     return distinct.map((cat) => ({ value: cat, label: cat }));
   }, [dataSource]);
 
@@ -56,7 +75,8 @@ const IdeasListPage = () => {
         title: t("admin.ideas.submitter", { defaultValue: "Submitter" }),
         dataIndex: "submitterName",
         key: "submitterName",
-        render: (_: unknown, record: Idea) => record.submitterName || record.contactEmail,
+        render: (_: unknown, record: Idea) =>
+          record.submitterName || record.contactEmail,
       },
       {
         title: t("admin.ideas.status", { defaultValue: "Status" }),
@@ -77,16 +97,47 @@ const IdeasListPage = () => {
       {
         title: t("admin.ideas.actions", { defaultValue: "Actions" }),
         key: "actions",
-        render: (_: unknown, record: Idea) => (
-          <Space>
-            <Button size="small" onClick={() => navigate(`/admin/ideas/${record.id}`)}>
-              {t("common.view", { defaultValue: "View" })}
-            </Button>
-            <Button size="small" onClick={() => setAssignIdeaId(String(record.id))}>
-              {t("admin.ideas.assign", { defaultValue: "Assign" })}
-            </Button>
-          </Space>
-        ),
+        render: (_: unknown, record: Idea) => {
+          const ideaRecord = record as Idea & { _id?: string };
+          const resolvedId = ideaRecord.id ?? ideaRecord._id;
+
+          return (
+            <Space>
+              <Button
+                size="small"
+                onClick={() => {
+                  if (!resolvedId) {
+                    message.error(
+                      t("admin.ideas.missingId", {
+                        defaultValue: "Idea identifier is missing.",
+                      })
+                    );
+                    return;
+                  }
+                  navigate(`/admin/ideas/${resolvedId}`);
+                }}
+              >
+                {t("common.view", { defaultValue: "View" })}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => {
+                  if (!resolvedId) {
+                    message.error(
+                      t("admin.ideas.missingId", {
+                        defaultValue: "Idea identifier is missing.",
+                      })
+                    );
+                    return;
+                  }
+                  setAssignIdeaId(String(resolvedId));
+                }}
+              >
+                {t("admin.ideas.assign", { defaultValue: "Assign" })}
+              </Button>
+            </Space>
+          );
+        },
       },
     ],
     [navigate, t]
@@ -101,13 +152,15 @@ const IdeasListPage = () => {
   }
 
   if (ideasQuery.error) {
-    const message =
+    const messageText =
       ideasQuery.error instanceof Error
         ? ideasQuery.error.message
-        : t("admin.ideas.error", { defaultValue: "Failed to load ideas" });
+        : t("admin.ideas.error", {
+            defaultValue: "Failed to load ideas",
+          });
     return (
       <Card>
-        <Alert type="error" message={message} />
+        <Alert type="error" message={messageText} />
       </Card>
     );
   }
@@ -117,7 +170,9 @@ const IdeasListPage = () => {
       <Card>
         <Space wrap>
           <Input.Search
-            placeholder={t("admin.ideas.search", { defaultValue: "Search by title or submitter" })}
+            placeholder={t("admin.ideas.search", {
+              defaultValue: "Search by title or submitter",
+            })}
             value={query}
             onChange={(event) => {
               setPage(1);
@@ -132,7 +187,15 @@ const IdeasListPage = () => {
               setPage(1);
               setStatus(value as IdeaStatus | "ALL");
             }}
-            options={[{ value: "ALL", label: t("ideas.filters.allStatuses", { defaultValue: "All statuses" }) }, ...statusChoices]}
+            options={[
+              {
+                value: "ALL",
+                label: t("ideas.filters.allStatuses", {
+                  defaultValue: "All statuses",
+                }),
+              },
+              ...statusChoices,
+            ]}
           />
           <Select
             value={category}
@@ -141,7 +204,15 @@ const IdeasListPage = () => {
               setPage(1);
               setCategory(value as string | "ALL");
             }}
-            options={[{ value: "ALL", label: t("ideas.filters.allCategories", { defaultValue: "All categories" }) }, ...categoryChoices]}
+            options={[
+              {
+                value: "ALL",
+                label: t("ideas.filters.allCategories", {
+                  defaultValue: "All categories",
+                }),
+              },
+              ...categoryChoices,
+            ]}
           />
         </Space>
       </Card>
@@ -149,12 +220,23 @@ const IdeasListPage = () => {
       <Card>
         {dataSource.length === 0 ? (
           <EmptyState
-            title={t("admin.ideas.empty", { defaultValue: "No ideas match your filters" })}
-            description={t("admin.ideas.adjustFilters", { defaultValue: "Try changing the filters or search term." })}
+            title={t("admin.ideas.empty", {
+              defaultValue: "No ideas match your filters",
+            })}
+            description={t("admin.ideas.adjustFilters", {
+              defaultValue: "Try changing the filters or search term.",
+            })}
           />
         ) : (
           <DataTable<Idea>
-            rowKey={(record) => record.id}
+            rowKey={(record) => {
+              const ideaRecord = record as Idea & { _id?: string };
+              const resolvedId = ideaRecord.id ?? ideaRecord._id ?? "";
+              if (!resolvedId) {
+                console.warn("Idea record missing id", ideaRecord);
+              }
+              return resolvedId;
+            }}
             columns={columns}
             dataSource={dataSource}
             pagination={{

@@ -65,12 +65,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  if (file.fieldname === "pdf_file") {
+const fileFilter = (_req, file, cb) => {
+  if (file.fieldname === "proposalPdf") {
     if (file.mimetype === "application/pdf") return cb(null, true);
     return cb(new Error("INVALID_PDF_TYPE"));
   }
-  if (file.fieldname === "word_file") {
+  if (file.fieldname === "proposalDoc") {
     if (
       file.mimetype === "application/msword" ||
       file.mimetype ===
@@ -97,35 +97,34 @@ const handleMulterError = (error, res) => {
     return res.status(400).json({
       ok: false,
       code: "FILE_TOO_LARGE",
-      message: "Each file must be smaller than 30MB",
+      message: "حجم هر فایل باید کمتر از ۳۰ مگابایت باشد.",
     });
   }
   if (error.message === "INVALID_PDF_TYPE") {
     return res.status(400).json({
       ok: false,
       code: "INVALID_FILE_TYPE",
-      message: "Only PDF allowed for pdf_file field",
+      message: "فقط فایل PDF مجاز است.",
     });
   }
   if (error.message === "INVALID_WORD_TYPE") {
     return res.status(400).json({
       ok: false,
       code: "INVALID_FILE_TYPE",
-      message: "Only Word documents allowed for word_file field",
+      message: "فقط فایل Word با پسوند DOC یا DOCX مجاز است.",
     });
   }
   return res.status(400).json({
     ok: false,
     code: "UPLOAD_FAILED",
-    message: "Upload failed",
+    message: "بارگذاری فایل با خطا مواجه شد.",
   });
 };
 
 export const ideaUpload = (req, res, next) =>
   uploader.fields([
-    { name: "pdf_file", maxCount: 1 },
-    { name: "word_file", maxCount: 1 },
-    { name: "attachments", maxCount: 8 },
+    { name: "proposalPdf", maxCount: 1 },
+    { name: "proposalDoc", maxCount: 1 },
   ])(req, res, (err) => {
     if (err) {
       return handleMulterError(err, res);

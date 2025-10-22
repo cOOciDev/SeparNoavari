@@ -7,10 +7,25 @@ import Assignment from "../models/Assignment.js";
 
 const ObjectId = mongoose.Types.ObjectId;
 
-const normalizeIds = (values = []) =>
-  [...new Set(values.map((value) => String(value)))]
-    .filter(Boolean)
-    .map((value) => new ObjectId(value));
+const normalizeObjectIds = (values = [], label = "identifier") => {
+  const unique = [...new Set(values.map((value) => String(value)))]
+    .filter((value) => Boolean(value));
+
+  if (unique.length === 0) {
+    throw createError(400, `No valid ${label} provided`);
+  }
+
+  for (const value of unique) {
+    if (!ObjectId.isValid(value)) {
+      throw createError(
+        400,
+        `Invalid ${label}: ${value}`
+      );
+    }
+  }
+
+  return unique.map((value) => new ObjectId(value));
+};
 
 const loadJudges = async (ids) => {
   const judges = await Judge.find({ _id: { $in: ids }, active: true })
@@ -55,7 +70,7 @@ export const assignJudgesToIdeas = async ({
   if (!Array.isArray(ideaIds) || ideaIds.length === 0) {
     throw createError(400, "ideaIds array is required");
   }
-  const normalizedIdeaIds = normalizeIds(ideaIds);
+  const normalizedIdeaIds = normalizeObjectIds(ideaIds, "idea id");
   const ideas = await Idea.find({ _id: { $in: normalizedIdeaIds } })
     .lean()
     .exec();
@@ -65,7 +80,7 @@ export const assignJudgesToIdeas = async ({
 
   let judges;
   if (Array.isArray(judgeIds) && judgeIds.length > 0) {
-    const normalizedJudgeIds = normalizeIds(judgeIds);
+    const normalizedJudgeIds = normalizeObjectIds(judgeIds, "judge id");
     if (normalizedJudgeIds.length < requiredCount) {
       throw createError(
         400,

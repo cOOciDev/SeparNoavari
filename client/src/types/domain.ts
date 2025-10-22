@@ -34,6 +34,7 @@ export type IdeaStatus = "SUBMITTED" | "UNDER_REVIEW" | "DONE" | "REJECTED";
 
 export interface Idea {
   id: string;
+  _id?: string;
   owner: string;
   title: string;
   summary: string;
