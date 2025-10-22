@@ -4,13 +4,12 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, index: true },
+    email: { type: String, required: true },
     passwordHash: { type: String, default: null },
     role: {
       type: String,
       enum: ["USER", "JUDGE", "ADMIN"],
       default: "USER",
-      index: true,
     },
     name: { type: String, default: "" },
   },
@@ -28,6 +27,7 @@ const userSchema = new Schema(
   }
 );
 
+// canonical unique index for email
 userSchema.index({ email: 1 }, { unique: true });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

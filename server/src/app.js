@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import helmet from "helmet";
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -12,6 +12,8 @@ import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 const app = express();
+
+app.disable("etag");
 
 if (env.trustProxy) {
   app.set("trust proxy", 1);
@@ -39,7 +41,7 @@ app.use(
       }
       return callback(
         new Error(
-          `Origin "${origin}" is not permitted. Configure CLIENT_ORIGIN env var.`
+        "  Origin  is not permitted. Configure CLIENT_ORIGIN env var."
         )
       );
     },

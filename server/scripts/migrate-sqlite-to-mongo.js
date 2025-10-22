@@ -106,7 +106,7 @@ const parseFiles = (raw) => {
 };
 
 const run = async () => {
-  await connectMongo();
+  await connectMongo(env.mongoUri);
 
   const existingUsers = await User.countDocuments();
   const existingIdeas = await Idea.countDocuments();

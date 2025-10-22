@@ -1,70 +1,79 @@
-import bcrypt from "bcrypt";
+﻿import bcrypt from "bcrypt";
 import passport from "../config/passport.js";
 import User from "../models/User.js";
-import { z } from "zod";
 import env from "../config/env.js";
 
-const registerSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    name: z.string().min(1),
-  }),
-});
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 
-const mapUserForClient = (user) => ({
-  id: user.id || String(user._id),
-  email: user.email,
-  name: user.name || "",
-  role: user.role || "USER",
-});
+const setNoCacheHeaders = (res) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+};
+
+const sanitizeUser = (raw) => {
+  if (!raw) return null;
+  const doc = raw.toObject ? raw.toObject() : raw;
+  return {
+    id: doc.id || String(doc._id),
+    email: doc.email,
+    name: doc.name || "",
+    role: doc.role || "USER",
+  };
+};
 
 class AuthController {
   static async register(req, res, next) {
     try {
-      const {
-        body: { email, password, name },
-      } = registerSchema.parse({ body: req.body });
+      const { email, password, name } = req.body || {};
 
-      const normalizedEmail = email.trim().toLowerCase();
-      const existing = await User.findOne({ email: normalizedEmail });
-      if (existing) {
-        return res.status(409).json({
+      const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+      if (!EMAIL_REGEX.test(normalizedEmail)) {
+        setNoCacheHeaders(res);
+        return res.status(422).json({
           ok: false,
-          code: "EMAIL_IN_USE",
-          message: "An account with this email already exists",
+          code: "INVALID_EMAIL",
+          message: "Invalid email.",
         });
       }
 
-      const passwordHash = await bcrypt.hash(password, 10);
+      if (typeof password !== "string" || password.length < 8) {
+        setNoCacheHeaders(res);
+        return res.status(422).json({
+          ok: false,
+          code: "WEAK_PASSWORD",
+          message: "Password too short.",
+        });
+      }
+
+      const existing = await User.findOne({ email: normalizedEmail });
+      if (existing) {
+        setNoCacheHeaders(res);
+        return res.status(409).json({
+          ok: false,
+          code: "EMAIL_TAKEN",
+          message: "Email already in use.",
+        });
+      }
+
+      const displayName = typeof name === "string" ? name.trim() : "";
+      const passwordHash = await bcrypt.hash(password, 12);
       const user = await User.create({
         email: normalizedEmail,
         passwordHash,
-        name,
-        role: "USER",
+        name: displayName,
       });
+
+      const clientUser = sanitizeUser(user);
 
       await new Promise((resolve, reject) => {
-        req.login(mapUserForClient(user), (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
+        req.login(clientUser, (err) => (err ? reject(err) : resolve()));
       });
 
-      return res.status(201).json({
-        ok: true,
-        user: mapUserForClient(user),
-      });
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(422).json({
-          ok: false,
-          code: "VALIDATION_ERROR",
-          message: "Validation failed",
-          details: err.issues,
-        });
-      }
-      return next(err);
+      setNoCacheHeaders(res);
+      return res.status(201).json({ ok: true, user: clientUser });
+    } catch (error) {
+      return next(error);
     }
   }
 
@@ -72,46 +81,61 @@ class AuthController {
     passport.authenticate("local", (error, user, info = {}) => {
       if (error) return next(error);
       if (!user) {
+        setNoCacheHeaders(res);
         return res.status(401).json({
           ok: false,
           code: "INVALID_CREDENTIALS",
-          message: info.message || "Invalid credentials",
+          message: info.message || "Invalid email or password.",
         });
       }
-      req.login(user, (loginErr) => {
+      const clientUser = sanitizeUser(user);
+      req.login(clientUser, (loginErr) => {
         if (loginErr) return next(loginErr);
-        return res.json({
-          ok: true,
-          user: mapUserForClient(user),
-        });
+        setNoCacheHeaders(res);
+        return res.json({ ok: true, user: clientUser });
       });
     })(req, res, next);
   }
 
-  static async logout(req, res, next) {
+  static async logout(req, res) {
     try {
-      await new Promise((resolve, reject) => {
-        req.logout((err) => (err ? reject(err) : resolve()));
+      await new Promise((resolve) => {
+        if (typeof req.logout === "function") {
+          req.logout(() => resolve());
+        } else {
+          resolve();
+        }
       });
-      await new Promise((resolve, reject) => {
-        req.session?.destroy((err) => (err ? reject(err) : resolve()));
-      });
-      res.clearCookie("connect.sid", {
-        httpOnly: true,
-        sameSite: env.isProduction && !env.allowInsecureLocal ? "none" : "lax",
-        secure: env.isProduction && !env.allowInsecureLocal,
-      });
-      return res.json({ ok: true });
-    } catch (err) {
-      return next(err);
+    } catch {
+      // ignore logout errors to keep call idempotent
     }
+
+    try {
+      await new Promise((resolve) => {
+        req.session?.destroy(() => resolve());
+        if (!req.session) resolve();
+      });
+    } catch {
+      // ignore session destroy errors
+    }
+
+    res.clearCookie?.("connect.sid", {
+      httpOnly: true,
+      sameSite: env.isProduction && !env.allowInsecureLocal ? "none" : "lax",
+      secure: env.isProduction && !env.allowInsecureLocal,
+      path: "/",
+    });
+
+    setNoCacheHeaders(res);
+    return res.status(200).json({ ok: true });
   }
 
   static me(req, res) {
-    if (!req.isAuthenticated?.() || !req.isAuthenticated()) {
-      return res.json({ ok: true, user: null });
+    setNoCacheHeaders(res);
+    if (!req.isAuthenticated?.() || !req.isAuthenticated() || !req.user) {
+      return res.status(200).json({ ok: true, user: null });
     }
-    return res.json({ ok: true, user: mapUserForClient(req.user) });
+    return res.json({ ok: true, user: sanitizeUser(req.user) });
   }
 }
 
