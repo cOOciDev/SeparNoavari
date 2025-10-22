@@ -1,15 +1,18 @@
-﻿const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '';
-const apiPrefix = apiBase ? `${apiBase}/api` : '/api';
+const apiBase = (import.meta.env.VITE_API_BASE || "/api").replace(/\/$/, "");
 
-export type IdeaFileKey = 'pdf' | 'word' | 'file';
-
-export function buildIdeaDownloadUrl(ideaId: number | string, key: IdeaFileKey) {
-  const idSegment = encodeURIComponent(String(ideaId).trim());
-  const normalizedKey: IdeaFileKey = key;
-  return `${apiPrefix}/ideas/${idSegment}/files/${normalizedKey}`;
+export function buildFileUrl(path: string) {
+  if (!path) return "#";
+  const normalized = path.startsWith("/") ? path.slice(1) : path;
+  return `${apiBase}/${normalized}`;
 }
 
-export function buildIdeaFolderDownloadUrl(ideaId: number | string) {
-  const idSegment = encodeURIComponent(String(ideaId).trim());
-  return `${apiPrefix}/ideas/${idSegment}/download`;
+export function downloadFile(path: string, filename?: string) {
+  const url = buildFileUrl(path);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  if (filename) anchor.download = filename;
+  anchor.rel = "noopener";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
 }
