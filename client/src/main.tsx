@@ -1,16 +1,18 @@
-import React from "react";
+﻿import React from "react";
 import { createRoot } from "react-dom/client";
-// import { BrowserRouter } from "react-router-dom"
-import App from "./App";
-
-// استایل‌های سراسری (اگر قبلاً اضافه شده، همان بماند)
+import "antd/dist/reset.css";
 import "./styles/global.scss";
-
-// ✅ این خط را اضافه کن: مقداردهی i18n
-import "./AppData/i18n/i18n";
-
 import "./styles/_fonts.scss";
-createRoot(document.getElementById("root")!).render(
+import "./AppData/i18n/i18n";
+import App from "./app/App";
+
+const container = document.getElementById("root");
+
+if (!container) {
+  throw new Error("Root container element not found");
+}
+
+createRoot(container).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
