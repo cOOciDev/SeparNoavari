@@ -51,6 +51,7 @@ export interface Idea {
     average: number | null;
     totalReviews: number;
   };
+  finalSummary?: EvaluationSummaryFile | null;
 }
 
 export interface Judge {
@@ -58,20 +59,68 @@ export interface Judge {
   user: User;
   expertise: string[];
   active: boolean;
+  capacity?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export type AssignmentStatus = "PENDING" | "REVIEWED";
+export type AssignmentStatus =
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "SUBMITTED"
+  | "REVIEWED"
+  | "LOCKED";
+
+export interface AssignmentSubmission {
+  filename: string;
+  mimetype: string;
+  size: number;
+  uploadedAt: string;
+  version: number;
+  downloadUrl?: string;
+}
+
+export interface AssignmentTemplate {
+  source: string;
+  filename: string;
+  url: string;
+  available: boolean;
+}
+
+export interface AssignmentJudgeSummary {
+  id: string;
+  user?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+}
+
+export interface AssignmentIdeaSummary {
+  id: string;
+  title?: string;
+  status?: IdeaStatus;
+}
 
 export interface Assignment {
   id: string;
-  idea: Idea;
-  judge: Judge;
-  assignedBy: string;
+  idea?: AssignmentIdeaSummary;
+  judge?: AssignmentJudgeSummary;
   status: AssignmentStatus;
-  createdAt: string;
-  updatedAt: string;
+  allowReuploadUntilLock: boolean;
+  deadline?: string;
+  template: AssignmentTemplate;
+  submission?: AssignmentSubmission | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EvaluationSummaryFile {
+  filename: string;
+  mimetype: string;
+  size: number;
+  uploadedAt: string;
+  downloadUrl?: string;
 }
 
 export interface ReviewScores {

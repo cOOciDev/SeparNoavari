@@ -2,14 +2,14 @@ import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import s from "./landing.module.scss";
-import { TRACKS } from "../AppData/tracks";
-import { COMMITTEE } from "../AppData/committee";
-import { MILESTONES, RESULTS_DATE_ISO } from "../AppData/schedule";
+import s from "../landing.module.scss";
+import { TRACKS } from "../../AppData/tracks";
+import { COMMITTEE } from "../../AppData/committee";
+import { MILESTONES, RESULTS_DATE_ISO } from "../../AppData/schedule";
 
-import TracksCarousel from "../components/TracksCarousel";
-import CommitteeCarousel from "../components/CommitteeCarousel";
-import Countdown from "../components/Countdown";
+import TracksCarousel from "../../components/TracksCarousel";
+import CommitteeCarousel from "../../components/CommitteeCarousel";
+import Countdown from "../../components/Countdown";
 
 export default function LandingEnhanced() {
   const { t, i18n } = useTranslation();

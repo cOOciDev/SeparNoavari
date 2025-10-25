@@ -1,5 +1,5 @@
 import api from "../api";
-import type { Idea, Judge } from "../../types/domain";
+import type { Idea, Judge, Assignment } from "../../types/domain";
 
 type Paginated<T> = {
   items: T[];
@@ -28,7 +28,28 @@ export async function getJudgeIdeas(): Promise<Paginated<Idea>> {
   };
 }
 
+export async function getJudgeAssignments(): Promise<Assignment[]> {
+  const { data } = await api.get("/judge/assignments");
+  return (data.assignments ?? []) as Assignment[];
+}
+
+export async function uploadJudgeSubmission(
+  assignmentId: string,
+  file: File
+): Promise<Assignment> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post(
+    `/judge/assignments/${encodeURIComponent(assignmentId)}/submission`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data.assignment as Assignment;
+}
+
 export default {
   getJudges,
   getJudgeIdeas,
+  getJudgeAssignments,
+  uploadJudgeSubmission,
 };

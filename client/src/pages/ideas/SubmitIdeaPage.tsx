@@ -38,7 +38,8 @@ const SubmitIdeaPage = () => {
         !values.proposalDoc?.originFileObj ||
         !values.proposalPdf?.originFileObj
       ) {
-        message.error("لطفاً هر دو فایل Word و PDF را انتخاب کنید.");
+        message.error(t("ideas.form.fileRules.wordRequired", { defaultValue: "Word file is required." }));
+        message.error(t("ideas.form.fileRules.pdfRequired", { defaultValue: "PDF file is required." }));
         return;
       }
 

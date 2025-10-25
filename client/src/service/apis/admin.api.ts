@@ -1,6 +1,14 @@
+import axios from "axios";
 import api from "../api";
-import type { Idea, Judge, Role, User } from "../../types/domain";
-import { normalizeIdea, normalizeIdeaCollection } from "../transformers";
+import type {
+  Idea,
+  Judge,
+  Role,
+  User,
+  Assignment,
+  EvaluationSummaryFile,
+} from "../../types/domain";
+import { normalizeIdeaCollection } from "../transformers";
 
 type Paginated<T> = {
   items: T[];
@@ -26,57 +34,90 @@ export async function createJudge(payload: {
   email: string;
   name?: string;
   expertise?: string[];
+  capacity?: number;
 }): Promise<{ judge: Judge }> {
   const { data } = await api.post("/admin/judges", payload);
   return { judge: data.judge as Judge };
 }
 
-export async function bulkAssign(payload: {
-  ideaId?: string;
-  ideaIds?: Array<string | null | undefined>;
-  judgeIds?: Array<string | null | undefined>;
-  countPerIdea?: number;
-  strategy?: "AUTO" | "MANUAL";
-}): Promise<{ assignments: any[] }> {
-  const normalizedIdeaIds = Array.from(
-    new Set(
-      [
-        ...(payload.ideaIds ?? []),
-        payload.ideaId,
-      ]
-        .filter((value): value is string => Boolean(value))
-        .map((value) => value!)
-    )
+export async function updateJudge(
+  id: string,
+  payload: { capacity?: number | null; active?: boolean }
+): Promise<Judge> {
+  const { data } = await api.patch(
+    `/admin/judges/${encodeURIComponent(id)}`,
+    payload
   );
+  return data.judge as Judge;
+}
 
-  if (normalizedIdeaIds.length === 0) {
-    throw new Error("هیچ ایده‌ای انتخاب نشده است.");
+export async function manualAssign(payload: {
+  ideaId: string;
+  judgeIds: string[];
+}): Promise<{ assignments: Assignment[] }> {
+  try {
+    const { data } = await api.post("/admin/assignments/manual", payload);
+    return {
+      assignments: (data.assignments ?? []) as Assignment[],
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      const err: any = new Error(
+        error.response.data?.message || "Failed to assign judges."
+      );
+      err.code = error.response.data?.code;
+      err.details = error.response.data?.details;
+      throw err;
+    }
+    throw error;
   }
+}
 
-  const normalizedJudgeIds = payload.judgeIds
-    ? Array.from(
-        new Set(
-          payload.judgeIds
-            .filter((value): value is string => Boolean(value))
-            .map((value) => value!)
-        )
-      )
-    : undefined;
-
-  const body: Record<string, unknown> = {
-    ideaIds: normalizedIdeaIds,
+export async function getIdeaAssignments(
+  ideaId: string
+): Promise<{ assignments: Assignment[]; total: number; maxJudges: number }> {
+  const { data } = await api.get(
+    `/admin/ideas/${encodeURIComponent(ideaId)}/assignments`
+  );
+  return {
+    assignments: (data.assignments ?? []) as Assignment[],
+    total: data.meta?.total ?? data.assignments?.length ?? 0,
+    maxJudges: data.meta?.maxJudges ?? 10,
   };
+}
 
-  if (normalizedJudgeIds && normalizedJudgeIds.length > 0) {
-    body.judgeIds = normalizedJudgeIds;
-  }
+export async function deleteAssignment(id: string): Promise<void> {
+  await api.delete(`/admin/assignments/${encodeURIComponent(id)}`);
+}
 
-  if (payload.countPerIdea !== undefined) {
-    body.requiredCount = payload.countPerIdea;
-  }
+export async function lockAssignment(id: string): Promise<Assignment> {
+  const { data } = await api.patch(
+    `/admin/assignments/${encodeURIComponent(id)}/lock`
+  );
+  return data.assignment as Assignment;
+}
 
-  const { data } = await api.post("/admin/assignments/bulk", body);
-  return { assignments: data.assignments ?? [] };
+export async function uploadFinalSummary(
+  ideaId: string,
+  file: File
+): Promise<EvaluationSummaryFile | null> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post(
+    `/admin/ideas/${encodeURIComponent(ideaId)}/final-summary`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return (data.summary ?? null) as EvaluationSummaryFile | null;
+}
+
+export async function getFinalSummary(
+  ideaId: string
+): Promise<EvaluationSummaryFile | null> {
+  const { data } = await api.get(
+    `/admin/ideas/${encodeURIComponent(ideaId)}/final-summary`
+  );
+  return (data.summary ?? null) as EvaluationSummaryFile | null;
 }
 
 export async function getAdminUsers(params?: {
@@ -99,7 +140,13 @@ export async function updateUserRole(id: string, role: Role): Promise<{ ok: bool
 export default {
   getAdminIdeas,
   createJudge,
-  bulkAssign,
+  updateJudge,
+  manualAssign,
+  getIdeaAssignments,
+  deleteAssignment,
+  lockAssignment,
+  uploadFinalSummary,
+  getFinalSummary,
   getAdminUsers,
   updateUserRole,
 };

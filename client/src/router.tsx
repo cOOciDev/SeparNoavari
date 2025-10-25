@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import DefaultLayout from './pages/DefaultLayout';
 import AdminLayout from './pages/admin/AdminLayout';
 import Landing from './pages/landing/LandingPage';
-import LandingEnhanced from './pages/LandingEnhanced';
+import LandingEnhanced from './pages/landing/LandingEnhanced';
 import TracksPage from './pages/tracks/TracksPage';
 import TrackDetail from './pages/tracks/TrackDetail';
 import CommitteePage from './pages/committee/CommitteePage';

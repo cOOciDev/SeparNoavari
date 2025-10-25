@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getJudgeIdeas } from "../apis/judges.api";
+import {
+  getJudgeIdeas,
+  getJudgeAssignments,
+  uploadJudgeSubmission,
+} from "../apis/judges.api";
 import { submitReview } from "../apis/reviews.api";
 
 export const useJudgeIdeas = () =>
@@ -7,6 +11,28 @@ export const useJudgeIdeas = () =>
     queryKey: ["judge", "ideas"],
     queryFn: getJudgeIdeas,
   });
+
+export const useJudgeAssignments = () =>
+  useQuery({
+    queryKey: ["judge", "assignments"],
+    queryFn: getJudgeAssignments,
+  });
+
+export const useJudgeSubmissionUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      assignmentId,
+      file,
+    }: {
+      assignmentId: string;
+      file: File;
+    }) => uploadJudgeSubmission(assignmentId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["judge", "assignments"] });
+    },
+  });
+};
 
 export const useSubmitReview = () => {
   const queryClient = useQueryClient();
@@ -23,5 +49,7 @@ export const useSubmitReview = () => {
 
 export default {
   useJudgeIdeas,
+  useJudgeAssignments,
+  useJudgeSubmissionUpload,
   useSubmitReview,
 };

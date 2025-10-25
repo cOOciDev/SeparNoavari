@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      host: "0.0.0.0",           // ← اگر لازم بود به شبکه بدهی، موقتاً 0.0.0.0 کن
+      // host: "0.0.0.0",           // ← اگر لازم بود به شبکه بدهی، موقتاً 0.0.0.0 کن
+      host: "127.0.0.1",           // ← اگر لازم بود به شبکه بدهی، موقتاً 0.0.0.0 کن
       port: devPort,
       strictPort: true,            // ← پورت ثابت
       allowedHosts: ["separnoavari.ir", "www.separnoavari.ir"],

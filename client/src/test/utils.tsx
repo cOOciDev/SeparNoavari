@@ -1,9 +1,10 @@
-﻿import { ReactElement, ReactNode } from "react";
+import { ReactElement, ReactNode } from "react";
 import { render } from "@testing-library/react";
 import { MemoryRouter, MemoryRouterProps } from "react-router-dom";
 import QueryProvider from "../app/providers/QueryProvider";
 import I18nProvider from "../app/providers/I18nProvider";
 import AntThemeProvider from "../app/providers/AntThemeProvider";
+import i18n from "../AppData/i18n";
 
 export const renderWithProviders = (
   ui: ReactElement,
@@ -13,6 +14,7 @@ export const renderWithProviders = (
   }
 ) => {
   const Wrapper = ({ children }: { children: ReactNode }) => {
+    void i18n.changeLanguage("en");
     const content = (
       <MemoryRouter {...options?.router}>
         <I18nProvider>

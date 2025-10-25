@@ -1,4 +1,4 @@
-import type { Idea, IdeaFile } from "../types/domain";
+import type { Idea, IdeaFile, EvaluationSummaryFile } from "../types/domain";
 
 const toStringSafe = (value: unknown): string => {
   if (value === null || value === undefined) return "";
@@ -26,6 +26,24 @@ const normalizeIdeaFile = (input: any): IdeaFile => {
         : Number.parseInt(input.size ?? "0", 10) || 0,
     mime: input.mime ?? input.mimetype ?? "",
     fieldName: input.fieldName ?? input.fieldname ?? "",
+  };
+};
+
+const normalizeEvaluationSummary = (
+  input: any
+): EvaluationSummaryFile | null => {
+  if (!input) {
+    return null;
+  }
+  return {
+    filename: input.filename ?? "",
+    mimetype: input.mimetype ?? "",
+    size:
+      typeof input.size === "number"
+        ? input.size
+        : Number.parseInt(input.size ?? "0", 10) || 0,
+    uploadedAt: input.uploadedAt ?? "",
+    downloadUrl: input.downloadUrl ?? undefined,
   };
 };
 
@@ -124,6 +142,9 @@ export const normalizeIdea = (input: any): Idea => {
   normalized.updatedAt = normalized.updatedAt
     ? toStringSafe(normalized.updatedAt)
     : "";
+  normalized.finalSummary = normalizeEvaluationSummary(
+    rest.finalSummary ?? input.finalSummary
+  );
 
   return normalized as Idea;
 };
