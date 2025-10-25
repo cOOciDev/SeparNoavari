@@ -5,7 +5,7 @@ import User from "../models/User.js";
 import Judge from "../models/Judge.js";
 import Assignment from "../models/Assignment.js";
 import Review from "../models/Review.js";
-import { assignJudgesToIdeas } from "../services/assignment.service.js";
+import { assignJudgesManually } from "../services/assignment.service.js";
 import { parsePagination, buildPagedResponse } from "../utils/paginate.js";
 
 const roleEnum = ["USER", "JUDGE", "ADMIN"];
@@ -17,6 +17,7 @@ const judgeCreateSchema = z.object({
     name: z.string().optional(),
     password: z.string().min(8).optional(),
     expertise: z.array(z.string()).optional(),
+    capacity: z.number().int().positive().optional(),
   }),
 });
 
@@ -29,11 +30,20 @@ const updateRoleSchema = z.object({
   }),
 });
 
-const assignmentSchema = z.object({
+const manualAssignmentSchema = z.object({
   body: z.object({
-    ideaIds: z.array(z.string()).min(1),
-    judgeIds: z.array(z.string()).optional(),
-    requiredCount: z.number().int().positive().optional(),
+    ideaId: z.string(),
+    judgeIds: z.array(z.string()).min(1),
+  }),
+});
+
+const judgeUpdateSchema = z.object({
+  params: z.object({
+    id: z.string(),
+  }),
+  body: z.object({
+    capacity: z.number().int().positive().nullable().optional(),
+    active: z.boolean().optional(),
   }),
 });
 
@@ -167,7 +177,7 @@ class AdminController {
   static async createJudge(req, res, next) {
     try {
       const {
-        body: { userId, email, name, password, expertise },
+        body: { userId, email, name, password, expertise, capacity },
       } = judgeCreateSchema.parse({ body: req.body });
 
       let targetUser;
@@ -198,14 +208,17 @@ class AdminController {
         });
       }
 
+      const judgePayload = {
+        expertise: expertise || [],
+        active: true,
+      };
+      if (typeof capacity === "number" && capacity > 0) {
+        judgePayload.capacity = capacity;
+      }
+
       await Judge.updateOne(
         { user: targetUser._id },
-        {
-          $set: {
-            expertise: expertise || [],
-            active: true,
-          },
-        },
+        { $set: judgePayload },
         { upsert: true }
       );
 
@@ -246,6 +259,66 @@ class AdminController {
     }
   }
 
+  static async updateJudge(req, res, next) {
+    try {
+      const {
+        params: { id },
+        body: { capacity, active },
+      } = judgeUpdateSchema.parse({ params: req.params, body: req.body });
+
+      const operations = {};
+      if (typeof active === "boolean") {
+        operations.$set = { ...(operations.$set || {}), active };
+      }
+      if (capacity !== undefined) {
+        if (capacity === null) {
+          operations.$unset = { ...(operations.$unset || {}), capacity: "" };
+        } else {
+          operations.$set = {
+            ...(operations.$set || {}),
+            capacity,
+          };
+        }
+      }
+
+      if (!operations.$set && !operations.$unset) {
+        return res.status(400).json({
+          ok: false,
+          code: "VALIDATION_ERROR",
+          message: "No valid fields to update",
+        });
+      }
+
+      const result = await Judge.updateOne({ _id: id }, operations);
+      if (result.matchedCount === 0) {
+        return res.status(404).json({
+          ok: false,
+          code: "NOT_FOUND",
+          message: "Judge not found",
+        });
+      }
+
+      const judge = await Judge.findById(id)
+        .populate("user", "email name role")
+        .lean();
+
+      return res.json({
+        ok: true,
+        judge,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(422).json({
+          ok: false,
+          code: "VALIDATION_ERROR",
+          message: "Validation failed",
+          details: err.issues,
+        });
+      }
+      return next(err);
+    }
+  }
+
   static async listAssignments(req, res, next) {
     try {
       const { ideaId } = req.query;
@@ -266,32 +339,23 @@ class AdminController {
     }
   }
 
-  static async bulkAssign(req, res, next) {
+  static async manualAssign(req, res, next) {
     try {
       const {
-        body: { ideaIds, judgeIds, requiredCount },
-      } = assignmentSchema.parse({ body: req.body });
+        body: { ideaId, judgeIds },
+      } = manualAssignmentSchema.parse({ body: req.body });
 
-      const created = await assignJudgesToIdeas({
-        ideaIds,
+      const { assignments } = await assignJudgesManually({
+        ideaId,
         judgeIds,
-        requiredCount,
-        assignedBy: req.user.id,
+        assignedBy: req.user?.id || req.user?._id,
       });
 
-      const ideaObjectIds = [
-        ...new Set(created.map((doc) => doc.idea?.toString())),
-      ];
-      if (ideaObjectIds.length > 0) {
-        await Idea.updateMany(
-          { _id: { $in: ideaObjectIds } },
-          { $set: { status: "UNDER_REVIEW" } }
-        );
-      }
-
-      return res.status(201).json({
+      return res.status(assignments.length > 0 ? 201 : 200).json({
         ok: true,
-        assignments: created.map((doc) => doc.toJSON()),
+        assignments: assignments.map((doc) =>
+          doc?.toJSON ? doc.toJSON() : doc
+        ),
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -300,6 +364,14 @@ class AdminController {
           code: "VALIDATION_ERROR",
           message: "Validation failed",
           details: err.issues,
+        });
+      }
+      if (err?.status) {
+        return res.status(err.status).json({
+          ok: false,
+          code: err.code || "SERVER_ERROR",
+          message: err.message,
+          details: err.details,
         });
       }
       return next(err);

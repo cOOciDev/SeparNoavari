@@ -14,6 +14,17 @@ const fileSchema = new Schema(
   { _id: false }
 );
 
+const evaluationFileSchema = new Schema(
+  {
+    url: { type: String, required: true },
+    filename: { type: String, required: true },
+    mimetype: { type: String, required: true },
+    size: { type: Number, required: true },
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const ideaSchema = new Schema(
   {
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
@@ -34,6 +45,10 @@ const ideaSchema = new Schema(
     scoreSummary: {
       average: { type: Number, default: null },
       totalReviews: { type: Number, default: 0 },
+    },
+    finalSummary: {
+      type: evaluationFileSchema,
+      default: undefined,
     },
   },
   {

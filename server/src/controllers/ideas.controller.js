@@ -62,6 +62,30 @@ const canViewIdea = async (idea, user) => {
   return false;
 };
 
+const presentIdeaForRole = (ideaDoc, role) => {
+  if (!ideaDoc) return null;
+  const payload =
+    typeof ideaDoc.toJSON === "function"
+      ? ideaDoc.toJSON()
+      : { ...ideaDoc };
+  if (!payload.id && payload._id) {
+    payload.id = String(payload._id);
+  }
+  delete payload.__v;
+  if (role !== "ADMIN") {
+    delete payload.finalSummary;
+  } else if (payload.finalSummary) {
+    const ideaId = payload.id || payload._id;
+    payload.finalSummary = {
+      ...payload.finalSummary,
+      downloadUrl: `/api/admin/ideas/${encodeURIComponent(
+        ideaId
+      )}/final-summary/file`,
+    };
+  }
+  return payload;
+};
+
 class IdeasController {
   static async create(req, res, next) {
     try {
@@ -133,7 +157,7 @@ class IdeasController {
 
       return res.status(201).json({
         ok: true,
-        idea: idea.toJSON(),
+        idea: presentIdeaForRole(idea, req.user?.role),
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -160,7 +184,8 @@ class IdeasController {
         filter.status = status;
       }
       const ideas = await Idea.find(filter).sort({ createdAt: -1 }).lean();
-      return res.json({ ok: true, items: ideas });
+      const items = ideas.map((doc) => presentIdeaForRole(doc, req.user?.role));
+      return res.json({ ok: true, items });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(422).json({
@@ -197,7 +222,7 @@ class IdeasController {
 
       return res.json({
         ok: true,
-        idea,
+        idea: presentIdeaForRole(idea, req.user?.role),
       });
     } catch (err) {
       return next(err);

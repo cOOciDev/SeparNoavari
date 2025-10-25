@@ -15,6 +15,14 @@ const parseNumber = (value, defaultValue) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : defaultValue;
 };
 
+const parseBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "y"].includes(normalized)) return true;
+  if (["0", "false", "no", "n"].includes(normalized)) return false;
+  return defaultValue;
+};
+
 const parseOrigins = (raw) => {
   if (!raw) {
     return ["http://127.0.0.1:5173", "http://localhost:5173"];
@@ -35,9 +43,31 @@ if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be provided in environment variables");
 }
 
-const assignmentJudgeCount = (() => {
-  const parsed = parseNumber(process.env.ASSIGNMENT_JUDGES_COUNT, 3);
-  return parsed > 0 ? parsed : 3;
+const judgeDefaultCapacity = (() => {
+  const parsed = parseNumber(process.env.JUDGE_DEFAULT_CAPACITY, 0);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+})();
+
+const assignmentMaxFileSizeMb = (() => {
+  const candidate =
+    process.env.EVAL_MAX_FILE_MB ??
+    process.env.ASSIGNMENT_MAX_FILE_SIZE_MB ??
+    process.env.EVALUATION_MAX_FILE_MB;
+  const parsed = parseNumber(candidate, 30);
+  return parsed > 0 ? parsed : 30;
+})();
+
+const assignmentAllowPdf = parseBoolean(
+  process.env.EVAL_ALLOW_PDF ?? process.env.ASSIGNMENT_ALLOW_PDF,
+  false
+);
+
+const assignmentTemplateMode = (() => {
+  const value = process.env.ASSIGNMENT_TEMPLATE_MODE?.trim().toUpperCase();
+  if (value && ["STATIC", "PER_IDEA", "GENERATED"].includes(value)) {
+    return value;
+  }
+  return "STATIC";
 })();
 
 const allowInsecureLocal = process.env.ALLOW_INSECURE_LOCAL === "1";
@@ -56,6 +86,11 @@ const adminPasswordLooksHashed =
 
 const clientOrigins = parseOrigins(process.env.CLIENT_ORIGIN);
 
+const maxJudgesPerIdea = (() => {
+  const parsed = parseNumber(process.env.MAX_JUDGES_PER_IDEA, 10);
+  return parsed > 0 ? parsed : 10;
+})();
+
 export default {
   nodeEnv: rawNodeEnv,
   isProduction,
@@ -65,9 +100,15 @@ export default {
   sessionSecret,
   allowInsecureLocal,
   trustProxy,
-  assignmentJudgeCount,
   uploadDir,
   clientOrigins,
+  judgeDefaultCapacity,
+  maxJudgesPerIdea,
+  assignment: {
+    maxFileSizeMb: assignmentMaxFileSizeMb,
+    allowPdf: assignmentAllowPdf,
+    templateMode: assignmentTemplateMode,
+  },
   admin: {
     username: adminUsername,
     password: adminPassword,

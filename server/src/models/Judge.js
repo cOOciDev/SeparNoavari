@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import env from "../config/env.js";
 
 const { Schema } = mongoose;
 
@@ -7,6 +8,12 @@ const judgeSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     expertise: { type: [String], default: [] },
     active: { type: Boolean, default: true },
+    capacity: {
+      type: Number,
+      min: 1,
+      default: () =>
+        env.judgeDefaultCapacity > 0 ? env.judgeDefaultCapacity : undefined,
+    },
   },
   {
     timestamps: true,

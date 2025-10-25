@@ -1,5 +1,6 @@
 import { Router } from "express";
 import AdminController from "../controllers/admin.controller.js";
+import AssignmentsController from "../controllers/assignments.controller.js";
 import { authGuard } from "../middleware/authGuard.js";
 import { adminGuard } from "../middleware/adminGuard.js";
 
@@ -23,10 +24,72 @@ router.get(
   AdminController.listAssignments
 );
 router.post(
-  "/assignments/bulk",
+  "/assignments/manual",
   authGuard,
   adminGuard,
-  AdminController.bulkAssign
+  AdminController.manualAssign
+);
+router.get(
+  "/assignments/:id",
+  authGuard,
+  AssignmentsController.getAssignment
+);
+router.get(
+  "/assignments/:id/template",
+  authGuard,
+  AssignmentsController.downloadTemplate
+);
+router.post(
+  "/assignments/:id/submission",
+  authGuard,
+  AssignmentsController.submit
+);
+router.get(
+  "/assignments/:id/submission",
+  authGuard,
+  AssignmentsController.downloadSubmission
+);
+router.patch(
+  "/assignments/:id/lock",
+  authGuard,
+  adminGuard,
+  AssignmentsController.lock
+);
+router.delete(
+  "/assignments/:id",
+  authGuard,
+  adminGuard,
+  AssignmentsController.remove
+);
+router.get(
+  "/ideas/:ideaId/submissions/archive",
+  authGuard,
+  adminGuard,
+  AssignmentsController.downloadArchive
+);
+router.get(
+  "/ideas/:ideaId/assignments",
+  authGuard,
+  adminGuard,
+  AssignmentsController.listForIdea
+);
+router.post(
+  "/ideas/:ideaId/final-summary",
+  authGuard,
+  adminGuard,
+  AssignmentsController.uploadFinalSummary
+);
+router.get(
+  "/ideas/:ideaId/final-summary",
+  authGuard,
+  adminGuard,
+  AssignmentsController.getFinalSummaryMeta
+);
+router.get(
+  "/ideas/:ideaId/final-summary/file",
+  authGuard,
+  adminGuard,
+  AssignmentsController.downloadFinalSummary
 );
 
 export default router;
