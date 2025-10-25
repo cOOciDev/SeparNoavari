@@ -1,8 +1,9 @@
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Space } from "antd";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthProvider";
 import { logoutAndRedirect } from "../utils/session";
+import DashboardHeaderControls from "../components/layout/DashboardHeaderControls";
 
 const { Header, Sider, Content } = Layout;
 
@@ -14,15 +15,15 @@ const UserLayout = () => {
   const items = [
     {
       key: "/ideas/mine",
-      label: <Link to="/ideas/mine">{t("nav.myIdeas", { defaultValue: "My Ideas" })}</Link>,
+      label: <Link to="/ideas/mine">{t("nav.myIdeas", { defaultValue: "ایده‌های من" })}</Link>,
     },
     {
       key: "/ideas/new",
-      label: <Link to="/ideas/new">{t("nav.submit", { defaultValue: "Submit Idea" })}</Link>,
+      label: <Link to="/ideas/new">{t("nav.submit", { defaultValue: "ثبت ایده" })}</Link>,
     },
     {
       key: "/profile",
-      label: <Link to="/profile">{t("nav.profile", { defaultValue: "Profile" })}</Link>,
+      label: <Link to="/profile">{t("nav.profile", { defaultValue: "حساب کاربری" })}</Link>,
     },
   ];
 
@@ -40,7 +41,7 @@ const UserLayout = () => {
             fontSize: 18,
           }}
         >
-          {t("nav.dashboard", { defaultValue: "Dashboard" })}
+          {t("nav.dashboard", { defaultValue: "پیشخوان" })}
         </div>
         <Menu theme="dark" mode="inline" selectedKeys={[activeKey]} items={items} />
       </Sider>
@@ -55,14 +56,17 @@ const UserLayout = () => {
           }}
         >
           <div>
-            {t("header.hello", { defaultValue: "Hello" })} {user?.name || user?.email}
+            {t("header.hello", { defaultValue: "سلام" })} {user?.name || user?.email}
           </div>
-          <a
-            style={{ fontWeight: 500, cursor: "pointer" }}
-            onClick={() => logoutAndRedirect("/login")}
-          >
-            {t("nav.logout", { defaultValue: "Log out" })}
-          </a>
+          <Space size="middle" align="center">
+            <DashboardHeaderControls />
+            <a
+              style={{ fontWeight: 500, cursor: "pointer" }}
+              onClick={() => logoutAndRedirect("/login")}
+            >
+              {t("nav.logout", { defaultValue: "خروج" })}
+            </a>
+          </Space>
         </Header>
         <Content style={{ padding: 24 }}>
           <Outlet />

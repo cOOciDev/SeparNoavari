@@ -15,6 +15,7 @@ import {
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 export type IdeaFormValues = {
   title: string;
@@ -35,7 +36,7 @@ export type IdeaFormProps = {
   onSubmit: (values: IdeaFormValues) => void;
 };
 
-const MAX_30MB = 30 * 1024 * 1024;
+const MAX_FILE_SIZE = 30 * 1024 * 1024;
 
 const isPdf = (file: File | UploadFile) => {
   const name = (file as UploadFile).name || "";
@@ -56,7 +57,7 @@ const isWord = (file: File | UploadFile) => {
 
 const sizeOk = (file: File | UploadFile) => {
   const size = (file as UploadFile).size;
-  return typeof size === "number" ? size <= MAX_30MB : true;
+  return typeof size === "number" ? size <= MAX_FILE_SIZE : true;
 };
 
 const IdeaForm = ({
@@ -65,6 +66,7 @@ const IdeaForm = ({
   submitting,
   onSubmit,
 }: IdeaFormProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<IdeaFormValues>();
   const [docFileList, setDocFileList] = useState<UploadFile[]>([]);
   const [pdfFileList, setPdfFileList] = useState<UploadFile[]>([]);
@@ -73,35 +75,46 @@ const IdeaForm = ({
     if (initialValues) {
       form.setFieldsValue(initialValues);
     }
-    if (initialValues?.proposalDoc) {
-      setDocFileList([initialValues.proposalDoc]);
-    } else {
-      setDocFileList([]);
-    }
-    if (initialValues?.proposalPdf) {
-      setPdfFileList([initialValues.proposalPdf]);
-    } else {
-      setPdfFileList([]);
-    }
+    setDocFileList(initialValues?.proposalDoc ? [initialValues.proposalDoc] : []);
+    setPdfFileList(initialValues?.proposalPdf ? [initialValues.proposalPdf] : []);
   }, [form, initialValues]);
 
-  const validateFilesPair = (): boolean => {
+  const validateFilesPair = () => {
     if (docFileList.length !== 1 || pdfFileList.length !== 1) {
-      message.error("لطفاً هر دو فایل Word و PDF ایده را بارگذاری کنید.");
+      message.error(
+        t("ideas.form.fileRules.wordRequired", {
+          defaultValue: "Word file is required.",
+        })
+      );
+      message.error(
+        t("ideas.form.fileRules.pdfRequired", {
+          defaultValue: "PDF file is required.",
+        })
+      );
       return false;
     }
-    const doc = docFileList[0];
-    const pdf = pdfFileList[0];
-    if (!doc || !isWord(doc)) {
-      message.error("فایل Word معتبر انتخاب نشده است.");
+    if (!isWord(docFileList[0])) {
+      message.error(
+        t("ideas.form.fileRules.wordRequired", {
+          defaultValue: "Word file is required.",
+        })
+      );
       return false;
     }
-    if (!pdf || !isPdf(pdf)) {
-      message.error("فایل PDF معتبر انتخاب نشده است.");
+    if (!isPdf(pdfFileList[0])) {
+      message.error(
+        t("ideas.form.fileRules.pdfRequired", {
+          defaultValue: "PDF file is required.",
+        })
+      );
       return false;
     }
-    if (![doc, pdf].every(sizeOk)) {
-      message.error("حجم هر فایل باید حداکثر ۳۰ مگابایت باشد.");
+    if (![docFileList[0], pdfFileList[0]].every(sizeOk)) {
+      message.error(
+        t("ideas.form.fileRules.sizeLimit", {
+          defaultValue: "Maximum allowed size for each file is 30MB.",
+        })
+      );
       return false;
     }
     return true;
@@ -111,6 +124,7 @@ const IdeaForm = ({
     if (!validateFilesPair()) return;
     const teamMembers =
       values.teamMembers?.map((member) => member.trim()).filter(Boolean) ?? [];
+
     onSubmit({
       ...values,
       teamMembers,
@@ -135,22 +149,31 @@ const IdeaForm = ({
       const validator = type === "doc" ? isWord : isPdf;
       const failMessage =
         type === "doc"
-          ? "فقط فایل‌های Word با پسوند DOC یا DOCX مجاز هستند."
-          : "فقط فایل‌های PDF مجاز هستند.";
+          ? t("ideas.form.fileRules.wordRequired", {
+              defaultValue: "Word file is required.",
+            })
+          : t("ideas.form.fileRules.pdfRequired", {
+              defaultValue: "PDF file is required.",
+            });
       if (!validator(raw)) {
         message.error(failMessage);
         return Upload.LIST_IGNORE;
       }
       if (!sizeOk(raw)) {
-        message.error("حجم هر فایل باید حداکثر ۳۰ مگابایت باشد.");
+        message.error(
+          t("ideas.form.fileRules.sizeLimit", {
+            defaultValue: "Maximum allowed size for each file is 30MB.",
+          })
+        );
         return Upload.LIST_IGNORE;
       }
       return false;
     },
     onChange: ({ fileList: next }) => {
-      const latest = next.slice(-1).filter((item) =>
-        (type === "doc" ? isWord(item) : isPdf(item)) && sizeOk(item)
-      );
+      const latest = next.slice(-1).filter((item) => {
+        const valid = (type === "doc" ? isWord(item) : isPdf(item)) && sizeOk(item);
+        return valid;
+      });
       setter(latest);
     },
     itemRender: (originNode) => originNode,
@@ -174,125 +197,140 @@ const IdeaForm = ({
     >
       <Form.Item
         name="title"
-        label="عنوان ایده"
-        rules={[{ required: true, message: "عنوان ایده را وارد کنید." }]}
+        label={t("ideas.form.title", { defaultValue: "Idea title" })}
+        rules={[
+          {
+            required: true,
+            message: t("ideas.form.titleRequired", {
+              defaultValue: "Title is required.",
+            }),
+          },
+        ]}
       >
-        <Input placeholder="عنوان ایده" />
+        <Input placeholder={t("ideas.form.titlePlaceholder", { defaultValue: "Enter idea title" })} />
       </Form.Item>
 
       <Form.Item
         name="summary"
-        label="خلاصه ایده"
-        rules={[{ required: true, message: "خلاصه ایده را وارد کنید." }]}
+        label={t("ideas.form.summary", { defaultValue: "Idea summary" })}
+        rules={[
+          {
+            required: true,
+            message: t("ideas.form.summaryRequired", {
+              defaultValue: "Summary is required.",
+            }),
+          },
+        ]}
       >
-        <Input.TextArea rows={6} placeholder="توضیح کوتاه درباره ایده" />
+        <Input.TextArea
+          rows={6}
+          placeholder={t("ideas.form.summaryPlaceholder", {
+            defaultValue: "Write a short description of the idea",
+          })}
+        />
       </Form.Item>
 
       <Form.Item
         name="category"
-        label="دسته‌بندی"
-        rules={[{ required: true, message: "دسته‌بندی ایده را انتخاب کنید." }]}
+        label={t("ideas.form.category", { defaultValue: "Category" })}
+        rules={[
+          {
+            required: true,
+            message: t("ideas.form.categoryRequired", {
+              defaultValue: "Category is required.",
+            }),
+          },
+        ]}
       >
-        <Select options={categories} placeholder="انتخاب دسته‌بندی" allowClear />
+        <Select
+          options={categories}
+          placeholder={t("ideas.form.category", { defaultValue: "Category" })}
+          allowClear
+        />
       </Form.Item>
 
       <Form.Item
         name="submitterName"
-        label="نام ثبت‌کننده"
-        rules={[{ required: true, message: "نام ثبت‌کننده الزامی است." }]}
+        label={t("ideas.form.submitterName", { defaultValue: "Submitter name" })}
       >
-        <Input placeholder="نام و نام خانوادگی" disabled />
+        <Input />
       </Form.Item>
 
       <Form.Item
         name="contactEmail"
-        label="ایمیل تماس"
+        label={t("ideas.form.contactEmail", { defaultValue: "Contact email" })}
         rules={[
-          { required: true, message: "ایمیل تماس الزامی است." },
-          { type: "email", message: "ایمیل معتبر وارد کنید." },
+          { type: "email", message: t("auth.errors.invalidEmail", { defaultValue: "Invalid email" }) },
         ]}
       >
-        <Input placeholder="example@email.com" type="email" disabled />
+        <Input />
       </Form.Item>
 
-      <Form.Item name="phone" label="شماره تماس (اختیاری)">
-        <Input placeholder="0912..." />
+      <Form.Item
+        name="phone"
+        label={t("ideas.form.phone", { defaultValue: "Phone number" })}
+      >
+        <Input />
       </Form.Item>
 
       <Form.List name="teamMembers">
         {(fields, { add, remove }) => (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>اعضای تیم (اختیاری، حداکثر ۱۰ نفر)</span>
-              <Button
-                type="dashed"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  if (fields.length >= 10) {
-                    message.warning("حداکثر ۱۰ عضو تیم مجاز است.");
-                    return;
-                  }
-                  add();
-                }}
-              >
-                افزودن عضو
-              </Button>
-            </div>
-            <Space direction="vertical" style={{ width: "100%", marginTop: 8 }}>
-              {fields.map((field) => (
-                <Space key={field.key} align="baseline">
-                  <Form.Item
-                    {...field}
-                    rules={[
-                      {
-                        required: true,
-                        message:
-                          "نام عضو تیم را وارد کنید یا فیلد را حذف نمایید.",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="نام عضو تیم" />
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(field.name)} />
-                </Space>
-              ))}
-            </Space>
-          </div>
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <label>{t("ideas.form.teamMembers", { defaultValue: "Team members" })}</label>
+            {fields.map(({ key, name, ...rest }) => (
+              <Space key={key} align="baseline">
+                <Form.Item
+                  {...rest}
+                  name={name}
+                  style={{ marginBottom: 0 }}
+                >
+                  <Input placeholder={t("ideas.form.teamMembers", { defaultValue: "Team member" })} />
+                </Form.Item>
+                <MinusCircleOutlined onClick={() => remove(name)} />
+              </Space>
+            ))}
+            <Button
+              icon={<PlusOutlined />}
+              type="dashed"
+              onClick={() => add()}
+            >
+              {t("ideas.form.addMember", { defaultValue: "Add member" })}
+            </Button>
+          </Space>
         )}
       </Form.List>
 
-      <Form.Item label="فایل Word (DOC/DOCX)" required>
-        <Upload.Dragger {...docUploadProps}>
-          <p className="ant-upload-drag-icon">
-            <UploadOutlined />
-          </p>
-          <p className="ant-upload-text">
-            یک فایل Word با پسوند DOC یا DOCX و حداکثر ۳۰ مگابایت بارگذاری کنید.
-          </p>
-        </Upload.Dragger>
-      </Form.Item>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <div>
+          <label>{t("ideas.form.proposalDoc", { defaultValue: "Word file (DOC / DOCX)" })}</label>
+          <Upload {...docUploadProps}>
+            <Button icon={<UploadOutlined />}>
+              {t("ideas.form.uploadDoc", { defaultValue: "Upload Word" })}
+            </Button>
+          </Upload>
+        </div>
+        <div>
+          <label>{t("ideas.form.proposalPdf", { defaultValue: "PDF file" })}</label>
+          <Upload {...pdfUploadProps}>
+            <Button icon={<UploadOutlined />}>
+              {t("ideas.form.uploadPdf", { defaultValue: "Upload PDF" })}
+            </Button>
+          </Upload>
+        </div>
+      </Space>
 
-      <Form.Item label="فایل PDF" required>
-        <Upload.Dragger {...pdfUploadProps}>
-          <p className="ant-upload-drag-icon">
-            <UploadOutlined />
-          </p>
-          <p className="ant-upload-text">
-            یک فایل PDF با حداکثر حجم ۳۰ مگابایت بارگذاری کنید.
-          </p>
-        </Upload.Dragger>
-      </Form.Item>
-
-      <Form.Item>
-        <Space>
-          <Button type="primary" htmlType="submit" loading={submitting}>
-            ارسال
-          </Button>
-          <Button onClick={resetForm} disabled={submitting}>
-            بازنشانی
-          </Button>
-        </Space>
-      </Form.Item>
+      <Space style={{ marginTop: 24 }}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={submitting}
+        >
+          {t("ideas.form.submit", { defaultValue: "Submit idea" })}
+        </Button>
+        <Button onClick={resetForm} disabled={submitting}>
+          {t("ideas.form.reset", { defaultValue: "Clear form" })}
+        </Button>
+      </Space>
     </Form>
   );
 };

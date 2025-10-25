@@ -14,6 +14,17 @@
     "back": "Back",
     "home": "Home"
   },
+  "ui": {
+    "language": {
+      "toggle": "Switch language",
+      "fa": "فارسی",
+      "en": "English"
+    },
+    "theme": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    }
+  },
   "nav": {
     "home": "Home",
     "tracks": "Tracks",
@@ -152,6 +163,10 @@
     }
   },
   "judge": {
+    "title": "Judge Panel",
+    "header": {
+      "role": "Judge"
+    },
     "dashboard": {
       "title": "Assignments",
       "empty": "No assignments yet",
@@ -183,6 +198,17 @@
     }
   },
   "admin": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "ideas": "Ideas",
+      "judges": "Judges",
+      "assignments": "Assignments",
+      "users": "Users"
+    },
+    "topbar": {
+      "title": "Admin Panel",
+      "role": "Admin"
+    },
     "dashboard": {
       "totalIdeas": "Total ideas",
       "submitted": "Submitted",
@@ -235,7 +261,33 @@
       "conflict": "Some assignments already exist",
       "error": "Failed to assign",
       "empty": "No ideas available",
-      "emptyDesc": "Adjust the filters to find ideas ready for review."
+      "emptyDesc": "Adjust the filters to find ideas ready for review.",
+      "tableHelper": "Selected ideas: {{count}}. Total judge slots needed = ideas x judges per idea.",
+      "remedyIntro": "Try one of the following:",
+      "remedyReduceCount": "Reduce judges per idea in the manual modal.",
+      "remedySelectFewer": "Select fewer ideas and assign in smaller batches.",
+      "remedyActivateJudges": "Activate or increase judge capacity in Judges settings.",
+      "notEnoughJudges": "Not enough eligible judges available.",
+      "shortageBreakdown": "Needed {{required}} slots - active: {{active}}, track-fit: {{track}}, capacity-ok: {{capacity}}, conflict-free: {{conflict}}.",
+      "modalTitle": "Assign Judges",
+      "assignCta": "Assign",
+      "modalSubtitle": "Choose manual judges or let the platform auto-select based on expertise, availability, and conflict rules.",
+      "capacityRule": "Helper: total judge capacity must satisfy ideas x judges per idea.",
+      "noIdeasSelected": "Select at least one idea to start assigning judges.",
+      "capacityHint": "Requires {{required}} judge slots: {{ideas}} idea(s) x {{judges}} judge(s) per idea.",
+      "selectIdeasFirst": "Select at least one idea before assigning judges.",
+      "manualRequiresJudges": "Choose at least one judge for manual assignment.",
+      "strategyLabel": "Strategy",
+      "autoOption": "Automatic (recommended)",
+      "manualOption": "Manual selection",
+      "judgesLabel": "Judges",
+      "judgesPerIdea": "Judges per idea",
+      "countRequired": "Enter judge count.",
+      "countMin": "Specify at least one judge per idea.",
+      "requiredSlots": "{{ideas}} idea(s) -> {{required}} total judge slots needed.",
+      "shortageHelp": "Tip: if capacity is insufficient, reduce judges per idea, pick fewer ideas, or activate more judges from the Judges page.",
+      "manualHint": "Manual mode requires selecting specific judges before assigning.",
+      "errorBreakdown": "Needed {{required}} slots. Active judges: {{active}}. Eligible for track: {{byTrack}}. Within capacity: {{afterCapacity}}. Conflict-free: {{afterConflicts}}."
     },
     "users": {
       "allRoles": "All roles",

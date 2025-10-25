@@ -9,7 +9,8 @@ import NotFoundPage from '../pages/system/NotFoundPage';
 import { RouteErrorBoundary } from '../pages/system/ErrorBoundaryPage';
 import { PageLoader } from './PageLoader';
 
-const LandingPage = lazy(() => import('../pages/landing/LandingPage'));
+// const LandingPage = lazy(() => import('../pages/landing/LandingPage'));
+const OLDLandingPage = lazy(() => import('../pages/landing/LandingEnhanced'));
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
 const ProfilePage = lazy(() => import('../pages/auth/ProfilePage'));
@@ -39,7 +40,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     errorElement: <RouteErrorBoundary />,
     children: [
-      { index: true, element: withSuspense(<LandingPage />) },
+      { index: true, element: withSuspense(<OLDLandingPage />) },
       { path: 'login', element: withSuspense(<LoginPage />) },
       { path: 'register', element: withSuspense(<RegisterPage />) },
       { path: 'tracks', element: withSuspense(<TracksPage />) },

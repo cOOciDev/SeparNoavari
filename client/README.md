@@ -60,3 +60,12 @@ Translations live in `src/AppData/i18n/locales/en.json` and `fa.json` (UTF-8, no
 - Role checks use uppercase roles (`ADMIN | JUDGE | USER`).
 - Mutations invalidate the appropriate React Query keys (`['me']`, `['ideas','mine']`, etc.).
 - Uploaded files are referenced through `files[].path`; ensure the server continues to expose those paths.
+
+
+# Free Port 
+- netsh interface ipv4 show excludedportrange protocol=tcp
+
+- in cmd as adminstator :
+--- net stop winnat
+--- netsh int ipv4 delete excludedportrange protocol=tcp startport=5141 numberofports=100
+--- net start winnat

@@ -1,4 +1,4 @@
-﻿import { Modal, Form, Input, Select, Alert } from "antd";
+import { Modal, Form, Input, Select, Alert, InputNumber } from "antd";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useCreateJudge } from "../../service/hooks";
@@ -10,7 +10,7 @@ export type JudgeEditModalProps = {
 
 const JudgeEditModal = ({ open, onClose }: JudgeEditModalProps) => {
   const { t } = useTranslation();
-  const [form] = Form.useForm<{ name?: string; email: string; password: string; expertise?: string[] }>();
+  const [form] = Form.useForm<{ name?: string; email: string; password: string; expertise?: string[]; capacity?: number }>();
   const { mutateAsync, isPending, error } = useCreateJudge();
   const [submitted, setSubmitted] = useState(false);
 
@@ -32,7 +32,7 @@ const JudgeEditModal = ({ open, onClose }: JudgeEditModalProps) => {
       }}
       confirmLoading={isPending}
       onOk={handleOk}
-      destroyOnClose
+      destroyOnHidden
     >
       {error ? (
         <Alert
@@ -78,9 +78,17 @@ const JudgeEditModal = ({ open, onClose }: JudgeEditModalProps) => {
         <Form.Item name="expertise" label={t("admin.judges.expertise", { defaultValue: "Expertise" })}>
           <Select mode="tags" tokenSeparators={[",", " "]} placeholder={t("admin.judges.expertisePlaceholder", { defaultValue: "Add expertise tags" })} />
         </Form.Item>
+        <Form.Item
+          name="capacity"
+          label={t("admin.judges.capacity", { defaultValue: "Capacity" })}
+          tooltip={t("admin.judges.capacityHint", { defaultValue: "Leave empty for unlimited" })}
+        >
+          <InputNumber min={1} style={{ width: "100%" }} placeholder={t("admin.judges.unlimited", { defaultValue: "Unlimited" })} />
+        </Form.Item>
       </Form>
     </Modal>
   );
 };
 
 export default JudgeEditModal;
+

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { Routes, Route } from "react-router-dom";
 
 import AssignmentModal from "../components/judges/AssignmentModal";
@@ -54,19 +54,14 @@ describe("AssignmentModal", () => {
     };
   });
 
-  test("submits manual assignment", async () => {
+  test("submits assignment payload", async () => {
     const onClose = vi.fn();
     mockUseBulkAssign.mutateAsync.mockResolvedValue({});
 
     renderWithProviders(<AssignmentModal open ideaId="i1" onClose={onClose} />);
 
-    await userEvent.click(screen.getByRole("combobox", { name: /Strategy/i }));
-    const manual = (await screen.findAllByRole("option", { name: /Manual/i }))[0];
-    await userEvent.click(manual);
-    const judgeSelect = screen.getByRole("combobox", { name: /Judges/i });
+    const judgeSelect = screen.getAllByRole("combobox")[1];
     await userEvent.click(judgeSelect);
-    const judgeOption = (await screen.findAllByRole("option", { name: /Judge/i }))[0];
-    await userEvent.click(judgeOption);
     const countInput = screen.getByRole("spinbutton", { name: /Judges per idea/i });
     await userEvent.clear(countInput);
     await userEvent.type(countInput, "2");
@@ -74,10 +69,9 @@ describe("AssignmentModal", () => {
 
     await waitFor(() => expect(mockUseBulkAssign.mutateAsync).toHaveBeenCalled());
     expect(mockUseBulkAssign.mutateAsync.mock.calls[0][0]).toMatchObject({
-      ideaId: "i1",
-      judgeIds: ["j1"],
+      ideaIds: ["i1"],
       countPerIdea: 2,
-      strategy: "MANUAL",
+      strategy: "AUTO",
     });
     expect(onClose).toHaveBeenCalled();
   });
@@ -87,12 +81,8 @@ describe("AssignmentModal", () => {
 
     renderWithProviders(<AssignmentModal open ideaId="i1" onClose={() => {}} />);
 
-    await userEvent.click(screen.getByRole("combobox", { name: /Strategy/i }));
-    const manual = (await screen.findAllByRole("option", { name: /Manual/i }))[0];
-    await userEvent.click(manual);
-    await userEvent.click(screen.getByRole("combobox", { name: /Judges/i }));
-    const judgeOption = (await screen.findAllByRole("option", { name: /Judge/i }))[0];
-    await userEvent.click(judgeOption);
+    const judgeSelect = screen.getAllByRole("combobox")[1];
+    await userEvent.click(judgeSelect);
     await userEvent.click(screen.getByRole("button", { name: /Assign/i }));
 
     await waitFor(() => expect(screen.getByText(/Already assigned/i)).toBeInTheDocument());
@@ -155,14 +145,23 @@ describe("IdeaForm", () => {
     await userEvent.click(select);
     await userEvent.click(await screen.findByText(/Resilience/));
 
+    const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    const wordFile = new File(["word-content"], "proposal.docx", {
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+    const pdfFile = new File(["pdf-content"], "proposal.pdf", { type: "application/pdf" });
+    fireEvent.change(fileInputs[0], { target: { files: [wordFile] } });
+    fireEvent.change(fileInputs[1], { target: { files: [pdfFile] } });
+
     await userEvent.click(screen.getByRole("button", { name: /Submit/i }));
 
     await waitFor(() => expect(handleSubmit).toHaveBeenCalled());
-    expect(handleSubmit.mock.calls[0][0]).toMatchObject({
-      title: "Sensor network",
-      summary: "Deploy sensors",
-      category: "resilience",
-    });
+    const submitted = handleSubmit.mock.calls[0][0];
+    expect(submitted.title).toBe("Sensor network");
+    expect(submitted.summary).toBe("Deploy sensors");
+    expect(submitted.category).toBe("resilience");
+    expect(submitted.proposalDoc?.name).toBe("proposal.docx");
+    expect(submitted.proposalPdf?.name).toBe("proposal.pdf");
   });
 });
 

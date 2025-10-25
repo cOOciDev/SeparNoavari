@@ -11,7 +11,7 @@ i18n.use(initReactI18next).init({
     fa: { translation: fa },
   },
   lng: localStorage.getItem("lang") || "fa", // زبان پیش‌فرض روی فارسی
-  fallbackLng: "fa",
+  fallbackLng: "en",
   interpolation: {
     escapeValue: false,
   },

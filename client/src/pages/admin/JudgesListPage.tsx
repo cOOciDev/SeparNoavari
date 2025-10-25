@@ -1,9 +1,55 @@
-﻿import { useState } from "react";
-import { Button, Card, Space, Spin, Alert, Table, Tag } from "antd";
+import { useState } from "react";
+import { Button, Card, Space, Spin, Alert, Table, Tag, InputNumber, message } from "antd";
 import { useTranslation } from "react-i18next";
-import { useAdminJudges } from "../../service/hooks";
+import { useAdminJudges, useUpdateJudge } from "../../service/hooks";
 import type { Judge } from "../../types/domain";
 import JudgeEditModal from "./JudgeEditModal";
+
+const JudgeCapacityEditor = ({ judge }: { judge: Judge }) => {
+  const { t } = useTranslation();
+  const [value, setValue] = useState<number | undefined>(
+    typeof judge.capacity === "number" ? judge.capacity : undefined
+  );
+  const updateJudge = useUpdateJudge();
+
+  const handleSave = async (nextValue: number | undefined) => {
+    try {
+      await updateJudge.mutateAsync({ id: judge.id, capacity: nextValue ?? null });
+      setValue(nextValue);
+      message.success(t("admin.judges.capacitySaved", { defaultValue: "Capacity updated" }));
+    } catch (err: any) {
+      message.error(err?.message || t("admin.judges.error", { defaultValue: "Update failed" }));
+    }
+  };
+
+  return (
+    <Space>
+      <InputNumber
+        min={1}
+        value={value}
+        onChange={(val) => setValue(typeof val === "number" ? val : undefined)}
+        placeholder={t("admin.judges.unlimited", { defaultValue: "Unlimited" })}
+        size="small"
+      />
+      <Button
+        size="small"
+        type="primary"
+        onClick={() => handleSave(value)}
+        loading={updateJudge.isPending}
+        disabled={value === undefined && judge.capacity === undefined}
+      >
+        {t("common.save", { defaultValue: "Save" })}
+      </Button>
+      <Button
+        size="small"
+        onClick={() => handleSave(undefined)}
+        loading={updateJudge.isPending}
+      >
+        8
+      </Button>
+    </Space>
+  );
+};
 
 const JudgesListPage = () => {
   const { t } = useTranslation();
@@ -19,10 +65,10 @@ const JudgesListPage = () => {
   }
 
   if (error) {
-    const message = error instanceof Error ? error.message : t("admin.judges.error", { defaultValue: "Failed to load judges" });
+    const messageText = error instanceof Error ? error.message : t("admin.judges.error", { defaultValue: "Failed to load judges" });
     return (
       <Card>
-        <Alert type="error" message={message} />
+        <Alert type="error" message={messageText} />
       </Card>
     );
   }
@@ -66,6 +112,11 @@ const JudgesListPage = () => {
               dataIndex: "active",
               key: "active",
               render: (active?: boolean) => (active === false ? t("common.inactive", { defaultValue: "Inactive" }) : t("common.active", { defaultValue: "Active" })),
+            },
+            {
+              title: t("admin.judges.capacity", { defaultValue: "Capacity" }),
+              key: "capacity",
+              render: (_: unknown, record) => <JudgeCapacityEditor judge={record} />,
             },
           ]}
         />

@@ -15,7 +15,10 @@ const JudgeSelector = ({ value, onChange, disabled, placeholder }: JudgeSelector
   const options = useMemo(
     () =>
       (data?.items ?? []).map((judge) => ({
-        label: judge.user?.name || judge.user?.email || judge.id,
+        key: judge.id,
+        label: `${judge.user?.name || judge.user?.email || judge.id}${
+          typeof judge.capacity === "number" ? ` (cap ${judge.capacity})` : ""
+        }`,
         value: String(judge.id),
       })),
     [data]

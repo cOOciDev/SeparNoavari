@@ -1,145 +1,295 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
-import { Alert, Form, InputNumber, Modal, Select, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Button,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import { useTranslation } from "react-i18next";
 import JudgeSelector from "./JudgeSelector";
-import { useAdminJudges, useBulkAssign } from "../../service/hooks";
+import type { Assignment } from "../../types/domain";
+import {
+  useIdeaAssignments,
+  useManualAssign,
+  useDeleteAssignment,
+  useLockAssignment,
+} from "../../service/hooks";
 
 export type AssignmentModalProps = {
   open: boolean;
   onClose: () => void;
   ideaId?: string;
-  ideaIds?: string[];
-  defaultCount?: number;
 };
 
-const AssignmentModal = ({ open, onClose, ideaId, ideaIds, defaultCount = 3 }: AssignmentModalProps) => {
-  const [form] = Form.useForm();
-  const { mutateAsync, isPending } = useBulkAssign();
-  const [error, setError] = useState<string | null>(null);
-  const judgesQuery = useAdminJudges();
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "default",
+  IN_PROGRESS: "blue",
+  SUBMITTED: "purple",
+  REVIEWED: "green",
+  LOCKED: "red",
+};
 
-  const handleOk = async () => {
+const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
+  const { t } = useTranslation();
+  const [selectedJudges, setSelectedJudges] = useState<string[]>([]);
+  const assignmentsQuery = useIdeaAssignments(open ? ideaId : undefined);
+  const manualAssign = useManualAssign();
+  const deleteAssignment = useDeleteAssignment();
+  const lockAssignment = useLockAssignment();
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedJudges([]);
+    }
+  }, [open]);
+
+  const assignments = assignmentsQuery.data?.assignments ?? [];
+  const maxJudges = assignmentsQuery.data?.maxJudges ?? 10;
+  const assignedCount = assignments.length;
+  const slotsLeft = Math.max(maxJudges - assignedCount, 0);
+
+  const handleJudgeSelection = (value: string[]) => {
+    if (value.length > slotsLeft) {
+      message.warning(
+        t("admin.assignments.limitWarning", {
+          defaultValue: "You can add up to {{count}} more judges.",
+          count: slotsLeft,
+        })
+      );
+      setSelectedJudges(value.slice(0, slotsLeft));
+      return;
+    }
+    setSelectedJudges(value);
+  };
+
+  const handleAssign = async () => {
+    if (!ideaId) {
+      message.error(
+        t("admin.assignments.ideaRequired", {
+          defaultValue: "Select an idea first.",
+        })
+      );
+      return;
+    }
+    if (selectedJudges.length === 0) {
+      message.warning(
+        t("admin.assignments.chooseJudge", {
+          defaultValue: "Choose at least one judge.",
+        })
+      );
+      return;
+    }
     try {
-      setError(null);
-      const values = (await form.validateFields()) as {
-        judges: string[];
-        count: number;
-        strategy: "AUTO" | "MANUAL";
-      };
-
-      const normalizedIdeaIds = Array.isArray(ideaIds)
-        ? ideaIds
-            .filter(
-              (value): value is string | number =>
-                value !== null && value !== undefined
-            )
-            .map((value) => String(value))
-        : [];
-      const normalizedIdeaId = ideaId ? String(ideaId) : undefined;
-
-      const combinedIdeaIds =
-        normalizedIdeaIds.length > 0
-          ? normalizedIdeaIds
-          : normalizedIdeaId
-          ? [normalizedIdeaId]
-          : [];
-
-      if (combinedIdeaIds.length === 0) {
-        setError("هیچ ایده‌ای انتخاب نشده است.");
-        return;
-      }
-
-      const payload = {
-        ideaId: normalizedIdeaId,
-        ideaIds: combinedIdeaIds,
-        judgeIds: values.strategy === "MANUAL" ? values.judges : undefined,
-        countPerIdea: values.count,
-        strategy: values.strategy,
-      } as {
-        ideaId?: string;
-        ideaIds?: string[];
-        judgeIds?: string[];
-        countPerIdea: number;
-        strategy: "AUTO" | "MANUAL";
-      };
-
-      await mutateAsync(payload);
-      onClose();
-      form.resetFields();
+      await manualAssign.mutateAsync({ ideaId, judgeIds: selectedJudges });
+      message.success(
+        t("admin.assignments.manualSuccess", {
+          defaultValue: "Judges assigned successfully.",
+        })
+      );
+      setSelectedJudges([]);
     } catch (err: any) {
-      if (err?.code === "CONFLICT" || err?.response?.status === 409) {
-        setError(err?.message || err?.code || "Conflict");
-        return;
-      }
-      if (err?.message) {
-        setError(err.message);
-      }
+      const errMsg =
+        err?.message ||
+        t("admin.assignments.error", {
+          defaultValue: "Assignment failed.",
+        });
+      message.error(errMsg);
     }
   };
 
+  const triggerDelete = async (record: Assignment) => {
+    if (!ideaId) return;
+    await deleteAssignment.mutateAsync({ id: record.id, ideaId });
+    message.success(
+      t("admin.assignments.deleted", {
+        defaultValue: "Assignment removed.",
+      })
+    );
+  };
+
+  const triggerLock = async (record: Assignment) => {
+    if (!ideaId) return;
+    await lockAssignment.mutateAsync({ id: record.id, ideaId });
+    message.success(
+      t("admin.assignments.locked", {
+        defaultValue: "Assignment locked.",
+      })
+    );
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        title: t("admin.assignments.table.judge", { defaultValue: "Judge" }),
+        dataIndex: "judge",
+        key: "judge",
+        render: (_: unknown, record: Assignment) =>
+          record.judge?.user?.name || record.judge?.user?.email || "-",
+      },
+      {
+        title: t("admin.assignments.table.status", { defaultValue: "Status" }),
+        dataIndex: "status",
+        key: "status",
+        render: (value: Assignment["status"]) => (
+          <Tag color={STATUS_COLORS[value] || "default"}>{value}</Tag>
+        ),
+      },
+      {
+        title: t("admin.assignments.table.submission", {
+          defaultValue: "Judge file",
+        }),
+        dataIndex: "submission",
+        key: "submission",
+        render: (_: unknown, record: Assignment) => {
+          if (!record.submission) {
+            return t("admin.assignments.table.noSubmission", {
+              defaultValue: "Not uploaded",
+            });
+          }
+          return (
+            <Space size={4} direction="vertical">
+              <Typography.Text type="secondary">
+                v{record.submission.version} �
+                {" "}
+                {new Date(record.submission.uploadedAt).toLocaleString()}
+              </Typography.Text>
+              <Button
+                type="link"
+                size="small"
+                href={record.submission.downloadUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("admin.assignments.table.download", { defaultValue: "Download" })}
+              </Button>
+            </Space>
+          );
+        },
+      },
+      {
+        title: t("common.actions", { defaultValue: "Actions" }),
+        key: "actions",
+        render: (_: unknown, record: Assignment) => (
+          <Space>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => triggerLock(record)}
+              disabled={record.status === "LOCKED"}
+              loading={lockAssignment.isPending}
+            >
+              {t("admin.assignments.lock", { defaultValue: "Lock" })}
+            </Button>
+            <Popconfirm
+              title={t("admin.assignments.deleteConfirm", {
+                defaultValue: "Remove this assignment?",
+              })}
+              okText={t("common.delete", { defaultValue: "Delete" })}
+              cancelText={t("common.cancel", { defaultValue: "Cancel" })}
+              onConfirm={() => triggerDelete(record)}
+              disabled={record.status === "LOCKED"}
+            >
+              <Button
+                danger
+                size="small"
+                disabled={record.status === "LOCKED"}
+                loading={deleteAssignment.isPending}
+              >
+                {t("common.delete", { defaultValue: "Delete" })}
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
+      },
+    ],
+    [t, deleteAssignment.isPending, lockAssignment.isPending]
+  );
+
   return (
     <Modal
+      title={t("admin.assignments.manual", { defaultValue: "Assign judges" })}
       open={open}
-      title="Assign Judges"
-      okText="Assign"
-      confirmLoading={isPending}
-      onCancel={() => {
-        setError(null);
-        onClose();
+      onCancel={onClose}
+      onOk={handleAssign}
+      okButtonProps={{
+        disabled: slotsLeft === 0 || selectedJudges.length === 0 || !ideaId,
+        loading: manualAssign.isPending,
       }}
-      onOk={handleOk}
+      cancelButtonProps={{ disabled: manualAssign.isPending }}
+      width={720}
       destroyOnClose
     >
-      {error ? (
-        <Alert type="error" message={error} style={{ marginBottom: 16 }} />
+      {!ideaId ? (
+        <Alert
+          type="info"
+          showIcon
+          message={t("admin.assignments.ideaRequired", {
+            defaultValue: "Please choose an idea to continue.",
+          })}
+        />
       ) : null}
-      <Typography.Paragraph type="secondary">
-        Select judges to review this idea. You can choose manual judges or leave it to automatic assignment strategy.
-      </Typography.Paragraph>
-      <Form
-        layout="vertical"
-        form={form}
-        initialValues={{
-          judges: [],
-          count: defaultCount,
-          strategy: "AUTO",
-        }}
-      >
-        <Form.Item name="strategy" label="Strategy">
-          <Select
-            options={[
-              { value: "AUTO", label: "Auto" },
-              { value: "MANUAL", label: "Manual" },
-            ]}
+
+      {assignmentsQuery.error ? (
+        <Alert
+          type="error"
+          showIcon
+          message={
+            assignmentsQuery.error instanceof Error
+              ? assignmentsQuery.error.message
+              : t("admin.assignments.error", { defaultValue: "Failed to load." })
+          }
+        />
+      ) : null}
+
+      <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
+        <Typography.Text>
+          {t("admin.assignments.counter", {
+            defaultValue: "Assigned {{assigned}} / {{max}} judges",
+            assigned: assignedCount,
+            max: maxJudges,
+          })}
+        </Typography.Text>
+
+        {slotsLeft === 0 ? (
+          <Alert
+            type="warning"
+            showIcon
+            message={t("admin.assignments.maxReached", {
+              defaultValue: "Maximum judges reached for this idea.",
+            })}
           />
-        </Form.Item>
-        <Form.Item
-          name="judges"
-          label="Judges"
-          rules={[
-            ({ getFieldValue }) => ({
-              validator(_, value: string[]) {
-                if (getFieldValue("strategy") === "MANUAL" && (!value || value.length === 0)) {
-                  return Promise.reject(new Error("Select at least one judge"));
-                }
-                return Promise.resolve();
-              },
-            }),
-          ]}
-        >
-          <JudgeSelector disabled={judgesQuery.isLoading} />
-        </Form.Item>
-        <Form.Item
-          name="count"
-          label="Judges per idea"
-          rules={[{ required: true, message: "Enter judge count" }]}
-        >
-          <InputNumber min={1} max={10} style={{ width: "100%" }} />
-        </Form.Item>
-      </Form>
+        ) : null}
+
+        <JudgeSelector
+          value={selectedJudges}
+          onChange={handleJudgeSelection}
+          placeholder={t("admin.assignments.selectJudges", {
+            defaultValue: "Choose judges",
+          })}
+          disabled={slotsLeft === 0 || !ideaId}
+        />
+      </Space>
+
+      <Table<Assignment>
+        style={{ marginTop: 24 }}
+        rowKey={(record) => record.id}
+        loading={assignmentsQuery.isLoading}
+        columns={columns}
+        dataSource={assignments}
+        pagination={false}
+        locale={{
+          emptyText: t("admin.assignments.table.empty", {
+            defaultValue: "No assignments yet.",
+          }),
+        }}
+      />
     </Modal>
   );
 };
 
 export default AssignmentModal;
-

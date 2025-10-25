@@ -1,6 +1,6 @@
-﻿import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import LoginPage from "../pages/auth/LoginPage";
 import SubmitIdeaPage from "../pages/ideas/SubmitIdeaPage";
 import MyIdeasPage from "../pages/ideas/MyIdeasPage";
@@ -44,6 +44,16 @@ const mockMeState = {
   error: null,
 };
 
+const mockAuthContext = {
+  user: { id: "1", email: "user@example.com", name: "User", role: "USER" as const },
+  isAuthenticated: true,
+  loading: false,
+  refreshUser: vi.fn(),
+  logout: vi.fn(),
+  setUser: vi.fn(),
+  navigateAfterLogin: vi.fn().mockReturnValue("/ideas/mine"),
+};
+
 vi.mock("../service/hooks", () => ({
   useLogin: () => mockLoginState,
   useRegister: () => mockRegisterState,
@@ -51,6 +61,10 @@ vi.mock("../service/hooks", () => ({
   useMyIdeas: () => mockMyIdeasState,
   useIdea: () => mockIdeaState,
   useMe: () => mockMeState,
+}));
+
+vi.mock("../contexts/AuthProvider", () => ({
+  useAuth: () => mockAuthContext,
 }));
 
 const user = userEvent.setup();
@@ -67,6 +81,12 @@ describe("Smoke flows", () => {
     mockIdeaState.error = null;
     mockIdeaState.isLoading = false;
     mockMeState.data = { user: { id: "1", email: "user@example.com", name: "User", role: "USER" } };
+    mockAuthContext.user = { id: "1", email: "user@example.com", name: "User", role: "USER" };
+    mockAuthContext.refreshUser.mockReset();
+    mockAuthContext.logout.mockReset();
+    mockAuthContext.setUser.mockReset();
+    mockAuthContext.navigateAfterLogin.mockReset();
+    mockAuthContext.navigateAfterLogin.mockReturnValue("/ideas/mine");
   });
 
   test("user can submit login credentials", async () => {
@@ -89,14 +109,33 @@ describe("Smoke flows", () => {
 
     const combobox = screen.getByRole("combobox", { name: /category/i });
     await user.click(combobox);
-    const option = await screen.findAllByRole("option");
-    await user.click(option[0]);
+    const firstOption = document.querySelector<HTMLElement>(".ant-select-item-option");
+    if (!firstOption) {
+      throw new Error("No category options rendered");
+    }
+    await user.click(firstOption);
+
+    const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    const wordFile = new File(["word-content"], "proposal.docx", {
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+    const pdfFile = new File(["pdf-content"], "proposal.pdf", { type: "application/pdf" });
+    fireEvent.change(fileInputs[0], { target: { files: [wordFile] } });
+    fireEvent.change(fileInputs[1], { target: { files: [pdfFile] } });
 
     await user.click(screen.getByRole("button", { name: /submit/i }));
 
     await waitFor(() => expect(mockCreateIdeaState.mutateAsync).toHaveBeenCalledTimes(1));
     const formData = mockCreateIdeaState.mutateAsync.mock.calls[0][0] as FormData;
-    expect(Array.from(formData.keys())).toEqual(["title", "summary", "category"]);
+    expect(Array.from(formData.keys())).toEqual([
+      "title",
+      "summary",
+      "category",
+      "submitterName",
+      "contactEmail",
+      "proposalDoc",
+      "proposalPdf",
+    ]);
     expect(successSpy).toHaveBeenCalled();
     successSpy.mockRestore();
   });
