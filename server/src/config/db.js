@@ -1,35 +1,34 @@
 ﻿// server/src/config/db.js
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
+import env from "./env.js";
 
 mongoose.set("strictQuery", true);
-
-// اگر خواستی: در پروداکشن autoIndex خاموش شود (اختیاری)
-import env from "./env.js";
+mongoose.set("sanitizeFilter", true);
 mongoose.set("autoIndex", env.nodeEnv !== "production");
+mongoose.set("debug", env.nodeEnv === "development");
 
 let eventsBound = false;
+let connectPromise = null;
 
 function bindConnectionEvents() {
   if (eventsBound) return;
   eventsBound = true;
 
   mongoose.connection.on("connected", () => {
-    const { name } = mongoose.connection;
-    const host =
-      mongoose.connection.host ||
-      mongoose?.connection?.client?.options?.hosts?.[0]?.host ||
-      "unknown-host";
-    const port =
-      mongoose.connection.port ||
-      mongoose?.connection?.client?.options?.hosts?.[0]?.port ||
-      "unknown-port";
-
-    logger.info(`MongoDB connected (${name}) @ ${host}:${port}`);
+    const dbName = mongoose.connection.name;
+    const clientOpts = mongoose.connection.client?.options || {};
+    const appName = clientOpts.appName || "n/a";
+    const hosts = Array.isArray(clientOpts.hosts) ? clientOpts.hosts.length : "srv";
+    logger.info(`MongoDB connected db="${dbName}" app="${appName}" hosts=${hosts}`);
   });
 
-  mongoose.connection.on("error", (error) => {
-    logger.error("MongoDB connection error", { error });
+  mongoose.connection.on("error", (err) => {
+    logger.error("MongoDB connection error", {
+      name: err?.name,
+      message: err?.message,
+      code: err?.code,
+    });
   });
 
   mongoose.connection.on("disconnected", () => {
@@ -41,37 +40,43 @@ function bindConnectionEvents() {
   });
 }
 
-/**
- * Connect to Mongo and return the active connection
- */
 export async function connectMongo(uri) {
   bindConnectionEvents();
+  if (!uri) throw new Error("MONGO_URI is not defined");
 
-  if (!uri) {
-    throw new Error("MONGO_URI is not defined");
-  }
-
-  // 1 = connected, 2 = connecting
-  if (mongoose.connection.readyState === 1) {
-    return mongoose.connection;
-  }
-  if (mongoose.connection.readyState === 2) {
+  const state = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+  if (state === 1) return mongoose.connection;
+  if (state === 2) {
     await new Promise((r) => mongoose.connection.once("connected", r));
     return mongoose.connection;
   }
+  if (connectPromise) {
+    await connectPromise;
+    return mongoose.connection;
+  }
 
-  await mongoose.connect(uri, {
+  connectPromise = mongoose.connect(uri, {
     serverSelectionTimeoutMS: 10_000,
+    connectTimeoutMS: 10_000,
+    socketTimeoutMS: 45_000,
+    maxPoolSize: Number(env.dbMaxPool || 20),
+    minPoolSize: Number(env.dbMinPool || 0),
+    // family: 4, // uncomment if IPv6 causes trouble in your env
   });
 
+  try {
+    await connectPromise;
+  } finally {
+    connectPromise = null;
+  }
   return mongoose.connection;
 }
 
-/**
- * Sync all indexes defined on models (safe alternative to ensureIndexes)
- * Make sure models are imported/registered before calling this!
- */
 export async function initIndexes() {
+  if (!(env.syncIndexesAtStartup === true || env.syncIndexesAtStartup === "true")) {
+    logger.info("Skipping index sync (SYNC_INDEXES_AT_STARTUP not enabled)");
+    return;
+  }
   const models = Object.values(mongoose.models);
   for (const model of models) {
     if (typeof model.syncIndexes === "function") {
@@ -81,10 +86,7 @@ export async function initIndexes() {
   logger.info("Mongoose indexes synced");
 }
 
-/**
- * Close the Mongo connection gracefully
- */
 export async function disconnectMongo() {
-  if (mongoose.connection.readyState === 0) return; // already disconnected
+  if (mongoose.connection.readyState === 0) return;
   await mongoose.connection.close(false);
 }

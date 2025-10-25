@@ -77,7 +77,7 @@ export default function LandingEnhanced() {
       };
     }, []);
 
-      console.log("Milestones:", upcoming);
+      // console.log("Milestones:", upcoming);
 
       
   return (
