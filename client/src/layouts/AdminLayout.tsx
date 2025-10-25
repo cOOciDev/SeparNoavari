@@ -9,7 +9,7 @@ const { Header, Sider, Content } = Layout;
 
 const AdminLayout = () => {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
   const items = [
@@ -44,7 +44,7 @@ const AdminLayout = () => {
     "/admin";
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh" }} dir={i18n.language === "fa" ? "rtl-layout" : "ltr-layout"}>
       <Sider breakpoint="lg" collapsedWidth="0">
         <div
           style={{
@@ -56,7 +56,7 @@ const AdminLayout = () => {
         >
           {t("admin.topbar.title", { defaultValue: "پنل مدیریت" })}
         </div>
-        <Menu theme="dark" mode="inline" selectedKeys={[activeKey]} items={items} />
+        <Menu className="hamberg"  theme="dark" mode="inline" selectedKeys={[activeKey]} items={items} />
       </Sider>
       <Layout>
         <Header

@@ -45,7 +45,7 @@ const RegisterPage = () => {
     >
       <Card style={{ width: "100%", maxWidth: 420 }} dir={isRTL ? "rtl" : "ltr"}>
         <Typography.Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
-          {t("auth.register", { defaultValue: "Register" })}
+          {t("auth.loginHeader", { defaultValue: "Register" })}
         </Typography.Title>
         {error ? (
           <Alert
@@ -57,12 +57,12 @@ const RegisterPage = () => {
           />
         ) : null}
         <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="name" label={t("auth.name", { defaultValue: "Name" })}>
+          <Form.Item name="name" label={t("auth.nameLabel", { defaultValue: "Name" })}>
             <Input autoComplete="name" />
           </Form.Item>
           <Form.Item
             name="email"
-            label={t("auth.email", { defaultValue: "Email" })}
+            label={t("auth.emailLabel", { defaultValue: "Email" })}
             rules={[
               { required: true, message: t("auth.errors.required", { defaultValue: "Email is required" }) },
               { type: "email", message: t("auth.errors.invalidEmail", { defaultValue: "Invalid email" }) },
@@ -82,12 +82,12 @@ const RegisterPage = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={isPending}>
-              {t("auth.register", { defaultValue: "Register" })}
+              {t("auth.toSignup", { defaultValue: "Register" })}
             </Button>
           </Form.Item>
         </Form>
         <Typography.Paragraph style={{ textAlign: "center", marginBottom: 0 }}>
-          {t("auth.haveAccount", { defaultValue: "Already have an account?" })}{" "}
+          {t("auth.loginSub", { defaultValue: "Already have an account?" })}{" "}
           <Link to={`/login${nextParam ? `?next=${encodeURIComponent(nextParam)}` : ""}`}>
             {t("auth.login", { defaultValue: "Login" })}
           </Link>

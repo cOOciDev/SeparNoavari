@@ -7,7 +7,7 @@ const { Header, Content, Footer } = Layout;
 
 const PublicLayout = () => {
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isAuthenticated } = useAuth();
 
   const menuItems = [
@@ -27,7 +27,7 @@ const PublicLayout = () => {
     menuItems.find((item) => location.pathname.startsWith(item.key))?.key || '/';
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh' }} dir={i18n.language === "fa" ? "rtl" : "ltr"}>
       <Header
         style={{
           display: 'flex',

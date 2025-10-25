@@ -44,7 +44,7 @@ const LoginPage = () => {
     >
       <Card style={{ width: "100%", maxWidth: 420 }} dir={isRTL ? "rtl" : "ltr"}>
         <Typography.Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
-          {t("auth.login", { defaultValue: "Login" })}
+          {t("auth.signupHeader", { defaultValue: "Login" })}
         </Typography.Title>
         {error ? (
           <Alert
@@ -56,7 +56,7 @@ const LoginPage = () => {
         <Form layout="vertical" onFinish={onFinish}>
           <Form.Item
             name="email"
-            label={t("auth.email", { defaultValue: "Email" })}
+            label={t("auth.emailLabel", { defaultValue: "Email" })}
             rules={[
               { required: true, message: t("auth.errors.required", { defaultValue: "Email is required" }) },
               { type: "email", message: t("auth.errors.invalidEmail", { defaultValue: "Invalid email" }) },
@@ -78,9 +78,9 @@ const LoginPage = () => {
           </Form.Item>
         </Form>
         <Typography.Paragraph style={{ textAlign: "center", marginBottom: 0 }}>
-          {t("auth.noAccount", { defaultValue: "Don't have an account?" })}{" "}
+          {t("auth.signupSub", { defaultValue: "Don't have an account?" })}{" "}
           <Link to={`/register${nextParam ? `?next=${encodeURIComponent(nextParam)}` : ""}`}>
-            {t("auth.register", { defaultValue: "Register" })}
+            {t("auth.signup", { defaultValue: "Register" })}
           </Link>
         </Typography.Paragraph>
       </Card>

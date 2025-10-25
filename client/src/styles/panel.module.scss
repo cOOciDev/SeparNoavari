@@ -166,3 +166,13 @@ html[data-theme="dark"] {
   font-size: 0.85rem;
 }
 
+
+
+
+.pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
