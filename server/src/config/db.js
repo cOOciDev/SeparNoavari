@@ -5,8 +5,8 @@ import logger from "../utils/logger.js";
 mongoose.set("strictQuery", true);
 
 // اگر خواستی: در پروداکشن autoIndex خاموش شود (اختیاری)
-// import env from "./env.js";
-// mongoose.set("autoIndex", env.nodeEnv !== "production");
+import env from "./env.js";
+mongoose.set("autoIndex", env.nodeEnv !== "production");
 
 let eventsBound = false;
 

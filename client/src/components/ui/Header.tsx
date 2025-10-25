@@ -98,7 +98,7 @@ export default function Header({
   );
 
   // ---- Active state helper ----
-  const activePath = location.pathname;
+  // const activePath = location.pathname;
   const isActive = useCallback(
     (href: string) => {
       // anchor links: match by hash
@@ -125,37 +125,140 @@ export default function Header({
   const ctaLabel = lang === "fa" ? ctaLabelFa : ctaLabelEn;
   const brandTitle = lang === "fa" ? brandTitleFa : brandTitleEn;
 
-  return (
+//   return (
+//     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+//       <div className={styles.container}>
+//         {/* Left: burger + brand */}
+//         <div className={styles.left}>
+//           <Brand
+//             logoSrc={logoSrc}
+//             title={brandTitle}
+//             onHomeNavigate={() => navigate("/")}
+//             lang={lang}
+//           />
+          
+
+//         </div>
+
+// <button
+//             className={styles.burger}
+//             aria-controls="mobile-menu"
+//             aria-expanded={open}
+//             aria-haspopup="true"
+//               aria-label={open ? t('header.closeMenu') : t('header.openMenu')}
+//             onClick={toggleMenu}
+//           >
+//             <span></span>
+//             <span></span>
+//             <span></span>
+//           </button>
+          
+//         {/* Center: nav */}
+//         <nav className={styles.nav} aria-label={t('header.primaryNavigation')}
+//         >
+//           <ul className={styles.menu} aria-orientation="horizontal">
+//             {items.map((it) => (
+//               <li key={it.id}>
+//                 <a
+//                   href={it.href}
+//                   className={`${styles.menuItem} ${isActive(it.href) ? styles.isActive : ""}`}
+//                   aria-current={isActive(it.href) ? "page" : undefined}
+//                   onClick={(e) => onNavigate(it.href, e)}
+//                 >
+//                   {it.label}
+//                 </a>
+//               </li>
+//             ))}
+//           </ul>
+//         </nav>
+
+//         {/* Right: lang/theme + actions */}
+//         <div className={styles.right}>
+          
+//           <NavActions
+//             lang={lang}
+//             onLangChange={setLang}
+//             theme={theme} // ← from ThemeContext
+//             onThemeChange={setTheme} // ← from ThemeContext
+//           />
+//           <Actions
+//             isAuthenticated={isAuthenticated} // ← from AuthContext
+//             ctaLabel={ctaLabel}
+//             onSubmitIdea={onSubmitIdea}
+//             onLoginClick={onLoginClick}
+//             lang={lang}
+//             loginHref={loginHref}
+//             signupHref={signupHref}
+//             accountHref={accountHref}
+//             authUser={user}
+//           />
+//         </div>
+//       </div>
+
+//       {/* Mobile drawer */}
+//       <MobileMenu
+//         id="mobile-menu"
+//         open={open}
+//         onClose={closeMenu}
+//         lang={lang}
+//         theme={theme}
+//         onLangChange={setLang}
+//         onThemeChange={setTheme}
+//         navItems={items}
+//         onNavigate={onNavigate}
+//         onSubmitIdea={onSubmitIdea}
+//         isAuthenticated={isAuthenticated}
+//         ctaLabel={ctaLabel}
+//         loginHref={loginHref}
+//         signupHref={signupHref}
+//         accountHref={accountHref}
+//       />
+//     </header>
+//   );
+
+return (
     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.container}>
-        {/* Left: burger + brand */}
+        {/* Left: burger + logo + brand */}
         <div className={styles.left}>
+          {/* NEW: logo icon before Brand */}
+          <button
+            type="button"
+            className={styles.logoButton}
+            aria-label={t("header.home")}
+            onClick={() => navigate("/")}
+          >
+            <img
+              className={styles.logoIcon}
+              src="/images/logo.png" /* ← add this file under /public/images/ */
+              alt={t("header.brandAlt", { defaultValue: "Logo" })}
+              width={28}
+              height={28}
+            />
+          </button>
+
           <Brand
             logoSrc={logoSrc}
             title={brandTitle}
             onHomeNavigate={() => navigate("/")}
             lang={lang}
           />
-          
-
         </div>
 
-<button
-            className={styles.burger}
-            aria-controls="mobile-menu"
-            aria-expanded={open}
-            aria-haspopup="true"
-              aria-label={open ? t('header.closeMenu') : t('header.openMenu')}
-            onClick={toggleMenu}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          
-        {/* Center: nav */}
-        <nav className={styles.nav} aria-label={t('header.primaryNavigation')}
+        {/* Burger (unchanged) */}
+        <button
+          className={styles.burger}
+          aria-controls="mobile-menu"
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-label={open ? t("header.closeMenu") : t("header.openMenu")}
+          onClick={toggleMenu}
         >
+          <span></span><span></span><span></span>
+        </button>
+
+        {/* Center nav (unchanged) */}
+        <nav className={styles.nav} aria-label={t("header.primaryNavigation")}>
           <ul className={styles.menu} aria-orientation="horizontal">
             {items.map((it) => (
               <li key={it.id}>
@@ -172,17 +275,16 @@ export default function Header({
           </ul>
         </nav>
 
-        {/* Right: lang/theme + actions */}
+        {/* Right: switches + actions */}
         <div className={styles.right}>
-          
           <NavActions
             lang={lang}
             onLangChange={setLang}
-            theme={theme} // ← from ThemeContext
-            onThemeChange={setTheme} // ← from ThemeContext
+            theme={theme}
+            onThemeChange={setTheme}
           />
           <Actions
-            isAuthenticated={isAuthenticated} // ← from AuthContext
+            isAuthenticated={isAuthenticated}
             ctaLabel={ctaLabel}
             onSubmitIdea={onSubmitIdea}
             onLoginClick={onLoginClick}
@@ -195,7 +297,7 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer (unchanged props already support lang/theme) */}
       <MobileMenu
         id="mobile-menu"
         open={open}
@@ -215,4 +317,5 @@ export default function Header({
       />
     </header>
   );
+
 }

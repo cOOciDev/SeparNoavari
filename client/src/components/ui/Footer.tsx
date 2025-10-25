@@ -1,8 +1,10 @@
 // client/src/app/ui/Footer.tsx
 import { useTranslation } from "react-i18next";
+import "dotenv";
 
 export default function Footer() {
   const { t } = useTranslation();
+
   return (
     <footer style={{ borderTop: "1px solid rgba(255,255,255,.12)", marginTop: 40, padding: "24px 0 40px" }}>
       <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>

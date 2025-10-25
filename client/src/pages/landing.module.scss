@@ -73,7 +73,7 @@
   margin-top: 8px;
   height: 240px;
   border-radius: 16px;
-  background: radial-gradient(120% 120% at 20% 10%, rgba(38, 198, 218, 0.22), transparent 60%), var(--surface);
+  background: url("/images/poster1.jpg") center/cover no-repeat, radial-gradient(120% 120% at 20% 10%, rgba(38, 198, 218, 0.22), transparent 60%), var(--surface);
   border: 1px solid var(--border);
 }
 
@@ -241,13 +241,30 @@
   opacity: 0.8;
 }
 
+/* Supports: layout wrappers */
+.supportsWrap { display: grid; gap: 16px; }
+.supportsHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.supportsBadges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+
+/* Reward grid uses the same card look as other sections */
+.supportsGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1100px) { .supportsGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .supportsGrid { grid-template-columns: 1fr; } }
+
+
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
   }
 
   .heroPoster {
-    height: 180px;
+    min-height: 780px;
   }
 
   .carousel {
