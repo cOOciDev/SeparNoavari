@@ -52,7 +52,7 @@ export default function CommitteeCarousel({
     <div
       className={s.carousel}
       role="region"
-      aria-label={t("landing.committeeHeading", {
+      aria-label={t("committee.title", {
         defaultValue: "Scientific Committee",
       })}
     >
@@ -67,9 +67,9 @@ export default function CommitteeCarousel({
       />
 
       <div className={s.carouselBody}>
-        <strong className={s.cardTitle}>{current.name}</strong>
+        <strong className={s.cardTitle}>{t(current.name)}</strong>
         <span className={s.cardMeta}>
-          {current.role} — {current.affiliation}
+          {t(current.role)} — {t(current.affiliation)}
         </span>
       </div>
 

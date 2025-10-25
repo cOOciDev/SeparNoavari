@@ -70,7 +70,14 @@
   "resourcesDoc": "قالب ایده (DOCX)",
   "resourcesZip": "بسته معرفی مسیرها (ZIP)",
 
-  "contact": "برقراری ارتباط",
+  "contact":{
+    "title":"برقراری ارتباط",
+    "email":"ایمیل",
+    "mobile":"تلفن همراه",
+    "landline":"تلفن ثابت",
+    "call":"تماس ",
+    "messaging":"پیام رسان"
+  } ,
   "support": "پشتیبانی",
   "messageUs": "پیام دهید",
 

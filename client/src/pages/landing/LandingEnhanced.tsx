@@ -77,6 +77,9 @@ export default function LandingEnhanced() {
       };
     }, []);
 
+      console.log("Milestones:", upcoming);
+
+      
   return (
     <main className={s.main}>
       <section className={`${s.container} ${s.hero}`}>
@@ -96,10 +99,10 @@ export default function LandingEnhanced() {
 
           <div className={s.ctaRow}>
             <Link className={s.btn} to="/ideas/new" data-variant="primary">
-              {t("landing.cta.submit", { defaultValue: "Submit Your Idea" })}
+              {t("ctaStart", { defaultValue: "Submit Your Idea" })}
             </Link>
             <Link className={s.btn} to="/tracks" data-variant="ghost">
-              {t("landing.cta.tracks", { defaultValue: "Explore Tracks" })}
+              {t("ctaTracks", { defaultValue: "Explore Tracks" })}
             </Link>
           </div>
 
@@ -139,7 +142,7 @@ export default function LandingEnhanced() {
                         <Countdown
                           targetISO={milestone.iso}
                           size="sm"
-                          showLabels={false}
+                          showLabels={true}
                         />
                       ) : (
                         <span className={s.muted}>
@@ -213,12 +216,12 @@ export default function LandingEnhanced() {
             />
             <div className={s.cardBody}>
               <h3 className={s.cardHeading}>
-                {t("landing.committeeHeading", {
+                {t("committee.title", {
                   defaultValue: "Scientific Committee",
                 })}
               </h3>
               <p className={s.cardText}>
-                {t("landing.committeeText", {
+                {t("committee.text", {
                   defaultValue:
                     "Meet the experts supporting your submissions.",
                 })}
@@ -239,7 +242,7 @@ export default function LandingEnhanced() {
             <div className={s.glassHead}>
               <span className={s.badge}>
                 {t("timeline.item.submission", {
-                  defaultValue: "Submission deadline",
+                  defaultValue: "بازه ارسال ایده",
                 })}
               </span>
               <strong className={s.muted}>{formatDate(submissionIso)}</strong>
@@ -435,7 +438,7 @@ export default function LandingEnhanced() {
 
       {/* Contact */}
       <section id="contact" className={s.container}>
-        <h2 className={s.sectionTitle}>{t("contact")}</h2>
+        <h2 className={s.sectionTitle}>{t("contact.title")}</h2>
         <div className={s.contactGrid}>
           {/* Contact */}
           <section id="contact" className={s.container}>
