@@ -59,9 +59,11 @@ const SubmitIdeaPage = () => {
       });
       formData.append("proposalDoc", values.proposalDoc.originFileObj);
       formData.append("proposalPdf", values.proposalPdf.originFileObj);
+      // console.log("formData :", formData);
 
       try {
         await mutateAsync(formData);
+        
         message.success(
           t("ideas.submit.success", {
             defaultValue: "Idea submitted successfully",

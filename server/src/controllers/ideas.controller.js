@@ -292,7 +292,7 @@ class IdeasController {
         });
       }
 
-      const zipName = `${sanitizeFilename(idea.title || "idea")}-${idea._id}.zip`;
+      const zipName = `${sanitizeFilename(idea.title || "idea")}-${idea.email}.zip`;
       if (!idea.files || idea.files.length === 0) {
         return res.status(404).json({
           ok: false,

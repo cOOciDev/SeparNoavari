@@ -36,7 +36,7 @@ const parseOrigins = (raw) => {
 const port = parseNumber(process.env.PORT, 5501);
 const host = process.env.HOST?.trim() || "127.0.0.1";
 const mongoUri =
-  process.env.MONGO_URI?.trim() || "mongodb://localhost:27017/separnoavari";
+  process.env.MONGO_URI?.trim() || "mongodb://localhost:27017/separ_noavari";
 const sessionSecret = process.env.SESSION_SECRET?.trim();
 
 if (!sessionSecret) {
@@ -76,7 +76,7 @@ const trustProxy =
   process.env.TRUST_PROXY?.toLowerCase() === "true";
 
 const uploadDir = path.resolve(
-  process.env.UPLOAD_DIR || "server/uploads/ideas"
+  process.env.UPLOAD_DIR || "server/uploads"
 );
 
 const adminUsername = process.env.ADMIN_USERNAME?.trim() || null;

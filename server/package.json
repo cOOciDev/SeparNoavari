@@ -8,6 +8,7 @@
     "migrate:sqlite-to-mongo": "node ./scripts/migrate-sqlite-to-mongo.js",
     "migrate:assignments-docx": "node ./scripts/migrate-assignments-docx.js",
     "migrate:evaluation-fields": "node ./scripts/migrate-evaluation-fields.js",
+    "init-db": "node ./scripts/init-db.js",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand"
   },
   "dependencies": {
