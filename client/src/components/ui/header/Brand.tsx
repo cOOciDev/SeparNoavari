@@ -9,6 +9,8 @@ interface BrandProps {
 }
 
 export default function Brand({ logoSrc, title, onHomeNavigate, lang }: BrandProps) {
+  console.log("logo :", logoSrc);
+
   return (
     <div className={styles.brand}>
       <a

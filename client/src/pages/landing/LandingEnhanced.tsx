@@ -98,8 +98,8 @@ export default function LandingEnhanced() {
           </p>
 
           <div className={s.ctaRow}>
-            <Link className={s.btn} to="/ideas/new" data-variant="primary">
-              {t("ctaStart", { defaultValue: "Submit Your Idea" })}
+            <Link className={s.btn } to="/ideas/new" data-variant="primary">
+              <p className={ s.textlight} >{t("ctaStart", { defaultValue: "Submit Your Idea" })}</p>
             </Link>
             <Link className={s.btn} to="/tracks" data-variant="ghost">
               {t("ctaTracks", { defaultValue: "Explore Tracks" })}

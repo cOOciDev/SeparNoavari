@@ -1,5 +1,5 @@
 {
-  "program": "Innovation Program",
+  "program": "Innovation Program", "logoAlt": "Brand logo",
   "heroTitle": "Innovation for Resilience",
   "heroSubtitle": "Submit ideas that strengthen crisis response and social resilience.",
   "common": {
@@ -14,19 +14,9 @@
     "back": "Back",
     "home": "Home"
   },
-  "ui": {
-    "language": {
-      "toggle": "Switch language",
-      "fa": "فارسی",
-      "en": "English"
-    },
-    "theme": {
-      "light": "Light mode",
-      "dark": "Dark mode"
-    }
-  },
+  "ui": {"language": {"toggle": "Switch language", "fa": "فارسی", "en": "English"}, "theme": {"light": "Light mode", "dark": "Dark mode"}},
   "nav": {
-    "home": "SwparNoavari",
+    "home": "SeparNoavari",
     "tracks": "Tracks",
     "committee": "Committee",
     "myIdeas": "My Ideas",
@@ -89,9 +79,7 @@
   "committee": {
     "seeAll": "See all"
   },
-  "header": {
-    "seeAll": "See all"
-  },
+  "header": {"seeAll": "See all", "hello": "Hello,"},
   "carousel": {
     "prev": "Previous slide",
     "next": "Next slide",
@@ -299,6 +287,10 @@
       "changeRoleContent": "Change role for {{user}} to {{role}}?",
       "roleUpdated": "Role updated",
       "roleUpdateFailed": "Failed to update role"
+    },
+    "broadcast": {
+      "title": "Broadcast",
+      "description": "Broadcast skeleton. Add message composer, audience filters and delivery logs here."
     }
   }
 }

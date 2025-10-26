@@ -5,6 +5,7 @@
   --panel-border: #e2e8f0;
   --panel-card: #ffffff;
   --primary: #2563eb;
+  --accent: #143f73;
   --primary-contrast: #ffffff;
   --radius: 14px;
   --shadow: 0 6px 24px rgba(0,0,0,.08);
@@ -79,6 +80,7 @@ html[data-theme="dark"] {
   cursor: pointer;
   text-decoration: none;
   display: inline-flex; align-items: center; justify-content: center;
+  text-align: center;
   border: 1px solid var(--panel-border);
   color: var(--panel-fg);
   background: transparent;

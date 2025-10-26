@@ -16,6 +16,7 @@ const DirectionManager = ({ children }: Props) => {
     const html = document.documentElement;
     html.lang = lang;
     html.dir = dir;
+    html.setAttribute("data-lang", lang);
     document.body.dir = dir;
   }, [i18next.language]);
 

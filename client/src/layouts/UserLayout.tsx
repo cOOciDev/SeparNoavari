@@ -41,6 +41,16 @@ const UserLayout = () => {
             fontSize: 18,
           }}
         >
+          <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <img
+              src="/images/logo.png"
+              alt={t("logoAlt", { defaultValue: "Brand logo" })}
+              style={{ height: 32 }}
+            />
+            <strong style={{ fontSize: 16 }}>
+              {t("program", { defaultValue: "Innovation Program" })}
+            </strong>
+          </Link>
           {t("nav.dashboard", { defaultValue: "پیشخوان" })}
         </div>
         <Menu theme="dark" mode="inline" selectedKeys={[activeKey]} items={items} />
@@ -55,6 +65,16 @@ const UserLayout = () => {
             paddingInline: 24,
           }}
         >
+          <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <img
+              src="/images/logo.png"
+              alt={t("logoAlt", { defaultValue: "Brand logo" })}
+              style={{ height: 32 }}
+            />
+            <strong style={{ fontSize: 16 }}>
+              {t("program", { defaultValue: "Innovation Program" })}
+            </strong>
+          </Link>
           <div>
             {t("header.hello", { defaultValue: "سلام" })} {user?.name || user?.email}
           </div>
@@ -69,7 +89,9 @@ const UserLayout = () => {
           </Space>
         </Header>
         <Content style={{ padding: 24 }}>
-          <Outlet />
+          <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

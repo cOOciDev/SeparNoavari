@@ -35,7 +35,7 @@ html[data-theme="dark"] {
   --surface-2: #0e172b;
   --text: #e6e7ea;
   --muted: #a6afc3;
-  --accent: #26c6da;
+  --accent: #2563eb;
   --border: rgba(255,255,255,.12);
   --shadow: 0 10px 30px rgba(0,0,0,.22);
   --shadow-soft: 0 8px 20px rgba(0,0,0,.16);
@@ -46,7 +46,7 @@ html[data-theme="light"] {
   --surface-2: #f8fafc;
   --text: #0f172a;
   --muted: #5b6b83;
-  --accent: #2563eb;
+  --accent: #143f73;
   --border: #e5e7eb;
   --shadow: 0 10px 30px rgba(0,0,0,.08);
   --shadow-soft: 0 8px 20px rgba(0,0,0,.06);
@@ -79,7 +79,10 @@ html[data-theme="light"] {
 /* ------------------------------- Hero left -------------------------------- */
 .heroText {
   display: grid;
+  // background-color: #2563eb;
   gap: 12px;
+
+ 
 }
 
 .eyebrow {
@@ -87,6 +90,7 @@ html[data-theme="light"] {
   letter-spacing: .08em;
   text-transform: uppercase;
   font-size: 12px;
+  // background-color: #26c6da;
 }
 
 .title {
@@ -109,12 +113,22 @@ html[data-theme="light"] {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 8px;
+  height: 3rem;
+  // background-color: #26c6da;
+  margin-bottom: 2rem;
+  text-align: center;
+  align-items: center;
+  
 }
+
+
+
+
 
 .heroPoster {
   margin-top: 16px;
-//  height: clamp(240px, 28vw, 360px);
-  height: 40rem ;
+  // height: clamp(240px, 28vw, 360px);
+  min-height: 900px ;
   min-width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -187,6 +201,7 @@ html[data-theme="light"] {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
+  max-height: 3rem;
 }
 .btn:hover { background: rgba(148,163,184,.15); }
 
@@ -212,7 +227,7 @@ html[data-theme="light"] {
 
 /* -------------------------------- Carousel ------------------------------- */
 .carousel {
-  display: grid;
+  display: flex;
   gap: 12px;
 }
 
@@ -491,19 +506,23 @@ html[data-theme="light"] .badge {
 }
 
 .heroText {
-  display: grid;
+  display: block;
   gap: 16px;
 }
 
 .title {
   font-size: clamp(28px, 4vw, 44px);
   line-height: 1.2;
-  margin: 0;
+  margin: 2rem 0;
 }
 
 .subtitle {
   opacity: 0.9;
   max-width: 52ch;
+  max-height: 3rem;
+  // background-color: #26c6da;
+  margin: 1rem 0;
+
 }
 
 .eyebrow {
@@ -516,6 +535,27 @@ html[data-theme="light"] .badge {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  margin-top: 4rem;
+  align-items: center;
+  text-align: center;
+  justify-content: right;
+
+  .p{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+.textlight{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #eeeef0;
+  font-weight: 700;
+  // background-color: #26c6da;
 }
 
 .btn {
@@ -591,14 +631,15 @@ html[data-theme="light"] .badge {
 }
 
 .carousel {
-  display: grid;
+  display: block;
   grid-template-columns: 120px 1fr auto;
   gap: 12px;
   align-items: center;
 }
 
 .heroThumb {
-  width: 120px;
+  min-width: 300px;
+  
   min-height: 120px;
   background: #111;
   background-size: cover;
