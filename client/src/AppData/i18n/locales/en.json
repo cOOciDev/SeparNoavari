@@ -79,7 +79,19 @@
   "committee": {
     "seeAll": "See all"
   },
-  "header": {"seeAll": "See all", "hello": "Hello,"},
+  "header": {"seeAll": "See all", "hello": "Hello,",
+ "submit": "Submit Idea",
+    "committee": "Committee",
+    "timeline": "Timeline",
+    "resources": "Resources",
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "primaryNavigation": "Primary navigation",
+       "tracks": "Tracks",
+    "prize":"Supports"
+
+  },
   "carousel": {
     "prev": "Previous slide",
     "next": "Next slide",

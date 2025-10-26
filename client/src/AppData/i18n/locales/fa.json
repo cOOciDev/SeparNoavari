@@ -282,7 +282,17 @@
   "header": {
     "myAccount": "حساب کاربری",
     "signInOrRegister": "ورود / ثبت‌نام",
-    "seeAll": "مشاهده همه"
+    "seeAll": "مشاهده همه",
+    "submit": "ثبت ایده",
+    "committee": "کمیته علمی",
+    "tracks": "محورها",
+    "prize":"جوایز",
+    "timeline": "زمان‌بندی",
+    "resources": "منابع",
+    "contact": "ارتباط",
+    "openMenu": "باز کردن منو",
+    "closeMenu": "بستن منو",
+    "primaryNavigation": "ناوبری اصلی"
   }
   ,
   "social": {

@@ -2,8 +2,9 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthProvider';
+import Header from '../components/ui/Header';
 
-const { Header, Content, Footer } = Layout;
+const {  Content, Footer } = Layout;
 
 const PublicLayout = () => {
   const location = useLocation();
@@ -28,7 +29,7 @@ const PublicLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }} dir={i18n.language === "fa" ? "rtl" : "ltr"}>
-      <Header
+      {/* <Header
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -48,7 +49,13 @@ const PublicLayout = () => {
           }))}
           style={{ minWidth: 420 }}
         />
-      </Header>
+      </Header> */}
+      <Header
+        loginHref="/login"
+        signupHref="/signup"
+        accountHref="/account"
+      />
+
       <Content style={{ padding: '24px', background: 'var(--bg, #f5f7fa)' }}>
         <Outlet />
       </Content>

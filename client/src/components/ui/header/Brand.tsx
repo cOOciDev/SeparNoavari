@@ -1,4 +1,4 @@
-import styles from "./header.module.scss";
+import styles from "./Header.module.scss";
 import type { Lang } from "./types";
 
 interface BrandProps {
@@ -9,8 +9,6 @@ interface BrandProps {
 }
 
 export default function Brand({ logoSrc, title, onHomeNavigate, lang }: BrandProps) {
-  console.log("logo :", logoSrc);
-
   return (
     <div className={styles.brand}>
       <a
@@ -25,4 +23,3 @@ export default function Brand({ logoSrc, title, onHomeNavigate, lang }: BrandPro
     </div>
   );
 }
-
