@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_IDEA_DEADLINE?: string
   readonly VITE_RESULTS_DATE?: string
+  readonly VITE_CLOSING_CEREMONY?: string
+  
 }
 
 interface ImportMeta {

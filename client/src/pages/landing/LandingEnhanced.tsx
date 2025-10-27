@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -42,40 +42,77 @@ export default function LandingEnhanced() {
     return (iso?: string) => (iso ? formatter.format(new Date(iso)) : "—");
   }, [isFa]);
 
-  const { submissionIso, resultsIso, closingIso, next, upcoming, submissionOver } =
-    useMemo(() => {
-      const now = Date.now();
-      const list = (MILESTONES || []).map((milestone) => ({
-        ...milestone,
-        ts: new Date(milestone.iso).getTime(),
-      }));
+type MilestoneKey = "submission" | "results" | "closing" | string;
 
-      const byKey = (key: string) => list.find((item) => item.key === key);
+type Milestone = {
+  key: MilestoneKey;
+  iso: string;       // ISO with timezone, e.g. "2025-11-14T23:59:00+03:30"
+  label: string;
+};
 
-      const submission = byKey("submission");
-      const results =
-        byKey("results") ?? {
-          key: "results",
-          iso: RESULTS_DATE_ISO,
-          ts: new Date(RESULTS_DATE_ISO).getTime(),
-          label: "Results",
-        };
-      const closing = byKey("closing");
+function toTs(iso?: string) {
+  const t = iso ? new Date(iso).getTime() : NaN;
+  return Number.isFinite(t) ? t : NaN;
+}
 
-      const nextMilestone =
-        list.find((item) => item.ts > now) ?? list[list.length - 1];
-      const isSubmissionOver = submission ? now >= submission.ts : true;
-      const upcomingList = list.filter((item) => item.ts > now).slice(0, 2);
+// Optional: tick so values update over time (e.g., every 30s)
+function useNowTick(intervalMs = 30000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
 
-      return {
-        submissionIso: submission?.iso,
-        resultsIso: results?.iso,
-        closingIso: closing?.iso,
-        next: nextMilestone,
-        upcoming: upcomingList,
-        submissionOver: isSubmissionOver,
-      };
-    }, []);
+const now = useNowTick(); // or use Date.now() if you don't need live updates
+
+const {
+  submissionIso, resultsIso, closingIso, next, upcoming, submissionOver
+} = useMemo(() => {
+  // Build base list from MILESTONES
+  const fromMilestones: Array<Milestone & { ts: number }> = (MILESTONES || [])
+    .map(m => ({ ...m, ts: toTs(m.iso) }))
+    .filter(m => Number.isFinite(m.ts));
+
+  // Ensure "results" exists (fallback to RESULTS_DATE_ISO if missing)
+  const hasResults = fromMilestones.some(m => m.key === "results");
+  if (!hasResults && RESULTS_DATE_ISO) {
+    const ts = toTs(RESULTS_DATE_ISO);
+    if (Number.isFinite(ts)) {
+      fromMilestones.push({
+        key: "results",
+        iso: RESULTS_DATE_ISO,
+        ts,
+        label: "Results",
+      });
+    }
+  }
+
+  // Sort chronologically
+  const list = fromMilestones.sort((a, b) => a.ts - b.ts);
+
+  // Quick accessors
+  const byKey = (k: MilestoneKey) => list.find(i => i.key === k);
+
+  const submission = byKey("submission");
+  const results = byKey("results");
+  const closing = byKey("closing");
+
+  // Compute timeline states
+  const nextMilestone = list.find(i => i.ts > now) ?? list.at(-1);
+  const upcomingList = list.filter(i => i.ts > now).slice(0, 2);
+  const isSubmissionOver = submission ? now >= submission.ts : true;
+
+  return {
+    submissionIso: submission?.iso,
+    resultsIso: results?.iso,
+    closingIso: closing?.iso,
+    next: nextMilestone,
+    upcoming: upcomingList,
+    submissionOver: isSubmissionOver,
+  };
+}, [MILESTONES, RESULTS_DATE_ISO, now]);
 
       // console.log("Milestones:", upcoming);
 
@@ -99,7 +136,7 @@ export default function LandingEnhanced() {
 
           <div className={s.ctaRow}>
             <Link className={s.btn } to="/ideas/new" data-variant="primary">
-              <p className={ s.textlight} >{t("ctaStart", { defaultValue: "Submit Your Idea" })}</p>
+              {t("ctaStart", { defaultValue: "Submit Your Idea" })}
             </Link>
             <Link className={s.btn} to="/tracks" data-variant="ghost">
               {t("ctaTracks", { defaultValue: "Explore Tracks" })}
@@ -331,7 +368,7 @@ export default function LandingEnhanced() {
               <div className={s.prizeHero} role="group" aria-label="جوایز نقدی">
                 <div className={s.prizeFigure} aria-live="polite">
                   <div className={s.prizeAmount} dir="ltr">
-                    <span className="num" data-count="2000000000">2,000,000,000</span>
+                    <span className="num" data-count="۲۰۰۰۰۰۰۰۰۰">۲,۰۰۰,۰۰۰,۰۰۰</span>
                     <span>&nbsp;ریال</span>
                   </div>
                   <div className={s.prizeSub}>مجموع جوایز نقدی رویداد</div>

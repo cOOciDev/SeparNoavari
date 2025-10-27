@@ -548,15 +548,15 @@ html[data-theme="light"] .badge {
   }
 }
 
-.textlight{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: #eeeef0;
-  font-weight: 700;
-  // background-color: #26c6da;
-}
+// .textlight{
+//   // display: flex;
+//   // justify-content: center;
+//   // align-items: center;
+//   // text-align: center;
+//   color: #eeeef0;
+//   font-weight: 700;
+//   // background-color: #26c6da;
+// }
 
 .btn {
   padding: 10px 16px;
@@ -568,7 +568,9 @@ html[data-theme="light"] .badge {
 
   &[data-variant="primary"] {
     background: var(--accent);
-    color: #0b1224;
+    color: #ffffff;
+  font-weight: 700;
+
     border-color: transparent;
   }
 
@@ -680,6 +682,7 @@ html[data-theme="light"] .badge {
 .btnRow {
   display: flex;
   gap: 6px;
+  color: var(--text);
 }
 
 .dots {
@@ -825,7 +828,7 @@ html[data-theme="light"] .badge {
   }
 
   .heroPoster {
-    min-height: 480px;
+    min-height: 520px;
     min-width: 190px;
   }
 

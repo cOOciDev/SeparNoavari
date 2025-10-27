@@ -3,15 +3,15 @@
 // بعداً فقط .env را آپدیت کن و dev server را ری‌استارت کن.
 
 export const IDEA_DEADLINE_ISO =
-  import.meta.env.VITE_IDEA_DEADLINE ?? "2025-10-10T20:30:00+03:30"
+  process.env.VITE_IDEA_DEADLINE ?? "2025-11-14T23:59:00+03:30"
 
 // اگر تاریخ «داوری نهایی/اعلام نتایج» همان RESULTS باشد، از همین استفاده کن:
 export const RESULTS_DATE_ISO =
-  import.meta.env.VITE_RESULTS_DATE ?? "2025-11-01T10:00:00+03:30"
+  process.env.VITE_RESULTS_DATE ?? "2025-11-22T10:00:00+03:30"
 
 // اختتامیه (placeholder — بعداً در .env دقیقش کن)
 export const CLOSING_CEREMONY_ISO =
-  import.meta.env.VITE_CLOSING_CEREMONY ?? "2025-11-10T18:00:00+03:30"
+  process.env.VITE_CLOSING_CEREMONY ?? "2025-11-28T18:00:00+03:30"
 
 // نام‌های فارسی/انگلیسی مرحله‌ها (فعلاً انگلیسی؛ بعداً دوزبانه می‌کنیم)
 export const MILESTONES = [
