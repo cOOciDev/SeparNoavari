@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "./.tsbuild",
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "src/__tests__",
+    "src/test",
+    "**/*.test.*",
+    "vitest.config.ts"
+  ]
+}
