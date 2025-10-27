@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import DashboardHeaderControls from "../../layout/DashboardHeaderControls";
-import styles from "./Header.module.scss";
+import styles from "./header.module.scss";
 import type { Lang, NavItem, ThemeMode } from "./types";
 
 interface MobileMenuProps {

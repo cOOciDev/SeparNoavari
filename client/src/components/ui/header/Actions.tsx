@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import styles from "./Header.module.scss";
+import styles from "./header.module.scss";
 import type { Lang } from "./types";
 
 type Props = {
