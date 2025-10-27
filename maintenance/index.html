@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>در حال به‌روزرسانی سرور...</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Vazirmatn", sans-serif;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 2rem;
+      font-weight: 400;
+      line-height: 1.8;
+      color: #e2e8f0;
+    }
+
+    /* ⚙️ Gear animation */
+    .gear {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #1e293b 30%, #0f172a 70%);
+      box-shadow: 0 0 20px #38bdf8 inset, 0 0 40px #0ea5e9;
+      animation: spin 3s linear infinite;
+    }
+
+    .gear::before, .gear::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid transparent;
+      border-top-color: #38bdf8;
+      border-bottom-color: #38bdf8;
+      animation: spin 3s linear infinite reverse;
+    }
+
+    .gear::after {
+      width: 160px;
+      height: 160px;
+      border-top-color: #0ea5e9;
+      border-bottom-color: #0ea5e9;
+      animation-duration: 4s;
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="gear"></div>
+  <h2>🚧 ما در حال به‌روزرسانی سرور هستیم<br>.لطفاً به‌زودی دوباره مراجعه کنید</h2>
+    <h3>separnoavari</h3>
+</body>
+</html>
