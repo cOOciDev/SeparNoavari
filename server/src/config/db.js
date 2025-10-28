@@ -67,7 +67,7 @@ export async function connectMongo(uri) {
     connectTimeoutMS: 10_000,
     maxPoolSize: Number(env.dbMaxPool || 20),
     minPoolSize: Number(env.dbMinPool || 0),
-    family: 4, // uncomment if IPv6 causes trouble in your env
+    // family: 4, // uncomment if IPv6 causes trouble in your env
   });
 
   try {
