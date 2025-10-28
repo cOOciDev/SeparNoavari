@@ -1,10 +1,10 @@
 import { Table } from "antd";
 import type { TableProps, TablePaginationConfig } from "antd/es/table";
-import type { SorterResult } from "antd/es/table/interface";
+import type { FilterValue, SorterResult } from "antd/es/table/interface";
 
 type DataTableOnChange<RecordType> = (
   pagination: TablePaginationConfig,
-  filters: Record<string, (string | number | boolean)[] | null>,
+  filters: Record<string, FilterValue | null>,
   sorter: SorterResult<RecordType> | SorterResult<RecordType>[],
   extra: Parameters<NonNullable<TableProps<RecordType>["onChange"]>>[3]
 ) => void;

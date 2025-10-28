@@ -1,4 +1,4 @@
-﻿import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Typography } from "antd";
 
 import styles from "./pageHeader.module.scss";

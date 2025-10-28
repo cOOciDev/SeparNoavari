@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Role } from "../../types/domain";
+import type {
+  Assignment,
+  EvaluationSummaryFile,
+  Idea,
+  Judge,
+  Role,
+  User,
+} from "../../types/domain";
 import {
   getAdminIdeas,
   createJudge,
@@ -12,36 +19,33 @@ import {
   getAdminUsers,
   updateUserRole,
   updateJudge,
+  type Paginated,
 } from "../apis/admin.api";
 import { getJudges } from "../apis/judges.api";
 
-export const useAdminIdeas = (
-  params: {
-    status?: string;
-    category?: string;
-    q?: string;
-    page?: number;
-    pageSize?: number;
-  }
-) =>
-  useQuery({
+export const useAdminIdeas = (params: {
+  status?: string;
+  category?: string;
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}) =>
+  useQuery<Paginated<Idea>>({
     queryKey: ["admin", "ideas", params],
     queryFn: () => getAdminIdeas(params),
-    keepPreviousData: true,
   });
 
-export const useAdminJudges = (
-  params?: {
-    q?: string;
-    page?: number;
-    pageSize?: number;
-  }
-) =>
-  useQuery({
-    queryKey: ["admin", "judges", params],
-    queryFn: () => getJudges(params),
-    keepPreviousData: true,
-  });
+export const useAdminJudges = (params?: {
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}) =>
+  useQuery<Awaited<ReturnType<typeof getJudges>>>(
+    {
+      queryKey: ["admin", "judges", params],
+      queryFn: () => getJudges(params),
+    }
+  );
 
 export const useCreateJudge = () => {
   const queryClient = useQueryClient();
@@ -87,11 +91,13 @@ export const useManualAssign = () => {
 };
 
 export const useIdeaAssignments = (ideaId?: string) =>
-  useQuery({
-    queryKey: ["admin", "ideaAssignments", ideaId],
-    queryFn: () => getIdeaAssignments(ideaId || ""),
-    enabled: Boolean(ideaId),
-  });
+  useQuery<{ assignments: Assignment[]; total: number; maxJudges: number }>(
+    {
+      queryKey: ["admin", "ideaAssignments", ideaId],
+      queryFn: () => getIdeaAssignments(ideaId || ""),
+      enabled: Boolean(ideaId),
+    }
+  );
 
 export const useDeleteAssignment = () => {
   const queryClient = useQueryClient();
@@ -129,7 +135,7 @@ export const useLockAssignment = () => {
 };
 
 export const useFinalSummary = (ideaId?: string) =>
-  useQuery({
+  useQuery<EvaluationSummaryFile | null>({
     queryKey: ["admin", "finalSummary", ideaId],
     queryFn: () => getFinalSummary(ideaId || ""),
     enabled: Boolean(ideaId),
@@ -161,17 +167,14 @@ export const useUploadFinalSummary = () => {
   });
 };
 
-export const useAdminUsers = (
-  params?: {
-    role?: Role;
-    page?: number;
-    pageSize?: number;
-  }
-) =>
-  useQuery({
+export const useAdminUsers = (params?: {
+  role?: Role;
+  page?: number;
+  pageSize?: number;
+}) =>
+  useQuery<Paginated<User>>({
     queryKey: ["admin", "users", params],
     queryFn: () => getAdminUsers(params ?? {}),
-    keepPreviousData: true,
   });
 
 export const useUpdateUserRole = () => {

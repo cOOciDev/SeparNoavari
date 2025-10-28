@@ -13,7 +13,7 @@ import App from "./app/App";
  */
 const rootCache = new WeakMap<Element | DocumentFragment, Root>();
 
-unstableSetRender(async (node, container) => {
+unstableSetRender((node, container) => {
   const target = container as Element | DocumentFragment;
 
   let root = rootCache.get(target);
@@ -24,9 +24,8 @@ unstableSetRender(async (node, container) => {
 
   root.render(node);
 
-  // must return an async cleanup (Promise<void>)
   return async () => {
-    root?.unmount();
+    root.unmount();
     rootCache.delete(target);
   };
 });

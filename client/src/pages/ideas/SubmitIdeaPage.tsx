@@ -89,7 +89,7 @@ const SubmitIdeaPage = () => {
       bordered={false}
     >
       <IdeaForm
-        key={user?.id || user?._id || user?.email || "idea-form"}
+        key={user?.id || user?.email || "idea-form"}
         categories={categories}
         submitting={isPending}
         onSubmit={handleSubmit}

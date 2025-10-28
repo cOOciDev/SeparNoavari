@@ -70,10 +70,10 @@ const JudgeEditModal = ({ open, onClose }: JudgeEditModalProps) => {
           label={t("auth.password", { defaultValue: "Password" })}
           rules={[
             { required: true, message: t("auth.errors.required", { defaultValue: "Password is required" }) },
-            { type: "password", message: t("auth.errors.invalidPassword", { defaultValue: "Invalid password" }) },
+            { min: 8, message: t("auth.errors.invalidPassword", { defaultValue: "Password must be at least 8 characters" }) },
           ]}
         >
-          <Input autoComplete="password" />
+          <Input.Password autoComplete="new-password" />
         </Form.Item>
         <Form.Item name="expertise" label={t("admin.judges.expertise", { defaultValue: "Expertise" })}>
           <Select mode="tags" tokenSeparators={[",", " "]} placeholder={t("admin.judges.expertisePlaceholder", { defaultValue: "Add expertise tags" })} />

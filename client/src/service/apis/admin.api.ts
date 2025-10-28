@@ -10,7 +10,7 @@ import type {
 } from "../../types/domain";
 import { normalizeIdeaCollection } from "../transformers";
 
-type Paginated<T> = {
+export type Paginated<T> = {
   items: T[];
   total: number;
 };
@@ -132,6 +132,55 @@ export async function getAdminUsers(params?: {
   };
 }
 
+export type AdminAssignmentListItem = {
+  id: string;
+  ideaId: string;
+  ideaTitle?: string;
+  judgeId: string;
+  judgeName?: string;
+  status: Assignment["status"];
+  submittedAt?: string | null;
+  scoreAvg?: number | null;
+};
+
+export async function listAdminAssignments(params?: { ideaId?: string }): Promise<AdminAssignmentListItem[]> {
+  const { data } = await api.get("/admin/assignments", { params });
+  const rows = Array.isArray(data.assignments) ? data.assignments : [];
+  return rows
+    .map((raw: any): AdminAssignmentListItem | null => {
+      const idea = raw?.idea ?? {};
+      const judge = raw?.judge ?? {};
+      const judgeUser = judge?.user ?? {};
+      const submission = raw?.submission ?? {};
+      const ideaId = idea?.id ?? idea?._id ?? raw?.ideaId ?? raw?.idea;
+      const judgeId = judge?.id ?? judge?._id ?? raw?.judgeId ?? raw?.judge;
+      if (!ideaId || !judgeId) {
+        return null;
+      }
+      return {
+        id: String(raw?.id ?? raw?._id ?? `${ideaId}-${judgeId}`),
+        ideaId: String(ideaId),
+        ideaTitle: idea?.title ?? raw?.ideaTitle ?? undefined,
+        judgeId: String(judgeId),
+        judgeName:
+          judgeUser?.name ??
+          judgeUser?.email ??
+          judge?.name ??
+          judge?.email ??
+          (judgeId ? String(judgeId) : undefined),
+        status: (raw?.status ?? "PENDING") as Assignment["status"],
+        submittedAt:
+          submission?.uploadedAt ??
+          raw?.submittedAt ??
+          idea?.submittedAt ??
+          idea?.updatedAt ??
+          raw?.updatedAt,
+        scoreAvg: idea?.scoreSummary?.average ?? raw?.scoreAvg ?? raw?.scoreAverage ?? null,
+      };
+    })
+    .filter((item: AdminAssignmentListItem | null): item is AdminAssignmentListItem => item !== null);
+}
+
 export async function updateUserRole(id: string, role: Role): Promise<{ ok: boolean }> {
   const { data } = await api.put(`/admin/users/${encodeURIComponent(id)}/role`, { role });
   return { ok: data.ok !== false };
@@ -148,5 +197,8 @@ export default {
   uploadFinalSummary,
   getFinalSummary,
   getAdminUsers,
+  listAdminAssignments,
   updateUserRole,
 };
+
+

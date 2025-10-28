@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react';
-import RequireAuth from '../../pages/login/RequireAuth';
+import type { ReactNode } from "react";
+import { RoleGuard } from "../../utils/guard";
 
 export default function RequireAdmin({ children }: { children: ReactNode }) {
-  return <RequireAuth roles={['admin']}>{children}</RequireAuth>;
+  return <RoleGuard need={["ADMIN"]}>{children}</RoleGuard>;
 }
-

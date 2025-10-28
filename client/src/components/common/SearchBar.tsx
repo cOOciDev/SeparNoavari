@@ -1,4 +1,4 @@
-﻿import { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import { Button, Input, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 

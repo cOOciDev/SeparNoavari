@@ -1,5 +1,5 @@
 import { ConfigProvider, App as AntApp, theme as antdTheme } from "antd";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
 

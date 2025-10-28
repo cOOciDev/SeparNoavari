@@ -1,5 +1,6 @@
-﻿import { Select } from "antd";
+import { Select } from "antd";
 import { useMemo } from "react";
+import type { Judge } from "../../types/domain";
 import { useAdminJudges } from "../../service/hooks";
 
 export type JudgeSelectorProps = {
@@ -14,11 +15,11 @@ const JudgeSelector = ({ value, onChange, disabled, placeholder }: JudgeSelector
 
   const options = useMemo(
     () =>
-      (data?.items ?? []).map((judge) => ({
+      (data?.items ?? []).map((judge: Judge) => ({
         key: judge.id,
-        label: `${judge.user?.name || judge.user?.email || judge.id}${
-          typeof judge.capacity === "number" ? ` (cap ${judge.capacity})` : ""
-        }`,
+        label:
+          (judge.user?.name || judge.user?.email || judge.id) +
+          (typeof judge.capacity === "number" ? ` (cap ${judge.capacity})` : ""),
         value: String(judge.id),
       })),
     [data]

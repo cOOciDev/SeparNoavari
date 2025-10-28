@@ -1,102 +1,124 @@
 import { useEffect, useMemo, useState } from "react";
-import s from "../../styles/panel.module.scss";
 import { useTranslation } from "react-i18next";
-import { listAssignments, listIdeas, listJudges } from "../../api";
-import type { Assignment, Idea, Judge } from "../../api";
+import s from "../../styles/panel.module.scss";
+import {
+  listAdminAssignments,
+  type AdminAssignmentListItem,
+} from "../../service/apis/admin.api";
 
-type Row = Assignment & {
-  ideaTitle: string;
+type StatusFilter = "ALL" | "ACTIVE" | "COMPLETED";
+type SortKey = "newest" | "oldest" | "status" | "score";
+
+type Row = AdminAssignmentListItem & {
   judgeName: string;
-  submittedAt?: string;
-  scoreAvg?: number | null;
+  ideaTitle: string;
+  submittedAt: string | null;
+};
+
+const COMPLETED_STATUSES = new Set(["REVIEWED", "LOCKED"]);
+const ACTIVE_STATUSES = new Set(["PENDING", "IN_PROGRESS", "SUBMITTED"]);
+
+const normalizeDate = (value?: string | null): string | null => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
 };
 
 export default function Scoring() {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"ALL" | "ASSIGNED" | "DONE">("ALL");
-  const [sort, setSort] = useState<"newest" | "oldest" | "status" | "score">("newest");
+  const [status, setStatus] = useState<StatusFilter>("ALL");
+  const [sort, setSort] = useState<SortKey>("newest");
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         setLoading(true);
         setError(null);
-
-        const [assigns, ideas, judges] = await Promise.all([
-          listAssignments(),
-          listIdeas(),
-          listJudges(),
-        ]);
-
-        const ideaMap = new Map<string, Idea>(ideas.map((i) => [i.id, i]));
-        const judgeMap = new Map<string, Judge>(judges.map((j) => [j.id, j]));
-
-        const enriched: Row[] = assigns.map((a) => {
-          const i = ideaMap.get(a.ideaId);
-          const j = judgeMap.get(a.judgeId);
-          return {
-            ...a,
-            ideaTitle: i?.title ?? a.ideaId,
-            judgeName: j?.name ?? a.judgeId,
-            submittedAt: i?.submittedAt,
-            scoreAvg: i?.scoreAvg ?? null,
-          };
-        });
-
-        setRows(enriched);
+        const assignments = await listAdminAssignments();
+        if (cancelled) return;
+        const normalized: Row[] = assignments.map((item) => ({
+          ...item,
+          ideaTitle: item.ideaTitle ?? item.ideaId,
+          judgeName: item.judgeName ?? item.judgeId,
+          submittedAt: normalizeDate(item.submittedAt),
+          scoreAvg: item.scoreAvg ?? null,
+        }));
+        setRows(normalized);
       } catch (e) {
         console.error(e);
+        if (cancelled) return;
         setError(e instanceof Error ? e.message : "Load failed");
         setRows([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const data = useMemo(() => {
-    let d = [...rows];
+    let filtered = [...rows];
 
     if (q.trim()) {
       const qq = q.trim().toLowerCase();
-      d = d.filter(
-        (r) =>
-          r.ideaTitle.toLowerCase().includes(qq) ||
-          r.judgeName.toLowerCase().includes(qq) ||
-          r.id.toLowerCase().includes(qq) ||
-          r.ideaId.toLowerCase().includes(qq) ||
-          r.judgeId.toLowerCase().includes(qq) ||
-          r.status.toLowerCase().includes(qq)
+      filtered = filtered.filter((r) =>
+        [r.ideaTitle, r.ideaId, r.judgeName, r.judgeId, r.id, r.status]
+          .filter(Boolean)
+          .some((value) => value!.toString().toLowerCase().includes(qq))
       );
     }
-    if (status !== "ALL") d = d.filter((r) => r.status === status);
+
+    if (status === "ACTIVE") {
+      filtered = filtered.filter((r) => ACTIVE_STATUSES.has(r.status));
+    } else if (status === "COMPLETED") {
+      filtered = filtered.filter((r) => COMPLETED_STATUSES.has(r.status));
+    }
+
+    const byDateAsc = (value: string | null) => {
+      if (!value) return 0;
+      return new Date(value).getTime() || 0;
+    };
 
     switch (sort) {
       case "oldest":
-        d.sort((a, b) => (+new Date(a.submittedAt || 0)) - (+new Date(b.submittedAt || 0)));
+        filtered.sort((a, b) => byDateAsc(a.submittedAt) - byDateAsc(b.submittedAt));
         break;
       case "status":
-        d.sort((a, b) => a.status.localeCompare(b.status));
+        filtered.sort((a, b) => a.status.localeCompare(b.status));
         break;
       case "score":
-        d.sort((a, b) => (b.scoreAvg ?? -1) - (a.scoreAvg ?? -1));
+        filtered.sort((a, b) => (b.scoreAvg ?? -1) - (a.scoreAvg ?? -1));
         break;
       case "newest":
       default:
-        d.sort((a, b) => (+new Date(b.submittedAt || 0)) - (+new Date(a.submittedAt || 0)));
+        filtered.sort((a, b) => byDateAsc(b.submittedAt) - byDateAsc(a.submittedAt));
         break;
     }
-    return d;
+
+    return filtered;
   }, [rows, q, status, sort]);
 
-  function exportCsv() {
+  const exportCsv = () => {
     const rowsCsv = [
-      ["AssignmentID", "IdeaID", "IdeaTitle", "JudgeID", "JudgeName", "Status", "SubmittedAt", "ScoreAvg"],
+      [
+        "AssignmentID",
+        "IdeaID",
+        "IdeaTitle",
+        "JudgeID",
+        "JudgeName",
+        "Status",
+        "SubmittedAt",
+        "ScoreAvg",
+      ],
       ...data.map((r) => [
         r.id,
         r.ideaId,
@@ -105,10 +127,12 @@ export default function Scoring() {
         r.judgeName,
         r.status,
         r.submittedAt ?? "",
-        (r.scoreAvg ?? "").toString(),
+        r.scoreAvg ?? "",
       ]),
     ];
-    const csv = rowsCsv.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rowsCsv
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -116,33 +140,43 @@ export default function Scoring() {
     a.download = "scoring.csv";
     a.click();
     URL.revokeObjectURL(url);
-  }
+  };
 
   return (
     <div className={s.stack}>
-  <h1>{t('admin.scoringPage.title')}</h1>
+      <h1>{t("admin.scoringPage.title")}</h1>
 
       <div className={s.card}>
         <div className={s.cardBody}>
           <div className={s.filters}>
             <input
               className={s.input}
-              placeholder={t('admin.scoringPage.searchPlaceholder')}
+              placeholder={t("admin.scoringPage.searchPlaceholder")}
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
-            <select className={s.select} value={status} onChange={(e) => setStatus(e.target.value as "ALL" | "ASSIGNED" | "DONE")}>
-              <option value="ALL">{t('admin.scoringPage.all')}</option>
-              <option value="ASSIGNED">{t('admin.scoringPage.assigned')}</option>
-              <option value="DONE">{t('admin.scoringPage.done')}</option>
+            <select
+              className={s.select}
+              value={status}
+              onChange={(e) => setStatus(e.target.value as StatusFilter)}
+            >
+              <option value="ALL">{t("admin.scoringPage.all")}</option>
+              <option value="ACTIVE">{t("admin.scoringPage.assigned")}</option>
+              <option value="COMPLETED">{t("admin.scoringPage.done")}</option>
             </select>
-            <select className={s.select} value={sort} onChange={(e) => setSort(e.target.value as "newest" | "oldest" | "status" | "score")}>
-              <option value="newest">{t('admin.scoringPage.sort.newest')}</option>
-              <option value="oldest">{t('admin.scoringPage.sort.oldest')}</option>
-              <option value="status">{t('admin.scoringPage.sort.status')}</option>
-              <option value="score">{t('admin.scoringPage.sort.score')}</option>
+            <select
+              className={s.select}
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+            >
+              <option value="newest">{t("admin.scoringPage.sort.newest")}</option>
+              <option value="oldest">{t("admin.scoringPage.sort.oldest")}</option>
+              <option value="status">{t("admin.scoringPage.sort.status")}</option>
+              <option value="score">{t("admin.scoringPage.sort.score")}</option>
             </select>
-            <button className={s.btnGhost} onClick={exportCsv}>{t('admin.scoringPage.csv')}</button>
+            <button className={s.btnGhost} onClick={exportCsv}>
+              {t("admin.scoringPage.csv")}
+            </button>
           </div>
         </div>
       </div>
@@ -151,7 +185,7 @@ export default function Scoring() {
         <div className={s.card}>
           <div className={s.cardBody}>
             <div className={s.stack}>
-              <div className={s.muted}>Loading…</div>
+              <div className={s.muted}>Loading...</div>
             </div>
           </div>
         </div>
@@ -162,7 +196,9 @@ export default function Scoring() {
           <div className={s.cardBody}>
             <div className={s.stack}>
               <div className={s.muted}>Error: {error}</div>
-              <button className={s.btnGhost} onClick={() => window.location.reload()}>Reload</button>
+              <button className={s.btnGhost} onClick={() => window.location.reload()}>
+                Reload
+              </button>
             </div>
           </div>
         </div>
@@ -172,13 +208,13 @@ export default function Scoring() {
         <table className={s.table}>
           <thead>
             <tr>
-              <th>{t('admin.scoringPage.table.assignment')}</th>
-              <th>{t('admin.scoringPage.table.idea')}</th>
-              <th>{t('admin.scoringPage.table.judge')}</th>
-              <th>{t('admin.scoringPage.table.status')}</th>
-              <th>{t('admin.scoringPage.table.submitted')}</th>
-              <th>{t('admin.scoringPage.table.score')}</th>
-              <th>{t('admin.scoringPage.table.open')}</th>
+              <th>{t("admin.scoringPage.table.assignment")}</th>
+              <th>{t("admin.scoringPage.table.idea")}</th>
+              <th>{t("admin.scoringPage.table.judge")}</th>
+              <th>{t("admin.scoringPage.table.status")}</th>
+              <th>{t("admin.scoringPage.table.submitted")}</th>
+              <th>{t("admin.scoringPage.table.score")}</th>
+              <th>{t("admin.scoringPage.table.open")}</th>
             </tr>
           </thead>
           <tbody>
@@ -188,18 +224,25 @@ export default function Scoring() {
                 <td title={r.ideaId}>{r.ideaTitle}</td>
                 <td title={r.judgeId}>{r.judgeName}</td>
                 <td>{r.status}</td>
-                <td>{r.submittedAt ? new Date(r.submittedAt).toLocaleString() : "—"}</td>
-                <td>{r.scoreAvg ?? "—"}</td>
+                <td>{r.submittedAt ? new Date(r.submittedAt).toLocaleString() : "-"}</td>
+                <td>{r.scoreAvg ?? "-"}</td>
                 <td>
-                  <a className={s.btn} href={`/ideas/${r.ideaId}`} target="_blank" rel="noreferrer">
-                    {t('admin.scoringPage.viewIdea')}
+                  <a
+                    className={s.btn}
+                    href={`/ideas/${r.ideaId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("admin.scoringPage.viewIdea")}
                   </a>
                 </td>
               </tr>
             ))}
             {data.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={7} className={s.muted}>{t('admin.scoringPage.noRows')}</td>
+                <td colSpan={7} className={s.muted}>
+                  {t("admin.scoringPage.noRows")}
+                </td>
               </tr>
             )}
           </tbody>

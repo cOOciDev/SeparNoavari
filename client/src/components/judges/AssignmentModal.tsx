@@ -154,7 +154,7 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
           return (
             <Space size={4} direction="vertical">
               <Typography.Text type="secondary">
-                v{record.submission.version} ·
+                v{record.submission.version} ï¿½
                 {" "}
                 {new Date(record.submission.uploadedAt).toLocaleString()}
               </Typography.Text>
@@ -222,7 +222,7 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       }}
       cancelButtonProps={{ disabled: manualAssign.isPending }}
       width={720}
-      destroyOnClose
+      destroyOnHidden
     >
       {!ideaId ? (
         <Alert

@@ -1,5 +1,5 @@
-﻿import { Result } from "antd";
-import { ReactNode } from "react";
+import { Result } from "antd";
+import type { ReactNode } from "react";
 
 export type EmptyStateProps = {
   title?: ReactNode;

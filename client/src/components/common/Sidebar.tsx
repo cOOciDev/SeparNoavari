@@ -13,7 +13,7 @@ export default function Sidebar() {
   const { user } = useAuth();
   const { t } = useTranslation();
 
-  if (user?.role !== 'admin') {
+  if (user?.role !== "ADMIN") {
     return null;
   }
 

@@ -86,6 +86,7 @@ const JudgesListPage = () => {
       <Card>
         <Table<Judge>
           rowKey={(record) => String(record.id)}
+          // rowKey={(record) => String("judge-" + record.id)}
           dataSource={judges}
           columns={[
             {
