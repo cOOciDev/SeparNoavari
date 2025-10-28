@@ -7,6 +7,7 @@ mongoose.set("strictQuery", true);
 mongoose.set("sanitizeFilter", true);
 mongoose.set("autoIndex", env.nodeEnv !== "production");
 mongoose.set("debug", env.nodeEnv === "development");
+mongoose.set("bufferCommands", false);
 
 let eventsBound = false;
 let connectPromise = null;
@@ -40,6 +41,11 @@ function bindConnectionEvents() {
   });
 }
 
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION", err);
+  process.exit(1); // let PM2 restart cleanly
+});
+
 export async function connectMongo(uri) {
   bindConnectionEvents();
   if (!uri) throw new Error("MONGO_URI is not defined");
@@ -61,7 +67,7 @@ export async function connectMongo(uri) {
     connectTimeoutMS: 10_000,
     maxPoolSize: Number(env.dbMaxPool || 20),
     minPoolSize: Number(env.dbMinPool || 0),
-    // family: 4, // uncomment if IPv6 causes trouble in your env
+    family: 4, // uncomment if IPv6 causes trouble in your env
   });
 
   try {
