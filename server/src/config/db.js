@@ -56,9 +56,9 @@ export async function connectMongo(uri) {
   }
 
   connectPromise = mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 10_000,
+    serverSelectionTimeoutMS: 20_000, // 20s
+    socketTimeoutMS: 60_000,          // 60s
     connectTimeoutMS: 10_000,
-    socketTimeoutMS: 45_000,
     maxPoolSize: Number(env.dbMaxPool || 20),
     minPoolSize: Number(env.dbMinPool || 0),
     // family: 4, // uncomment if IPv6 causes trouble in your env
