@@ -345,7 +345,7 @@ class AdminController {
         body: { ideaId, judgeIds },
       } = manualAssignmentSchema.parse({ body: req.body });
 
-      const { assignments } = await assignJudgesManually({
+      const { assignments, skipped, meta } = await assignJudgesManually({
         ideaId,
         judgeIds,
         assignedBy: req.user?.id || req.user?._id,
@@ -356,6 +356,19 @@ class AdminController {
         assignments: assignments.map((doc) =>
           doc?.toJSON ? doc.toJSON() : doc
         ),
+        skipped: Array.isArray(skipped)
+          ? skipped.map((entry) => ({
+              judgeId: String(entry.judgeId),
+              reason: entry.reason,
+              ...(entry.judgeName ? { judgeName: entry.judgeName } : {}),
+              ...(entry.details ? { details: entry.details } : {}),
+            }))
+          : [],
+        meta: {
+          ...(meta || {}),
+          assignedCount: assignments.length,
+          skippedCount: Array.isArray(skipped) ? skipped.length : 0,
+        },
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

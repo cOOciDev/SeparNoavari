@@ -42,8 +42,11 @@ function bindConnectionEvents() {
 }
 
 process.on("unhandledRejection", (err) => {
-  console.error("UNHANDLED REJECTION", err);
-  process.exit(1); // let PM2 restart cleanly
+  logger.error("Unhandled promise rejection", {
+    name: err?.name,
+    message: err?.message,
+    stack: err?.stack,
+  });
 });
 
 export async function connectMongo(uri) {
@@ -95,4 +98,12 @@ export async function initIndexes() {
 export async function disconnectMongo() {
   if (mongoose.connection.readyState === 0) return;
   await mongoose.connection.close(false);
+}
+
+export function getMongoReadyState() {
+  return mongoose.connection.readyState;
+}
+
+export function isMongoConnected() {
+  return mongoose.connection.readyState === 1;
 }

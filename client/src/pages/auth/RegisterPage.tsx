@@ -45,7 +45,7 @@ const RegisterPage = () => {
     >
       <Card style={{ width: "100%", maxWidth: 420 }} dir={isRTL ? "rtl" : "ltr"}>
         <Typography.Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
-          {t("auth.loginHeader", { defaultValue: "Register" })}
+          {t("auth.signupHeader", { defaultValue: "Register" })}
         </Typography.Title>
         {error ? (
           <Alert

@@ -12,13 +12,24 @@ let httpServer;
 export const startServer = async (customPort) => {
   if (httpServer) return httpServer;
 
-  // 1) DB connect
-  await connectMongo(env.mongoUri);
-  await initIndexes();
-
-  // 2) HTTP listen
   const port = Number(customPort || env.port) || 5501;
   const host = env.host || "0.0.0.0";
+
+  if (env.nodeEnv === "test") {
+    await connectMongo(env.mongoUri);
+    await initIndexes();
+  } else {
+    // kick off Mongo connection attempt without blocking HTTP startup
+    void (async () => {
+      try {
+        await connectMongo(env.mongoUri);
+        await initIndexes();
+        logger.info("Mongo connection established");
+      } catch (error) {
+        logger.error("Mongo connection attempt failed", { error });
+      }
+    })();
+  }
 
   httpServer = await new Promise((resolve, reject) => {
     const instance = app
@@ -69,7 +80,6 @@ if (env.nodeEnv !== "test") {
   // boot
   startServer().catch((error) => {
     logger.error("Startup failure", { error });
-    process.exit(1);
   });
 
   // signals

@@ -10,6 +10,7 @@ import { sessionMiddleware } from "./config/session.js";
 import passport from "./config/passport.js";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import { getMongoReadyState, isMongoConnected } from "./config/db.js";
 
 const app = express();
 app.disable("etag");
@@ -90,7 +91,27 @@ app.use(passport.session());
 
 // Health
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, status: "healthy", timestamp: new Date().toISOString() });
+  const dbState = getMongoReadyState();
+  const healthy = isMongoConnected();
+
+  res
+    .status(healthy ? 200 : 503)
+    .json({
+      ok: healthy,
+      status: healthy ? "healthy" : "degraded",
+      db: {
+        state: dbState,
+        description:
+          dbState === 1
+            ? "connected"
+            : dbState === 2
+            ? "connecting"
+            : dbState === 3
+            ? "disconnecting"
+            : "disconnected",
+      },
+      timestamp: new Date().toISOString(),
+    });
 });
 
 // API routes

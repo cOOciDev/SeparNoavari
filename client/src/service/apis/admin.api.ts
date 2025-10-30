@@ -15,6 +15,27 @@ export type Paginated<T> = {
   total: number;
 };
 
+export type AssignmentSkipReason =
+  | "NOT_FOUND"
+  | "INACTIVE"
+  | "ALREADY_ASSIGNED"
+  | "NO_SLOT_AVAILABLE"
+  | "CAPACITY_REACHED";
+
+export type AssignmentSkipEntry = {
+  judgeId: string;
+  judgeName?: string;
+  reason: AssignmentSkipReason;
+  details?: Record<string, unknown>;
+};
+
+export type ManualAssignMeta = {
+  initialSlots?: number;
+  remainingSlots?: number;
+  assignedCount?: number;
+  skippedCount?: number;
+};
+
 export async function getAdminIdeas(params: {
   status?: string;
   category?: string;
@@ -54,11 +75,29 @@ export async function updateJudge(
 export async function manualAssign(payload: {
   ideaId: string;
   judgeIds: string[];
-}): Promise<{ assignments: Assignment[] }> {
+}): Promise<{ assignments: Assignment[]; skipped: AssignmentSkipEntry[]; meta: ManualAssignMeta }> {
   try {
     const { data } = await api.post("/admin/assignments/manual", payload);
+    const assignments = (data.assignments ?? []) as Assignment[];
+    const skipped: AssignmentSkipEntry[] = Array.isArray(data.skipped)
+      ? data.skipped
+          .map((entry: any) => {
+            const judgeId = entry?.judgeId;
+            if (!judgeId) return null;
+            const reason = entry?.reason;
+            return {
+              judgeId: String(judgeId),
+              judgeName: entry?.judgeName ?? undefined,
+              reason: (reason ?? "ALREADY_ASSIGNED") as AssignmentSkipReason,
+              details: entry?.details ?? undefined,
+            } satisfies AssignmentSkipEntry;
+          })
+          .filter((entry: AssignmentSkipEntry | null): entry is AssignmentSkipEntry => Boolean(entry))
+      : [];
     return {
-      assignments: (data.assignments ?? []) as Assignment[],
+      assignments,
+      skipped,
+      meta: (data.meta ?? {}) as ManualAssignMeta,
     };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

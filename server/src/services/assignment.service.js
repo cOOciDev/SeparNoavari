@@ -52,29 +52,33 @@ const buildJudgeLoadMap = async (judgeIds) => {
   return new Map(results.map((row) => [String(row._id), row.count]));
 };
 
-const buildCapacityError = (breaches) => {
-  const error = createError(
-    409,
-    "One or more judges have reached their manual capacity"
-  );
-  error.code = "JUDGE_CAPACITY_REACHED";
-  error.details = {
-    judges: breaches.map((entry) => ({
-      judgeId: String(entry.judgeId),
-      capacity: entry.capacity,
-      currentLoad: entry.currentLoad,
-    })),
-  };
-  return error;
+const SKIP_REASONS = {
+  NOT_FOUND: "NOT_FOUND",
+  INACTIVE: "INACTIVE",
+  ALREADY_ASSIGNED: "ALREADY_ASSIGNED",
+  NO_SLOT: "NO_SLOT_AVAILABLE",
+  CAPACITY: "CAPACITY_REACHED",
 };
 
-export const assignJudgesManually = async ({
-  ideaId,
-  judgeIds,
-  assignedBy,
-}) => {
+const pushSkip = (collection, judge, reason, details) => {
+  const judgeId =
+    judge && typeof judge === "object" && judge._id ? judge._id : judge;
+  const judgeName =
+    judge && typeof judge === "object"
+      ? judge?.user?.name || judge?.user?.email || judge?.name || undefined
+      : undefined;
+  collection.push({
+    judgeId: String(judgeId),
+    reason,
+    ...(judgeName ? { judgeName } : {}),
+    ...(details ? { details } : {}),
+  });
+};
+
+export const assignJudgesManually = async ({ ideaId, judgeIds, assignedBy }) => {
   const ideaObjectId = normalizeObjectId(ideaId, "ideaId");
   const judgeObjectIds = normalizeJudgeIds(judgeIds);
+  const skipped = [];
 
   const idea = await Idea.findById(ideaObjectId).lean().exec();
   if (!idea) {
@@ -83,26 +87,32 @@ export const assignJudgesManually = async ({
     throw error;
   }
 
-  const activeJudges = await Judge.find({
-    _id: { $in: judgeObjectIds },
-    active: true,
-  })
+  const judgeDocs = await Judge.find({ _id: { $in: judgeObjectIds } })
     .populate("user", "name email")
     .lean()
     .exec();
 
-  if (activeJudges.length !== judgeObjectIds.length) {
-    const error = createError(
-      404,
-      "One or more judges are inactive or missing"
-    );
-    error.code = "JUDGE_NOT_FOUND";
-    throw error;
+  const judgeMap = new Map(
+    judgeDocs.map((judge) => [String(judge._id), judge])
+  );
+
+  const requestedOrder = judgeObjectIds.map((id) => String(id));
+  const orderedCandidates = [];
+
+  for (const id of requestedOrder) {
+    const judge = judgeMap.get(id);
+    if (!judge) {
+      pushSkip(skipped, id, SKIP_REASONS.NOT_FOUND);
+      continue;
+    }
+    if (!judge.active) {
+      pushSkip(skipped, judge, SKIP_REASONS.INACTIVE);
+      continue;
+    }
+    orderedCandidates.push(judge);
   }
 
-  const existingAssignments = await Assignment.find({
-    idea: ideaObjectId,
-  })
+  const existingAssignments = await Assignment.find({ idea: ideaObjectId })
     .select("judge")
     .lean()
     .exec();
@@ -110,103 +120,109 @@ export const assignJudgesManually = async ({
     existingAssignments.map((item) => String(item.judge))
   );
 
-  const availableSlots = Math.max(
-    env.maxJudgesPerIdea - alreadyAssigned.size,
-    0
-  );
-  if (availableSlots <= 0) {
-    const error = createError(
-      409,
-      "Maximum number of judges reached for this idea"
-    );
-    error.code = "MAX_JUDGES_PER_IDEA";
-    throw error;
+  const initialSlots = Math.max(env.maxJudgesPerIdea - alreadyAssigned.size, 0);
+  if (initialSlots === 0) {
+    for (const candidate of orderedCandidates) {
+      pushSkip(skipped, candidate, SKIP_REASONS.NO_SLOT, {
+        max: env.maxJudgesPerIdea,
+        assigned: alreadyAssigned.size,
+      });
+    }
+    return { assignments: [], skipped, meta: { initialSlots, remainingSlots: 0 } };
   }
 
-  const candidates = activeJudges.filter(
-    (judge) => !alreadyAssigned.has(String(judge._id))
+  const loadMap = await buildJudgeLoadMap(
+    orderedCandidates.map((candidate) => candidate._id)
   );
 
-  if (candidates.length === 0) {
-    return { assignments: [], skipped: activeJudges.map((judge) => judge._id) };
-  }
+  const queue = [];
+  let planned = 0;
 
-  if (candidates.length > availableSlots) {
-    const error = createError(
-      409,
-      `Only ${availableSlots} assignment slots left for this idea`
-    );
-    error.code = "MAX_JUDGES_PER_IDEA";
-    error.details = {
-      assigned: alreadyAssigned.size,
-      max: env.maxJudgesPerIdea,
-      requested: candidates.length,
-    };
-    throw error;
-  }
+  for (const judge of orderedCandidates) {
+    const judgeId = String(judge._id);
 
-  const loadMap = await buildJudgeLoadMap(candidates.map((c) => c._id));
-  const capacityBreaches = [];
-  for (const judge of candidates) {
+    if (alreadyAssigned.has(judgeId)) {
+      pushSkip(skipped, judge, SKIP_REASONS.ALREADY_ASSIGNED);
+      continue;
+    }
+
+    if (planned >= initialSlots) {
+      pushSkip(skipped, judge, SKIP_REASONS.NO_SLOT, {
+        max: env.maxJudgesPerIdea,
+        assigned: alreadyAssigned.size + planned,
+      });
+      continue;
+    }
+
     const capacity =
       typeof judge.capacity === "number" && judge.capacity > 0
         ? judge.capacity
         : Number.POSITIVE_INFINITY;
-    const currentLoad = loadMap.get(String(judge._id)) || 0;
+    const currentLoad = loadMap.get(judgeId) || 0;
+
     if (currentLoad >= capacity) {
-      capacityBreaches.push({
-        judgeId: judge._id,
+      pushSkip(skipped, judge, SKIP_REASONS.CAPACITY, {
         capacity,
         currentLoad,
       });
+      continue;
+    }
+
+    queue.push(judge);
+    planned += 1;
+    loadMap.set(judgeId, currentLoad + 1);
+  }
+
+  if (queue.length === 0) {
+    return { assignments: [], skipped, meta: { initialSlots, remainingSlots: initialSlots } };
+  }
+
+  const created = [];
+
+  for (const judge of queue) {
+    try {
+      const doc = await Assignment.create({
+        idea: ideaObjectId,
+        judge: judge._id,
+        assignedBy,
+      });
+      await doc.populate([
+        { path: "idea", select: "title status" },
+        {
+          path: "judge",
+          populate: { path: "user", select: "name email role" },
+        },
+      ]);
+      created.push(doc);
+    } catch (err) {
+      if (err?.code === 11000) {
+        pushSkip(skipped, judge, SKIP_REASONS.ALREADY_ASSIGNED);
+        continue;
+      }
+      throw err;
     }
   }
 
-  if (capacityBreaches.length > 0) {
-    throw buildCapacityError(capacityBreaches);
+  if (created.length > 0 && idea.status === "SUBMITTED") {
+    await Idea.updateOne(
+      { _id: ideaObjectId },
+      { $set: { status: "UNDER_REVIEW" } }
+    ).exec();
   }
 
-  const payload = candidates.map((judge) => ({
-    idea: ideaObjectId,
-    judge: judge._id,
-    assignedBy,
-  }));
+  logger.info("Manual assignment completed", {
+    ideaId: String(ideaObjectId),
+    assignedBy: String(assignedBy),
+    created: created.length,
+    skipped: skipped.length,
+  });
 
-  try {
-    const created = await Assignment.insertMany(payload, { ordered: false });
-    const createdIds = created.map((row) => row._id);
-
-    await Assignment.populate(created, [
-      { path: "idea", select: "title status" },
-      {
-        path: "judge",
-        populate: { path: "user", select: "name email role" },
-      },
-    ]);
-
-    if (idea.status === "SUBMITTED") {
-      await Idea.updateOne(
-        { _id: ideaObjectId },
-        { $set: { status: "UNDER_REVIEW" } }
-      ).exec();
-    }
-
-    logger.info("Manual assignment completed", {
-      ideaId: String(ideaObjectId),
-      assignedBy: String(assignedBy),
-      created: createdIds.length,
-    });
-
-    return { assignments: created };
-  } catch (err) {
-    if (err?.code === 11000) {
-      const conflict = createError(
-        409,
-        "One or more assignments already exist for these judges"
-      );
-      conflict.code = "ASSIGNMENT_CONFLICT";
-      throw conflict;
-    }
-    throw err;
-  }
+  return {
+    assignments: created,
+    skipped,
+    meta: {
+      initialSlots,
+      remainingSlots: Math.max(initialSlots - created.length, 0),
+    },
+  };
 };

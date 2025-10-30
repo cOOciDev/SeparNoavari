@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { TFunction } from "i18next";
 import {
   Alert,
   Button,
@@ -19,6 +20,10 @@ import {
   useDeleteAssignment,
   useLockAssignment,
 } from "../../service/hooks";
+import type {
+  AssignmentSkipEntry,
+  AssignmentSkipReason,
+} from "../../service/apis/admin.api";
 
 export type AssignmentModalProps = {
   open: boolean;
@@ -32,6 +37,71 @@ const STATUS_COLORS: Record<string, string> = {
   SUBMITTED: "purple",
   REVIEWED: "green",
   LOCKED: "red",
+};
+
+const SKIP_REASON_COPY: Record<AssignmentSkipReason, { summary: string; defaultSummary: string }> = {
+  NOT_FOUND: {
+    summary: "admin.assignments.skip.summary.notFound",
+    defaultSummary: "{{count}} not found",
+  },
+  INACTIVE: {
+    summary: "admin.assignments.skip.summary.inactive",
+    defaultSummary: "{{count}} inactive",
+  },
+  ALREADY_ASSIGNED: {
+    summary: "admin.assignments.skip.summary.alreadyAssigned",
+    defaultSummary: "{{count}} already assigned",
+  },
+  NO_SLOT_AVAILABLE: {
+    summary: "admin.assignments.skip.summary.noSlot",
+    defaultSummary: "{{count}} without available slot",
+  },
+  CAPACITY_REACHED: {
+    summary: "admin.assignments.skip.summary.capacity",
+    defaultSummary: "{{count}} over capacity",
+  },
+};
+
+const summarizeSkipped = (
+  entries: AssignmentSkipEntry[],
+  t: TFunction
+): string => {
+  if (entries.length === 0) return "";
+  const grouped = entries.reduce<
+    Record<AssignmentSkipReason, { count: number; labels: string[] }>
+  >((acc, entry) => {
+    const reason = entry.reason;
+    if (!acc[reason]) {
+      acc[reason] = { count: 0, labels: [] };
+    }
+    acc[reason].count += 1;
+    if (entry.judgeName) {
+      acc[reason].labels.push(entry.judgeName);
+    } else if (entry.judgeId) {
+      acc[reason].labels.push(entry.judgeId);
+    }
+    return acc;
+  }, {} as Record<AssignmentSkipReason, { count: number; labels: string[] }>);
+
+  return Object.entries(grouped)
+    .map(([reason, info]) => {
+      const copy =
+        SKIP_REASON_COPY[reason as AssignmentSkipReason] ??
+        SKIP_REASON_COPY.ALREADY_ASSIGNED;
+      const base = t(copy.summary, {
+        count: info.count,
+        defaultValue: copy.defaultSummary,
+      });
+      if (info.labels.length === 0) {
+        return base;
+      }
+      const labelPreview =
+        info.labels.length > 3
+          ? `${info.labels.slice(0, 3).join(", ")}…`
+          : info.labels.join(", ");
+      return `${base} (${labelPreview})`;
+    })
+    .join(" • ");
 };
 
 const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
@@ -85,12 +155,51 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       return;
     }
     try {
-      await manualAssign.mutateAsync({ ideaId, judgeIds: selectedJudges });
-      message.success(
-        t("admin.assignments.manualSuccess", {
-          defaultValue: "Judges assigned successfully.",
-        })
-      );
+      const result = await manualAssign.mutateAsync({
+        ideaId,
+        judgeIds: selectedJudges,
+      });
+      const createdCount = result?.assignments?.length ?? 0;
+      const skipped = result?.skipped ?? [];
+      const remainingSlots = result?.meta?.remainingSlots;
+
+      if (createdCount > 0) {
+        message.success(
+          t("admin.assignments.manualSuccess", {
+            defaultValue: "{{count}} judge(s) assigned successfully.",
+            count: createdCount,
+          })
+        );
+      } else {
+        message.info(
+          t("admin.assignments.noNewAssignments", {
+            defaultValue: "No new assignments were created.",
+          })
+        );
+      }
+
+      if (typeof remainingSlots === "number") {
+        message.info(
+          t("admin.assignments.remainingSlots", {
+            defaultValue: "{{count}} assignment slot(s) remaining.",
+            count: remainingSlots,
+          })
+        );
+      }
+
+      if (skipped.length > 0) {
+        const summaryParts = summarizeSkipped(
+          skipped,
+          t
+        );
+        message.warning(
+          t("admin.assignments.partialWarning", {
+            defaultValue: "Skipped: {{summary}}.",
+            summary: summaryParts,
+          })
+        );
+      }
+
       setSelectedJudges([]);
     } catch (err: any) {
       const errMsg =
