@@ -10,15 +10,7 @@ import { sessionMiddleware } from "./config/session.js";
 import passport from "./config/passport.js";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
-<<<<<<< Updated upstream
-import { getMongoReadyState, isMongoConnected } from "./config/db.js";
-=======
-<<<<<<< HEAD
-import { getMongoStatus, waitForMongoHealthy } from "./config/db.js";
-=======
-import { getMongoReadyState, isMongoConnected } from "./config/db.js";
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
+import { getMongoReadyState, isMongoConnected, getMongoStatus, waitForMongoHealthy } from "./config/db.js";
 
 const app = express();
 app.disable("etag");
@@ -97,9 +89,8 @@ app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
+app.get("/api/health", async (req, res) => {
+  let mongoStatus = getMongoStatus();
 app.get("/api/health", async (req, res) => {
   let mongoStatus = getMongoStatus();
   if (mongoStatus.state !== "connected") {
@@ -140,35 +131,7 @@ app.get("/api/health", async (req, res) => {
   };
 
   res.status(healthy ? 200 : 503).json(response);
-=======
->>>>>>> Stashed changes
-// Health
-app.get("/api/health", (_req, res) => {
-  const dbState = getMongoReadyState();
-  const healthy = isMongoConnected();
-
-  res
-    .status(healthy ? 200 : 503)
-    .json({
-      ok: healthy,
-      status: healthy ? "healthy" : "degraded",
-      db: {
-        state: dbState,
-        description:
-          dbState === 1
-            ? "connected"
-            : dbState === 2
-            ? "connecting"
-            : dbState === 3
-            ? "disconnecting"
-            : "disconnected",
-      },
-      timestamp: new Date().toISOString(),
-    });
-<<<<<<< Updated upstream
-=======
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
+});
 });
 
 // API routes
