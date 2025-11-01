@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, message } from "antd";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthProvider";
-import { type IdeaFormValues } from "../../components/forms/IdeaForm";
-import IdeaForm from "../../components/forms/IdeaForm";
+import IdeaForm, { type IdeaFormValues } from "../../components/forms/IdeaForm";
 import { TRACKS } from "../../AppData/tracks";
 import { useCreateIdea } from "../../service/hooks";
+import { useAuth } from "../../contexts/AuthProvider";
+import styles from "./submitIdea.module.scss";
 
 const SubmitIdeaPage = () => {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ const SubmitIdeaPage = () => {
     [t]
   );
 
-  const initialValues = useMemo<Partial<IdeaFormValues>>(
+  const initialValues = useMemo(
     () => ({
       submitterName: user?.name ?? "",
       contactEmail: user?.email ?? "",
@@ -34,12 +34,12 @@ const SubmitIdeaPage = () => {
 
   const handleSubmit = useCallback(
     async (values: IdeaFormValues) => {
-      if (
-        !values.proposalDoc?.originFileObj ||
-        !values.proposalPdf?.originFileObj
-      ) {
-        message.error(t("ideas.form.fileRules.wordRequired", { defaultValue: "Word file is required." }));
-        message.error(t("ideas.form.fileRules.pdfRequired", { defaultValue: "PDF file is required." }));
+      if (!values.proposalDoc || !values.proposalPdf) {
+        toast.error(
+          t("ideas.form.fileRules.pairRequired", {
+            defaultValue: "Word and PDF files are both required.",
+          })
+        );
         return;
       }
 
@@ -52,50 +52,51 @@ const SubmitIdeaPage = () => {
       if (values.phone) {
         formData.append("phone", values.phone);
       }
-      (values.teamMembers ?? []).forEach((member) => {
-        if (member) {
-          formData.append("teamMembers[]", member);
-        }
-      });
-      formData.append("proposalDoc", values.proposalDoc.originFileObj);
-      formData.append("proposalPdf", values.proposalPdf.originFileObj);
-      // console.log("formData :", formData);
+      values.teamMembers.forEach((member) => formData.append("teamMembers[]", member));
+      formData.append("proposalDoc", values.proposalDoc);
+      formData.append("proposalPdf", values.proposalPdf);
 
       try {
         await mutateAsync(formData);
-        
-        message.success(
+        toast.success(
           t("ideas.submit.success", {
-            defaultValue: "Idea submitted successfully",
+            defaultValue: "Idea submitted successfully.",
           })
         );
         navigate("/ideas/mine", { replace: true });
       } catch (err) {
-        const errorMessage =
+        const message =
           err instanceof Error
             ? err.message
-            : t("ideas.submit.error", {
-                defaultValue: "Submission failed",
-              });
-        message.error(errorMessage);
+            : t("ideas.submit.error", { defaultValue: "Submission failed." });
+        toast.error(message);
       }
     },
     [mutateAsync, navigate, t]
   );
 
   return (
-    <Card
-      title={t("ideas.submit.title", { defaultValue: "Submit Idea" })}
-      bordered={false}
-    >
-      <IdeaForm
-        key={user?.id || user?.email || "idea-form"}
-        categories={categories}
-        submitting={isPending}
-        onSubmit={handleSubmit}
-        initialValues={initialValues}
-      />
-    </Card>
+    <div className={styles.wrap}>
+      <section className={styles.card}>
+        <div>
+          <h1 className={styles.title}>
+            {t("ideas.submit.title", { defaultValue: "Submit your innovation" })}
+          </h1>
+          <p className={styles.description}>
+            {t("ideas.submit.subtitle", {
+              defaultValue:
+                "Upload both Word and PDF versions using the provided templates so our judges can review your idea consistently.",
+            })}
+          </p>
+        </div>
+        <IdeaForm
+          categories={categories}
+          submitting={isPending}
+          onSubmit={handleSubmit}
+          initialValues={initialValues}
+        />
+      </section>
+    </div>
   );
 };
 

@@ -1,18 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import type { TFunction } from "i18next";
-import {
-  App,
-  Alert,
-  Button,
-  Modal,
-  Popconfirm,
-  Space,
-  Table,
-  Tag,
-  Typography,
-} from "antd";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 import JudgeSelector from "./JudgeSelector";
+import styles from "./assignmentModal.module.scss";
 import type { Assignment } from "../../types/domain";
 import {
   useIdeaAssignments,
@@ -24,11 +15,6 @@ import type {
   AssignmentSkipEntry,
   AssignmentSkipReason,
 } from "../../service/apis/admin.api";
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
 
 export type AssignmentModalProps = {
   open: boolean;
@@ -36,12 +22,12 @@ export type AssignmentModalProps = {
   ideaId?: string;
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "default",
-  IN_PROGRESS: "blue",
-  SUBMITTED: "purple",
-  REVIEWED: "green",
-  LOCKED: "red",
+const STATUS_VARIANTS: Record<Assignment["status"], string> = {
+  PENDING: "pending",
+  IN_PROGRESS: "in_progress",
+  SUBMITTED: "submitted",
+  REVIEWED: "reviewed",
+  LOCKED: "locked",
 };
 
 const SKIP_REASON_COPY: Record<AssignmentSkipReason, { summary: string; defaultSummary: string }> = {
@@ -69,59 +55,80 @@ const SKIP_REASON_COPY: Record<AssignmentSkipReason, { summary: string; defaultS
 
 const summarizeSkipped = (
   entries: AssignmentSkipEntry[],
-  t: TFunction
+  t: ReturnType<typeof useTranslation>["t"]
 ): string => {
   if (entries.length === 0) return "";
-  const grouped = entries.reduce<
-    Record<AssignmentSkipReason, { count: number; labels: string[] }>
-  >((acc, entry) => {
-    const reason = entry.reason;
-    if (!acc[reason]) {
-      acc[reason] = { count: 0, labels: [] };
-    }
-    acc[reason].count += 1;
-    if (entry.judgeName) {
-      acc[reason].labels.push(entry.judgeName);
-    } else if (entry.judgeId) {
-      acc[reason].labels.push(entry.judgeId);
-    }
-    return acc;
-  }, {} as Record<AssignmentSkipReason, { count: number; labels: string[] }>);
+
+  const grouped = entries.reduce<Record<AssignmentSkipReason, { count: number; labels: string[] }>>(
+    (acc, entry) => {
+      const reason = entry.reason;
+      if (!acc[reason]) {
+        acc[reason] = { count: 0, labels: [] };
+      }
+      acc[reason].count += 1;
+      if (entry.judgeName) {
+        acc[reason].labels.push(entry.judgeName);
+      } else if (entry.judgeId) {
+        acc[reason].labels.push(entry.judgeId);
+      }
+      return acc;
+    },
+    {} as Record<AssignmentSkipReason, { count: number; labels: string[] }>
+  );
 
   return Object.entries(grouped)
     .map(([reason, info]) => {
       const copy =
-        SKIP_REASON_COPY[reason as AssignmentSkipReason] ??
-        SKIP_REASON_COPY.ALREADY_ASSIGNED;
+        SKIP_REASON_COPY[reason as AssignmentSkipReason] ?? SKIP_REASON_COPY.ALREADY_ASSIGNED;
       const base = t(copy.summary, {
         count: info.count,
         defaultValue: copy.defaultSummary,
       });
+
       if (info.labels.length === 0) {
         return base;
       }
+
       const labelPreview =
         info.labels.length > 3
-          ? `${info.labels.slice(0, 3).join(", ")}…`
+          ? `${info.labels.slice(0, 3).join(", ")}, ...`
           : info.labels.join(", ");
+
       return `${base} (${labelPreview})`;
     })
-    .join(" • ");
+    .join("; ");
 };
 
 const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
   const { t } = useTranslation();
-  const { message: messageApi } = App.useApp();
   const [selectedJudges, setSelectedJudges] = useState<string[]>([]);
   const assignmentsQuery = useIdeaAssignments(open ? ideaId : undefined);
   const manualAssign = useManualAssign();
   const deleteAssignment = useDeleteAssignment();
   const lockAssignment = useLockAssignment();
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) {
       setSelectedJudges([]);
     }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const node = dialogRef.current;
+    node?.focus();
   }, [open]);
 
   const assignments = assignmentsQuery.data?.assignments ?? [];
@@ -144,23 +151,27 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
     [assignments]
   );
 
-  const handleJudgeSelection = (value: string[]) => {
-    if (value.length > slotsLeft) {
-      messageApi.warning(
-        t("admin.assignments.limitWarning", {
-          defaultValue: "You can add up to {{count}} more judges.",
-          count: slotsLeft,
-        })
-      );
-      setSelectedJudges(value.slice(0, slotsLeft));
-      return;
-    }
-    setSelectedJudges(value);
-  };
+  const handleJudgeSelection = useCallback(
+    (nextValues: string[]) => {
+      if (slotsLeft > 0 && nextValues.length > slotsLeft) {
+        toast(
+          t("admin.assignments.limitWarning", {
+            defaultValue: "You can add up to {{count}} more judges.",
+            count: slotsLeft,
+          }),
+          { icon: "⚠️" }
+        );
+        setSelectedJudges(nextValues.slice(0, slotsLeft));
+        return;
+      }
+      setSelectedJudges(nextValues);
+    },
+    [slotsLeft, t]
+  );
 
-  const handleAssign = async () => {
+  const handleAssign = useCallback(async () => {
     if (!ideaId) {
-      messageApi.error(
+      toast.error(
         t("admin.assignments.ideaRequired", {
           defaultValue: "Select an idea first.",
         })
@@ -168,25 +179,11 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       return;
     }
     if (selectedJudges.length === 0) {
-      messageApi.warning(
-        t("admin.assignments.chooseJudge", {
-          defaultValue: "Choose at least one judge.",
-        })
-      );
+      toast(t("admin.assignments.chooseJudge", { defaultValue: "Choose at least one judge." }));
       return;
     }
+
     try {
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-      await manualAssign.mutateAsync({ ideaId, judgeIds: selectedJudges });
-      messageApi.success(
-        t("admin.assignments.manualSuccess", {
-          defaultValue: "Judges assigned successfully.",
-        })
-      );
-=======
->>>>>>> Stashed changes
       const result = await manualAssign.mutateAsync({
         ideaId,
         judgeIds: selectedJudges,
@@ -196,22 +193,18 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       const remainingSlots = result?.meta?.remainingSlots;
 
       if (createdCount > 0) {
-        message.success(
+        toast.success(
           t("admin.assignments.manualSuccess", {
             defaultValue: "{{count}} judge(s) assigned successfully.",
             count: createdCount,
           })
         );
       } else {
-        message.info(
-          t("admin.assignments.noNewAssignments", {
-            defaultValue: "No new assignments were created.",
-          })
-        );
+        toast(t("admin.assignments.noNewAssignments", { defaultValue: "No new assignments were created." }));
       }
 
       if (typeof remainingSlots === "number") {
-        message.info(
+        toast(
           t("admin.assignments.remainingSlots", {
             defaultValue: "{{count}} assignment slot(s) remaining.",
             count: remainingSlots,
@@ -220,22 +213,15 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       }
 
       if (skipped.length > 0) {
-        const summaryParts = summarizeSkipped(
-          skipped,
-          t
-        );
-        message.warning(
+        toast(
           t("admin.assignments.partialWarning", {
             defaultValue: "Skipped: {{summary}}.",
-            summary: summaryParts,
-          })
+            summary: summarizeSkipped(skipped, t),
+          }),
+          { icon: "⚠️" }
         );
       }
 
-<<<<<<< Updated upstream
-=======
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
       setSelectedJudges([]);
     } catch (err: unknown) {
       const errMsg =
@@ -246,227 +232,236 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
           : t("admin.assignments.error", {
               defaultValue: "Assignment failed.",
             });
-      messageApi.error(errMsg);
+      toast.error(errMsg);
     }
-  };
+  }, [ideaId, manualAssign, selectedJudges, t]);
 
-  const triggerDelete = async (record: Assignment) => {
-    if (!ideaId) return;
-    await deleteAssignment.mutateAsync({ id: record.id, ideaId });
-    messageApi.success(
-      t("admin.assignments.deleted", {
-        defaultValue: "Assignment removed.",
-      })
-    );
-  };
+  const triggerDelete = useCallback(
+    async (record: Assignment) => {
+      if (!ideaId) return;
+      const confirmMessage = t("admin.assignments.deleteConfirm", {
+        defaultValue: "Remove this assignment?",
+      });
+      if (!window.confirm(confirmMessage)) return;
 
-  const triggerLock = async (record: Assignment) => {
-    if (!ideaId) return;
-    await lockAssignment.mutateAsync({ id: record.id, ideaId });
-    messageApi.success(
-      t("admin.assignments.locked", {
-        defaultValue: "Assignment locked.",
-      })
-    );
-  };
-
-  const columns = useMemo(
-    () => [
-      {
-        title: t("admin.assignments.table.judge", { defaultValue: "Judge" }),
-        dataIndex: "judge",
-        key: "judge",
-        render: (_: unknown, record: Assignment) =>
-          record.judge?.user?.name || record.judge?.user?.email || "-",
-      },
-      {
-        title: t("admin.assignments.table.status", { defaultValue: "Status" }),
-        dataIndex: "status",
-        key: "status",
-        render: (value: Assignment["status"]) => (
-          <Tag color={STATUS_COLORS[value] || "default"}>{value}</Tag>
-        ),
-      },
-      {
-        title: t("admin.assignments.table.submission", {
-          defaultValue: "Judge file",
-        }),
-        dataIndex: "submission",
-        key: "submission",
-        render: (_: unknown, record: Assignment) => {
-          if (!record.submission) {
-            return t("admin.assignments.table.noSubmission", {
-              defaultValue: "Not uploaded",
-            });
-          }
-          return (
-            <Space size={4} direction="vertical">
-              <Typography.Text type="secondary">
-<<<<<<< Updated upstream
-                v{record.submission.version} �
-=======
-<<<<<<< HEAD
-                v{record.submission.version} -
-=======
-                v{record.submission.version} �
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
-                {" "}
-                {new Date(record.submission.uploadedAt).toLocaleString()}
-              </Typography.Text>
-              <Button
-                type="link"
-                size="small"
-                href={record.submission.downloadUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t("admin.assignments.table.download", { defaultValue: "Download" })}
-              </Button>
-            </Space>
-          );
-        },
-      },
-      {
-        title: t("common.actions", { defaultValue: "Actions" }),
-        key: "actions",
-        render: (_: unknown, record: Assignment) => (
-          <Space>
-            <Button
-              type="link"
-              size="small"
-              onClick={() => triggerLock(record)}
-              disabled={record.status === "LOCKED"}
-              loading={lockAssignment.isPending}
-            >
-              {t("admin.assignments.lock", { defaultValue: "Lock" })}
-            </Button>
-            <Popconfirm
-              title={t("admin.assignments.deleteConfirm", {
-                defaultValue: "Remove this assignment?",
-              })}
-              okText={t("common.delete", { defaultValue: "Delete" })}
-              cancelText={t("common.cancel", { defaultValue: "Cancel" })}
-              onConfirm={() => triggerDelete(record)}
-              disabled={record.status === "LOCKED"}
-            >
-              <Button
-                danger
-                size="small"
-                disabled={record.status === "LOCKED"}
-                loading={deleteAssignment.isPending}
-              >
-                {t("common.delete", { defaultValue: "Delete" })}
-              </Button>
-            </Popconfirm>
-          </Space>
-        ),
-      },
-    ],
-    [t, deleteAssignment.isPending, lockAssignment.isPending]
+      await deleteAssignment.mutateAsync({ id: record.id, ideaId });
+      toast.success(t("admin.assignments.deleted", { defaultValue: "Assignment removed." }));
+    },
+    [deleteAssignment, ideaId, t]
   );
 
-  return (
-    <Modal
-      title={t("admin.assignments.manual", { defaultValue: "Assign judges" })}
-      open={open}
-      onCancel={onClose}
-      onOk={handleAssign}
-      okButtonProps={{
-        disabled: slotsLeft === 0 || selectedJudges.length === 0 || !ideaId,
-        loading: manualAssign.isPending,
-      }}
-      cancelButtonProps={{ disabled: manualAssign.isPending }}
-      width={720}
-      destroyOnHidden
+  const triggerLock = useCallback(
+    async (record: Assignment) => {
+      if (!ideaId) return;
+      const confirmMessage = t("admin.assignments.lockConfirm", {
+        defaultValue: "Lock this assignment?",
+      });
+      if (!window.confirm(confirmMessage)) return;
+
+      await lockAssignment.mutateAsync({ id: record.id, ideaId });
+      toast.success(t("admin.assignments.locked", { defaultValue: "Assignment locked." }));
+    },
+    [ideaId, lockAssignment, t]
+  );
+
+  if (!open) return null;
+
+  return createPortal(
+    <div
+      className={styles.backdrop}
+      role="presentation"
+      onClick={onClose}
     >
-      {!ideaId ? (
-        <Alert
-          type="info"
-          showIcon
-          message={t("admin.assignments.ideaRequired", {
-            defaultValue: "Please choose an idea to continue.",
-          })}
-        />
-      ) : null}
+      <div
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="assignment-modal-title"
+        ref={dialogRef}
+        tabIndex={-1}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className={styles.header}>
+          <h2 id="assignment-modal-title" className={styles.title}>
+            {t("admin.assignments.manual", { defaultValue: "Assign judges" })}
+          </h2>
+          <button type="button" className={styles.close} onClick={onClose} aria-label={t("common.close", { defaultValue: "Close" })}>
+            ×
+          </button>
+        </header>
 
-      {assignmentsQuery.error ? (
-        <Alert
-          type="error"
-          showIcon
-          message={
-            assignmentsQuery.error instanceof Error
-              ? assignmentsQuery.error.message
-              : t("admin.assignments.error", { defaultValue: "Failed to load." })
-          }
-        />
-      ) : null}
+        <section className={styles.body}>
+          {!ideaId ? (
+            <div className={styles.notice} data-variant="info">
+              {t("admin.assignments.ideaRequired", {
+                defaultValue: "Please choose an idea to continue.",
+              })}
+            </div>
+          ) : null}
 
-      <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
-        <Space align="center" size={8} wrap>
-          <Typography.Text strong>
-            {t("admin.assignments.counter", {
-              defaultValue: "Assigned {{assigned}} / {{max}} judges",
-              assigned: assignedCount,
-              max: maxJudges,
-            })}
-          </Typography.Text>
-          <Tag color={slotsLeft > 0 ? "blue" : "red"}>
-            {slotsLeft > 0
-              ? t("admin.assignments.slotsLeft", {
-                  defaultValue: "{{count}} slots available",
-                  count: slotsLeft,
-                })
-              : t("admin.assignments.slotsFull", {
-                  defaultValue: "All judge slots filled",
+          {assignmentsQuery.error ? (
+            <div className={styles.notice} data-variant="error">
+              {assignmentsQuery.error instanceof Error
+                ? assignmentsQuery.error.message
+                : t("admin.assignments.error", { defaultValue: "Failed to load." })}
+            </div>
+          ) : null}
+
+          <div className={styles.statusRow}>
+            <span className={styles.counter}>
+              {t("admin.assignments.counter", {
+                defaultValue: "Assigned {{assigned}} / {{max}} judges",
+                assigned: assignedCount,
+                max: maxJudges,
+              })}
+            </span>
+            <span className={styles.chip} data-variant={slotsLeft > 0 ? "available" : "full"}>
+              {slotsLeft > 0
+                ? t("admin.assignments.slotsLeft", {
+                    defaultValue: "{{count}} slots available",
+                    count: slotsLeft,
+                  })
+                : t("admin.assignments.slotsFull", {
+                    defaultValue: "All judge slots filled",
+                  })}
+            </span>
+          </div>
+
+          {slotsLeft === 0 ? (
+            <div className={styles.notice} data-variant="warning">
+              {t("admin.assignments.maxReached", {
+                defaultValue: "Maximum judges reached for this idea.",
+              })}
+            </div>
+          ) : null}
+
+          <div>
+            <JudgeSelector
+              value={selectedJudges}
+              onChange={handleJudgeSelection}
+              placeholder={t("admin.assignments.selectJudges", {
+                defaultValue: "Choose judges",
+              })}
+              disabled={slotsLeft === 0 || !ideaId}
+              excludeIds={assignedJudgeIds}
+            />
+            {assignedJudgeIds.length > 0 ? (
+              <p className={styles.hint}>
+                {t("admin.assignments.selectorHint", {
+                  defaultValue: "Judges already assigned are disabled above.",
                 })}
-          </Tag>
-        </Space>
+              </p>
+            ) : null}
+          </div>
 
-        {slotsLeft === 0 ? (
-          <Alert
-            type="warning"
-            showIcon
-            message={t("admin.assignments.maxReached", {
-              defaultValue: "Maximum judges reached for this idea.",
-            })}
-          />
-        ) : null}
+          <div className={styles.tableWrap}>
+            {assignmentsQuery.isLoading ? (
+              <div className={styles.tableEmpty}>
+                {t("common.loading", { defaultValue: "Loading..." })}
+              </div>
+            ) : assignments.length === 0 ? (
+              <div className={styles.tableEmpty}>
+                {t("admin.assignments.table.empty", { defaultValue: "No assignments yet." })}
+              </div>
+            ) : (
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>{t("admin.assignments.table.judge", { defaultValue: "Judge" })}</th>
+                    <th>{t("admin.assignments.table.status", { defaultValue: "Status" })}</th>
+                    <th>{t("admin.assignments.table.submission", { defaultValue: "Judge file" })}</th>
+                    <th>{t("common.actions", { defaultValue: "Actions" })}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignments.map((record) => (
+                    <tr key={record.id}>
+                      <td>{record.judge?.user?.name || record.judge?.user?.email || "-"}</td>
+                      <td>
+                        <span
+                          className={styles.status}
+                          data-variant={STATUS_VARIANTS[record.status]}
+                        >
+                          {record.status}
+                        </span>
+                      </td>
+                      <td>
+                        {record.submission ? (
+                          <div className={styles.submissionMeta}>
+                            <span>
+                              {record.submission.version ? `v${record.submission.version} • ` : ""}
+                              {new Date(record.submission.uploadedAt).toLocaleString()}
+                            </span>
+                            <a
+                              href={record.submission.downloadUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {t("admin.assignments.table.download", { defaultValue: "Download" })}
+                            </a>
+                          </div>
+                        ) : (
+                          t("admin.assignments.table.noSubmission", {
+                            defaultValue: "Not uploaded",
+                          })
+                        )}
+                      </td>
+                      <td>
+                        <div className={styles.actions}>
+                          <button
+                            type="button"
+                            className={styles.btn}
+                            data-variant="ghost"
+                            onClick={() => triggerLock(record)}
+                            disabled={record.status === "LOCKED" || lockAssignment.isPending}
+                          >
+                            {t("admin.assignments.lock", { defaultValue: "Lock" })}
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.btn}
+                            data-variant="danger"
+                            onClick={() => triggerDelete(record)}
+                            disabled={record.status === "LOCKED" || deleteAssignment.isPending}
+                          >
+                            {t("common.delete", { defaultValue: "Delete" })}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
 
-        <JudgeSelector
-          value={selectedJudges}
-          onChange={handleJudgeSelection}
-          placeholder={t("admin.assignments.selectJudges", {
-            defaultValue: "Choose judges",
-          })}
-          disabled={slotsLeft === 0 || !ideaId}
-          excludeIds={assignedJudgeIds}
-        />
-        {assignedJudgeIds.length > 0 ? (
-          <Typography.Text type="secondary">
-            {t("admin.assignments.selectorHint", {
-              defaultValue: "Judges already assigned are disabled above.",
-            })}
-          </Typography.Text>
-        ) : null}
-      </Space>
-
-      <Table<Assignment>
-        style={{ marginTop: 24 }}
-        rowKey={(record) => record.id}
-        loading={assignmentsQuery.isLoading}
-        columns={columns}
-        dataSource={assignments}
-        pagination={false}
-        locale={{
-          emptyText: t("admin.assignments.table.empty", {
-            defaultValue: "No assignments yet.",
-          }),
-        }}
-      />
-    </Modal>
+        <footer className={styles.footer}>
+          <button
+            type="button"
+            className={styles.btn}
+            data-variant="ghost"
+            onClick={onClose}
+            disabled={manualAssign.isPending}
+          >
+            {t("common.cancel", { defaultValue: "Cancel" })}
+          </button>
+          <button
+            type="button"
+            className={styles.btn}
+            data-variant="primary"
+            onClick={handleAssign}
+            disabled={slotsLeft === 0 || selectedJudges.length === 0 || !ideaId || manualAssign.isPending}
+          >
+            {manualAssign.isPending
+              ? t("common.loading", { defaultValue: "Saving..." })
+              : t("admin.assignments.assign", { defaultValue: "Assign" })}
+          </button>
+        </footer>
+      </div>
+    </div>,
+    document.body
   );
 };
 
 export default AssignmentModal;
-

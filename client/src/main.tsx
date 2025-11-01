@@ -24,24 +24,12 @@ unstableSetRender((node, container) => {
 
   root.render(node);
 
-<<<<<<< Updated upstream
   return async () => {
     root.unmount();
-=======
-<<<<<<< HEAD
-  // must return an async cleanup (Promise<void>)
-  return () => {
-    const cachedRoot = rootCache.get(target) ?? root;
-    cachedRoot?.unmount();
-=======
-  return async () => {
-    root.unmount();
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
     rootCache.delete(target);
-
     return Promise.resolve();
   };
+
 });
 
 /** App entry point */

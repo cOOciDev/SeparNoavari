@@ -3,7 +3,6 @@ import type {
   Assignment,
   EvaluationSummaryFile,
   Idea,
-  Judge,
   Role,
   User,
 } from "../../types/domain";
@@ -19,16 +18,9 @@ import {
   getAdminUsers,
   updateUserRole,
   updateJudge,
-<<<<<<< Updated upstream
-  type Paginated,
-=======
-<<<<<<< HEAD
   getIdeaReviews,
   getAdminReviewCriteria,
-=======
   type Paginated,
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
 } from "../apis/admin.api";
 import { getJudges } from "../apis/judges.api";
 
@@ -178,9 +170,7 @@ export const useUploadFinalSummary = () => {
   });
 };
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
+
 export const useIdeaReviews = (ideaId?: string) =>
   useQuery({
     queryKey: ["admin", "ideaReviews", ideaId],
@@ -194,26 +184,20 @@ export const useAdminReviewCriteria = () =>
     queryFn: getAdminReviewCriteria,
   });
 
-export const useAdminUsers = (
-  params?: {
-    role?: Role;
-    page?: number;
-    pageSize?: number;
-  }
-) =>
-  useQuery({
-=======
->>>>>>> Stashed changes
+// export const useAdminUsers = (
+//   params?: {
+//     role?: Role;
+//     page?: number;
+//     pageSize?: number;
+//   }
+// ) =>
+//   useQuery({
 export const useAdminUsers = (params?: {
   role?: Role;
   page?: number;
   pageSize?: number;
 }) =>
   useQuery<Paginated<User>>({
-<<<<<<< Updated upstream
-=======
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
     queryKey: ["admin", "users", params],
     queryFn: () => getAdminUsers(params ?? {}),
   });

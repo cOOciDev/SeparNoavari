@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import { Card, Descriptions, Spin, Alert } from "antd";
 import { useTranslation } from "react-i18next";
-import { useIdea } from "../../service/hooks";
 import IdeaFilesList from "../../components/ideas/IdeaFilesList";
+import { useIdea } from "../../service/hooks";
 import ReviewForm from "./ReviewForm";
+import styles from "./judgeIdeaDetail.module.scss";
 
 const JudgeIdeaDetailPage = () => {
   const { id } = useParams();
@@ -12,19 +12,23 @@ const JudgeIdeaDetailPage = () => {
 
   if (isLoading) {
     return (
-      <Card>
-        <Spin />
-      </Card>
+      <section className={styles.card}>
+        <span className={styles.loading}>
+          {t("common.loading", { defaultValue: "Loading..." })}
+        </span>
+      </section>
     );
   }
 
   if (error) {
     const message =
-      error instanceof Error ? error.message : t("judge.detail.error", { defaultValue: "Failed to load idea" });
+      error instanceof Error
+        ? error.message
+        : t("judge.detail.error", { defaultValue: "Failed to load idea" });
     return (
-      <Card>
-        <Alert type="error" message={message} />
-      </Card>
+      <section className={`${styles.card} ${styles.alert} ${styles.alertError}`}>
+        {message}
+      </section>
     );
   }
 
@@ -32,33 +36,48 @@ const JudgeIdeaDetailPage = () => {
 
   if (!idea) {
     return (
-      <Card>
-        <Alert type="info" message={t("judge.detail.notFound", { defaultValue: "Idea not found" })} />
-      </Card>
+      <section className={`${styles.card} ${styles.alert} ${styles.alertInfo}`}>
+        {t("judge.detail.notFound", { defaultValue: "Idea not found" })}
+      </section>
     );
   }
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
-      <Card title={idea.title}>
-        <Descriptions column={1} bordered size="middle" style={{ marginBottom: 24 }}>
-          <Descriptions.Item label={t("ideas.detail.category", { defaultValue: "Category" })}>
-            {idea.category || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label={t("ideas.detail.status", { defaultValue: "Status" })}>
-            {idea.status}
-          </Descriptions.Item>
-          <Descriptions.Item label={t("ideas.detail.summary", { defaultValue: "Summary" })}>
-            {idea.summary || t("ideas.detail.noSummary", { defaultValue: "No summary provided." })}
-          </Descriptions.Item>
-        </Descriptions>
+    <div className={styles.wrap}>
+      <section className={styles.card}>
+        <div style={{ display: "grid", gap: 12 }}>
+          <h1 className={styles.cardTitle}>{idea.title}</h1>
+          <span className={styles.badge}>
+            {idea.status ?? t("ideas.detail.statusUnknown", { defaultValue: "Pending" })}
+          </span>
+        </div>
+        <div className={styles.descList}>
+          <div className={styles.descItem}>
+            <span className={styles.descLabel}>
+              {t("ideas.detail.category", { defaultValue: "Category" })}
+            </span>
+            <span className={styles.descValue}>{idea.category || "-"}</span>
+          </div>
+          <div className={styles.descItem}>
+            <span className={styles.descLabel}>
+              {t("ideas.detail.summary", { defaultValue: "Summary" })}
+            </span>
+            <span className={styles.descValue}>
+              {idea.summary ||
+                t("ideas.detail.noSummary", { defaultValue: "No summary provided." })}
+            </span>
+          </div>
+        </div>
         <IdeaFilesList files={idea.files ?? []} />
-      </Card>
+      </section>
 
       {id ? (
-        <Card title={t("judge.review.title", { defaultValue: "Submit review" })}>
+        <section className={styles.card}>
+          <h2 className={styles.cardTitle}>
+            {t("judge.review.title", { defaultValue: "Submit review" })}
+          </h2>
           <ReviewForm ideaId={id} />
-        </Card>
+        </section>
       ) : null}
     </div>
   );

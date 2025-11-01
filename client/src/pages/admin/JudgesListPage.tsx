@@ -90,15 +90,10 @@ const JudgesListPage = () => {
 
       <Card>
         <Table<Judge>
-<<<<<<< HEAD
-          rowKey={(record, index) => getRowKey(record, index)}
-=======
+          // rowKey={(record, index) => getRowKey(record, index)}
           rowKey={(record) => String(record.id)}
           // rowKey={(record) => String("judge-" + record.id)}
-<<<<<<< Updated upstream
-=======
->>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
->>>>>>> Stashed changes
+
           dataSource={judges}
           columns={[
             {

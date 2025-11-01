@@ -1,0 +1,82 @@
+.wrap {
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  background: color-mix(in oklab, var(--surface, rgba(12, 20, 37, 0.95)) 85%, transparent);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.14));
+  border-radius: 18px;
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: 0 16px 48px rgba(8, 16, 24, 0.32);
+  display: grid;
+  gap: 18px;
+}
+
+.cardTitle {
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  margin: 0;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(20, 63, 115, 0.25);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  color: color-mix(in oklab, var(--accent) 80%, var(--text));
+}
+
+.descList {
+  display: grid;
+  gap: 12px;
+}
+
+.descItem {
+  display: grid;
+  gap: 6px;
+}
+
+.descLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+
+.descValue {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.alert {
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.95rem;
+}
+
+.alertInfo {
+  background: rgba(20, 63, 115, 0.18);
+  border: 1px solid rgba(20, 63, 115, 0.35);
+  color: color-mix(in oklab, var(--accent) 80%, var(--text));
+}
+
+.alertError {
+  background: rgba(242, 77, 86, 0.18);
+  border: 1px solid rgba(242, 77, 86, 0.4);
+  color: #ff9da4;
+}
+
+.alertSuccess {
+  background: rgba(94, 201, 140, 0.15);
+  border: 1px solid rgba(94, 201, 140, 0.3);
+  color: #b9f4d0;
+}
+
+.loading {
+  font-size: 0.95rem;
+  color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
