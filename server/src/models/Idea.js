@@ -36,6 +36,10 @@ const ideaSchema = new Schema(
     phone: { type: String, default: "" },
     teamMembers: { type: [String], default: [] },
     files: { type: [fileSchema], default: [] },
+    assignedJudges: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Judge" }],
+      default: [],
+    },
     status: {
       type: String,
       enum: ["SUBMITTED", "UNDER_REVIEW", "DONE", "REJECTED"],
@@ -45,6 +49,11 @@ const ideaSchema = new Schema(
     scoreSummary: {
       average: { type: Number, default: null },
       totalReviews: { type: Number, default: 0 },
+      criteria: {
+        type: Map,
+        of: Number,
+        default: () => new Map(),
+      },
     },
     finalSummary: {
       type: evaluationFileSchema,
@@ -58,6 +67,24 @@ const ideaSchema = new Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+        if (Array.isArray(ret.assignedJudges)) {
+          ret.assignedJudges = ret.assignedJudges.map((id) => String(id));
+        }
+        if (ret.scoreSummary?.criteria instanceof Map) {
+          ret.scoreSummary.criteria = Object.fromEntries(
+            ret.scoreSummary.criteria.entries()
+          );
+        } else if (
+          ret.scoreSummary?.criteria &&
+          typeof ret.scoreSummary.criteria === "object"
+        ) {
+          Object.keys(ret.scoreSummary.criteria).forEach((key) => {
+            const value = ret.scoreSummary.criteria[key];
+            if (value !== null && value !== undefined) {
+              ret.scoreSummary.criteria[key] = Number(value);
+            }
+          });
+        }
         return ret;
       },
     },

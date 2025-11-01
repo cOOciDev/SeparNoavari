@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { TFunction } from "i18next";
 import {
+  App,
   Alert,
   Button,
   Modal,
@@ -9,7 +10,6 @@ import {
   Table,
   Tag,
   Typography,
-  message,
 } from "antd";
 import { useTranslation } from "react-i18next";
 import JudgeSelector from "./JudgeSelector";
@@ -24,6 +24,11 @@ import type {
   AssignmentSkipEntry,
   AssignmentSkipReason,
 } from "../../service/apis/admin.api";
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 
 export type AssignmentModalProps = {
   open: boolean;
@@ -106,6 +111,7 @@ const summarizeSkipped = (
 
 const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
   const { t } = useTranslation();
+  const { message: messageApi } = App.useApp();
   const [selectedJudges, setSelectedJudges] = useState<string[]>([]);
   const assignmentsQuery = useIdeaAssignments(open ? ideaId : undefined);
   const manualAssign = useManualAssign();
@@ -122,10 +128,25 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
   const maxJudges = assignmentsQuery.data?.maxJudges ?? 10;
   const assignedCount = assignments.length;
   const slotsLeft = Math.max(maxJudges - assignedCount, 0);
+  const assignedJudgeIds = useMemo(
+    () =>
+      assignments
+        .map((assignment) => {
+          const judge = assignment.judge;
+          if (!judge) return null;
+          return (
+            judge.id ||
+            (judge as unknown as { _id?: string })?._id ||
+            (judge.user?.id ? String(judge.user.id) : null)
+          );
+        })
+        .filter((id): id is string => Boolean(id)),
+    [assignments]
+  );
 
   const handleJudgeSelection = (value: string[]) => {
     if (value.length > slotsLeft) {
-      message.warning(
+      messageApi.warning(
         t("admin.assignments.limitWarning", {
           defaultValue: "You can add up to {{count}} more judges.",
           count: slotsLeft,
@@ -139,7 +160,7 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
 
   const handleAssign = async () => {
     if (!ideaId) {
-      message.error(
+      messageApi.error(
         t("admin.assignments.ideaRequired", {
           defaultValue: "Select an idea first.",
         })
@@ -147,7 +168,7 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       return;
     }
     if (selectedJudges.length === 0) {
-      message.warning(
+      messageApi.warning(
         t("admin.assignments.chooseJudge", {
           defaultValue: "Choose at least one judge.",
         })
@@ -155,6 +176,17 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       return;
     }
     try {
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+      await manualAssign.mutateAsync({ ideaId, judgeIds: selectedJudges });
+      messageApi.success(
+        t("admin.assignments.manualSuccess", {
+          defaultValue: "Judges assigned successfully.",
+        })
+      );
+=======
+>>>>>>> Stashed changes
       const result = await manualAssign.mutateAsync({
         ideaId,
         judgeIds: selectedJudges,
@@ -200,21 +232,28 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
         );
       }
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
       setSelectedJudges([]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errMsg =
-        err?.message ||
-        t("admin.assignments.error", {
-          defaultValue: "Assignment failed.",
-        });
-      message.error(errMsg);
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : t("admin.assignments.error", {
+              defaultValue: "Assignment failed.",
+            });
+      messageApi.error(errMsg);
     }
   };
 
   const triggerDelete = async (record: Assignment) => {
     if (!ideaId) return;
     await deleteAssignment.mutateAsync({ id: record.id, ideaId });
-    message.success(
+    messageApi.success(
       t("admin.assignments.deleted", {
         defaultValue: "Assignment removed.",
       })
@@ -224,7 +263,7 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
   const triggerLock = async (record: Assignment) => {
     if (!ideaId) return;
     await lockAssignment.mutateAsync({ id: record.id, ideaId });
-    message.success(
+    messageApi.success(
       t("admin.assignments.locked", {
         defaultValue: "Assignment locked.",
       })
@@ -263,7 +302,15 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
           return (
             <Space size={4} direction="vertical">
               <Typography.Text type="secondary">
+<<<<<<< Updated upstream
                 v{record.submission.version} �
+=======
+<<<<<<< HEAD
+                v{record.submission.version} -
+=======
+                v{record.submission.version} �
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
                 {" "}
                 {new Date(record.submission.uploadedAt).toLocaleString()}
               </Typography.Text>
@@ -356,13 +403,25 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
       ) : null}
 
       <Space direction="vertical" size={16} style={{ width: "100%", marginTop: 16 }}>
-        <Typography.Text>
-          {t("admin.assignments.counter", {
-            defaultValue: "Assigned {{assigned}} / {{max}} judges",
-            assigned: assignedCount,
-            max: maxJudges,
-          })}
-        </Typography.Text>
+        <Space align="center" size={8} wrap>
+          <Typography.Text strong>
+            {t("admin.assignments.counter", {
+              defaultValue: "Assigned {{assigned}} / {{max}} judges",
+              assigned: assignedCount,
+              max: maxJudges,
+            })}
+          </Typography.Text>
+          <Tag color={slotsLeft > 0 ? "blue" : "red"}>
+            {slotsLeft > 0
+              ? t("admin.assignments.slotsLeft", {
+                  defaultValue: "{{count}} slots available",
+                  count: slotsLeft,
+                })
+              : t("admin.assignments.slotsFull", {
+                  defaultValue: "All judge slots filled",
+                })}
+          </Tag>
+        </Space>
 
         {slotsLeft === 0 ? (
           <Alert
@@ -381,7 +440,15 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
             defaultValue: "Choose judges",
           })}
           disabled={slotsLeft === 0 || !ideaId}
+          excludeIds={assignedJudgeIds}
         />
+        {assignedJudgeIds.length > 0 ? (
+          <Typography.Text type="secondary">
+            {t("admin.assignments.selectorHint", {
+              defaultValue: "Judges already assigned are disabled above.",
+            })}
+          </Typography.Text>
+        ) : null}
       </Space>
 
       <Table<Assignment>
@@ -402,3 +469,4 @@ const AssignmentModal = ({ open, onClose, ideaId }: AssignmentModalProps) => {
 };
 
 export default AssignmentModal;
+

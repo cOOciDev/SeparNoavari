@@ -129,6 +129,33 @@
       "success": "Idea submitted successfully",
       "error": "Failed to submit idea"
     },
+    "form": {
+      "title": "Idea title",
+      "titlePlaceholder": "Enter idea title",
+      "titleRequired": "Title is required.",
+      "summary": "Idea summary",
+      "summaryPlaceholder": "Write a short description of the idea",
+      "summaryRequired": "Summary is required.",
+      "category": "Category",
+      "categoryRequired": "Category is required.",
+      "submitterName": "Submitter name",
+      "contactEmail": "Contact email",
+      "phone": "Phone number",
+      "teamMembers": "Team members",
+      "teamMemberPlaceholder": "Team member",
+      "addMember": "Add member",
+      "proposalDoc": "Word file (DOC / DOCX)",
+      "uploadDoc": "Upload Word",
+      "proposalPdf": "PDF file",
+      "uploadPdf": "Upload PDF",
+      "submit": "Submit idea",
+      "reset": "Clear form",
+      "fileRules": {
+        "wordRequired": "Word file is required.",
+        "pdfRequired": "PDF file is required.",
+        "sizeLimit": "Maximum allowed size for each file is 30MB."
+      }
+    },
     "table": {
       "title": "Title",
       "status": "Status",

@@ -56,6 +56,11 @@ const JudgesListPage = () => {
   const { data, isLoading, error } = useAdminJudges({ page: 1, pageSize: 100 });
   const [modalOpen, setModalOpen] = useState(false);
 
+  const getRowKey = (judge: Judge, index: number) => {
+    const candidate = judge.id ?? judge.user?.id ?? judge.user?.email;
+    return candidate ? String(candidate) : `judge-${index}`;
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -85,8 +90,15 @@ const JudgesListPage = () => {
 
       <Card>
         <Table<Judge>
+<<<<<<< HEAD
+          rowKey={(record, index) => getRowKey(record, index)}
+=======
           rowKey={(record) => String(record.id)}
           // rowKey={(record) => String("judge-" + record.id)}
+<<<<<<< Updated upstream
+=======
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
           dataSource={judges}
           columns={[
             {

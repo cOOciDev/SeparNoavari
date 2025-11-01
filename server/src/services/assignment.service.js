@@ -87,7 +87,17 @@ export const assignJudgesManually = async ({ ideaId, judgeIds, assignedBy }) => 
     throw error;
   }
 
+<<<<<<< Updated upstream
   const judgeDocs = await Judge.find({ _id: { $in: judgeObjectIds } })
+=======
+<<<<<<< HEAD
+  const activeJudges = await Judge.find({ active: true })
+    .where("_id")
+    .in(judgeObjectIds)
+=======
+  const judgeDocs = await Judge.find({ _id: { $in: judgeObjectIds } })
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
     .populate("user", "name email")
     .lean()
     .exec();
@@ -210,6 +220,7 @@ export const assignJudgesManually = async ({ ideaId, judgeIds, assignedBy }) => 
     ).exec();
   }
 
+<<<<<<< Updated upstream
   logger.info("Manual assignment completed", {
     ideaId: String(ideaObjectId),
     assignedBy: String(assignedBy),
@@ -217,6 +228,69 @@ export const assignJudgesManually = async ({ ideaId, judgeIds, assignedBy }) => 
     skipped: skipped.length,
   });
 
+=======
+<<<<<<< HEAD
+  const payload = candidates.map((judge) => ({
+    idea: ideaObjectId,
+    judge: judge._id,
+    assignedBy,
+  }));
+  const judgesToAdd = payload.map((entry) => entry.judge);
+
+  try {
+    const created = await Assignment.insertMany(payload, { ordered: false });
+    const createdIds = created.map((row) => row._id);
+
+    await Assignment.populate(created, [
+      { path: "idea", select: "title status" },
+      {
+        path: "judge",
+        populate: { path: "user", select: "name email role" },
+      },
+    ]);
+
+    if (idea.status === "SUBMITTED") {
+      await Idea.updateOne(
+        { _id: ideaObjectId },
+        {
+          $set: { status: "UNDER_REVIEW" },
+          $addToSet: { assignedJudges: { $each: judgesToAdd } },
+        }
+      ).exec();
+    } else {
+      await Idea.updateOne(
+        { _id: ideaObjectId },
+        { $addToSet: { assignedJudges: { $each: judgesToAdd } } }
+      ).exec();
+    }
+
+    logger.info("Manual assignment completed", {
+      ideaId: String(ideaObjectId),
+      assignedBy: String(assignedBy),
+      created: createdIds.length,
+    });
+
+    return { assignments: created };
+  } catch (err) {
+    if (err?.code === 11000) {
+      const conflict = createError(
+        409,
+        "One or more assignments already exist for these judges"
+      );
+      conflict.code = "ASSIGNMENT_CONFLICT";
+      throw conflict;
+    }
+    throw err;
+  }
+=======
+  logger.info("Manual assignment completed", {
+    ideaId: String(ideaObjectId),
+    assignedBy: String(assignedBy),
+    created: created.length,
+    skipped: skipped.length,
+  });
+
+>>>>>>> Stashed changes
   return {
     assignments: created,
     skipped,
@@ -225,4 +299,8 @@ export const assignJudgesManually = async ({ ideaId, judgeIds, assignedBy }) => 
       remainingSlots: Math.max(initialSlots - created.length, 0),
     },
   };
+<<<<<<< Updated upstream
+=======
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
 };

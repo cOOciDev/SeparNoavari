@@ -33,16 +33,16 @@ class AuthController {
         return res.status(422).json({
           ok: false,
           code: "INVALID_EMAIL",
-          message: "Invalid email.",
+          message: "ایمیل نامعتبر است.",
         });
       }
 
-      if (typeof password !== "string" || password.length < 8) {
+      if (typeof password !== "string" || password.length < 6) {
         setNoCacheHeaders(res);
         return res.status(422).json({
           ok: false,
           code: "WEAK_PASSWORD",
-          message: "Password too short.",
+          message: "رمز عبور باید حداقل ۶ کاراکتر باشد.",
         });
       }
 
@@ -52,7 +52,7 @@ class AuthController {
         return res.status(409).json({
           ok: false,
           code: "EMAIL_TAKEN",
-          message: "Email already in use.",
+          message: "این ایمیل قبلاً ثبت شده است.",
         });
       }
 
@@ -85,7 +85,7 @@ class AuthController {
         return res.status(401).json({
           ok: false,
           code: "INVALID_CREDENTIALS",
-          message: info.message || "Invalid email or password.",
+          message: info.message || "ایمیل یا رمز عبور نادرست است.",
         });
       }
       const clientUser = sanitizeUser(user);

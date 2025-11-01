@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Card, Space, Select, Button, Spin, Alert } from "antd";
+import { Card, Space, Select, Button, Spin, Alert, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
@@ -7,6 +7,13 @@ import AssignmentModal from "../../components/judges/AssignmentModal";
 import EmptyState from "../../components/common/EmptyState";
 import { useAdminIdeas } from "../../service/hooks";
 import type { Idea, IdeaStatus } from "../../types/domain";
+
+const STATUS_COLORS: Record<IdeaStatus, string> = {
+  SUBMITTED: "default",
+  UNDER_REVIEW: "blue",
+  DONE: "green",
+  REJECTED: "red",
+};
 
 const STATUS_VALUES: IdeaStatus[] = ["SUBMITTED", "UNDER_REVIEW", "DONE", "REJECTED"];
 
@@ -39,6 +46,28 @@ const AssignmentsPage = () => {
         title: t("admin.ideas.status", { defaultValue: "Status" }),
         dataIndex: "status",
         key: "status",
+        render: (value: IdeaStatus) => (
+          <Tag color={STATUS_COLORS[value] || "default"}>
+            {t(`ideas.status.${value.toLowerCase()}`, { defaultValue: value })}
+          </Tag>
+        ),
+      },
+      {
+        title: t("admin.assignments.summaryColumn", {
+          defaultValue: "Assigned judges",
+        }),
+        key: "assignedJudges",
+        render: (_: unknown, record: Idea) => {
+          const assignedCount = record.assignedJudges?.length ?? 0;
+          return (
+            <Tag color={assignedCount > 0 ? "blue" : "default"}>
+              {t("admin.assignments.assignedCount", {
+                defaultValue: "{{count}} assigned",
+                count: assignedCount,
+              })}
+            </Tag>
+          );
+        },
       },
       {
         title: t("admin.ideas.category", { defaultValue: "Category" }),

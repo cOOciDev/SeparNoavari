@@ -19,7 +19,16 @@ import {
   getAdminUsers,
   updateUserRole,
   updateJudge,
+<<<<<<< Updated upstream
   type Paginated,
+=======
+<<<<<<< HEAD
+  getIdeaReviews,
+  getAdminReviewCriteria,
+=======
+  type Paginated,
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
 } from "../apis/admin.api";
 import { getJudges } from "../apis/judges.api";
 
@@ -105,6 +114,7 @@ export const useDeleteAssignment = () => {
     mutationFn: ({ id, ideaId }: { id: string; ideaId: string }) =>
       deleteAssignment(id),
     onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "ideas"] });
       if (variables?.ideaId) {
         queryClient.invalidateQueries({
           queryKey: ["admin", "ideaAssignments", variables.ideaId],
@@ -125,6 +135,7 @@ export const useLockAssignment = () => {
       ideaId: string;
     }) => lockAssignment(id),
     onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "ideas"] });
       if (variables?.ideaId) {
         queryClient.invalidateQueries({
           queryKey: ["admin", "ideaAssignments", variables.ideaId],
@@ -167,12 +178,42 @@ export const useUploadFinalSummary = () => {
   });
 };
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+export const useIdeaReviews = (ideaId?: string) =>
+  useQuery({
+    queryKey: ["admin", "ideaReviews", ideaId],
+    queryFn: () => getIdeaReviews(ideaId || ""),
+    enabled: Boolean(ideaId),
+  });
+
+export const useAdminReviewCriteria = () =>
+  useQuery({
+    queryKey: ["admin", "reviewCriteria"],
+    queryFn: getAdminReviewCriteria,
+  });
+
+export const useAdminUsers = (
+  params?: {
+    role?: Role;
+    page?: number;
+    pageSize?: number;
+  }
+) =>
+  useQuery({
+=======
+>>>>>>> Stashed changes
 export const useAdminUsers = (params?: {
   role?: Role;
   page?: number;
   pageSize?: number;
 }) =>
   useQuery<Paginated<User>>({
+<<<<<<< Updated upstream
+=======
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
     queryKey: ["admin", "users", params],
     queryFn: () => getAdminUsers(params ?? {}),
   });
@@ -198,6 +239,8 @@ export default {
   useLockAssignment,
   useFinalSummary,
   useUploadFinalSummary,
+  useIdeaReviews,
+  useAdminReviewCriteria,
   useAdminUsers,
   useUpdateUserRole,
 };

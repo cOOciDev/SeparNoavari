@@ -284,7 +284,11 @@ const IdeaForm = ({
                   name={name}
                   style={{ marginBottom: 0 }}
                 >
-                  <Input placeholder={t("ideas.form.teamMembers", { defaultValue: "Team member" })} />
+                  <Input
+                    placeholder={t("ideas.form.teamMemberPlaceholder", {
+                      defaultValue: "Team member",
+                    })}
+                  />
                 </Form.Item>
                 <MinusCircleOutlined onClick={() => remove(name)} />
               </Space>

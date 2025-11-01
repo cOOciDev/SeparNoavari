@@ -50,8 +50,10 @@ export interface Idea {
   scoreSummary?: {
     average: number | null;
     totalReviews: number;
+    criteria?: Record<string, number>;
   };
   finalSummary?: EvaluationSummaryFile | null;
+  assignedJudges?: string[];
 }
 
 export interface Judge {
@@ -123,16 +125,17 @@ export interface EvaluationSummaryFile {
   downloadUrl?: string;
 }
 
-export interface ReviewScores {
-  novelty: number;
-  feasibility: number;
-  impact: number;
+export type ReviewScores = Record<string, number>;
+
+export interface ReviewCriterion {
+  id: string;
+  label: string;
 }
 
 export interface Review {
   id: string;
-  idea: Idea;
-  judge: Judge;
+  idea?: Idea;
+  judge?: Judge;
   scores: ReviewScores;
   comment?: string;
   submittedAt: string;

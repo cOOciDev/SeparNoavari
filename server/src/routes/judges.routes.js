@@ -11,6 +11,12 @@ router.get("/ideas", authGuard, judgeGuard, JudgesController.getAssignedIdeas);
 router.get("/reviews", authGuard, judgeGuard, ReviewsController.listMine);
 router.post("/reviews", authGuard, judgeGuard, ReviewsController.submit);
 router.get(
+  "/review-criteria",
+  authGuard,
+  judgeGuard,
+  ReviewsController.getCriteria
+);
+router.get(
   "/assignments",
   authGuard,
   judgeGuard,

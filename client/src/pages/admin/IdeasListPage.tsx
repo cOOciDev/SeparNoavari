@@ -8,6 +8,7 @@ import {
   Spin,
   Alert,
   Button,
+  Tag,
   message,
 } from "antd";
 import { useTranslation } from "react-i18next";
@@ -24,6 +25,13 @@ const STATUS_VALUES: IdeaStatus[] = [
   "DONE",
   "REJECTED",
 ];
+
+const STATUS_COLORS: Record<IdeaStatus, string> = {
+  SUBMITTED: "default",
+  UNDER_REVIEW: "blue",
+  DONE: "green",
+  REJECTED: "red",
+};
 
 const IdeasListPage = () => {
   const { t } = useTranslation();
@@ -82,6 +90,31 @@ const IdeasListPage = () => {
         title: t("admin.ideas.status", { defaultValue: "Status" }),
         dataIndex: "status",
         key: "status",
+        render: (value: IdeaStatus) => (
+          <Tag color={STATUS_COLORS[value] || "default"}>
+            {t(`ideas.status.${value.toLowerCase()}`, {
+              defaultValue: value,
+            })}
+          </Tag>
+        ),
+      },
+      {
+        title: t("admin.ideas.assignedJudges", {
+          defaultValue: "Assigned judges",
+        }),
+        dataIndex: "assignedJudges",
+        key: "assignedJudges",
+        render: (_: unknown, record: Idea) => {
+          const assignedCount = record.assignedJudges?.length ?? 0;
+          return (
+            <Tag color={assignedCount > 0 ? "blue" : "default"}>
+              {t("admin.ideas.assignedCountLabel", {
+                defaultValue: "{{count}} assigned",
+                count: assignedCount,
+              })}
+            </Tag>
+          );
+        },
       },
       {
         title: t("admin.ideas.category", { defaultValue: "Category" }),

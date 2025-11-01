@@ -164,7 +164,7 @@ class IdeasController {
         return res.status(422).json({
           ok: false,
           code: "VALIDATION_ERROR",
-          message: "Validation failed",
+          message: "اعتبارسنجی اطلاعات با خطا مواجه شد.",
           details: err.issues,
         });
       }
@@ -191,7 +191,7 @@ class IdeasController {
         return res.status(422).json({
           ok: false,
           code: "VALIDATION_ERROR",
-          message: "Validation failed",
+          message: "اعتبارسنجی اطلاعات با خطا مواجه شد.",
           details: err.issues,
         });
       }
@@ -207,7 +207,7 @@ class IdeasController {
         return res.status(404).json({
           ok: false,
           code: "NOT_FOUND",
-          message: "Idea not found",
+          message: "ایده‌ای با این شناسه یافت نشد.",
         });
       }
 
@@ -216,7 +216,7 @@ class IdeasController {
         return res.status(403).json({
           ok: false,
           code: "FORBIDDEN",
-          message: "You are not allowed to view this idea",
+          message: "اجازه دسترسی به این ایده را ندارید.",
         });
       }
 
@@ -237,7 +237,7 @@ class IdeasController {
         return res.status(404).json({
           ok: false,
           code: "NOT_FOUND",
-          message: "Idea not found",
+          message: "ایده‌ای با این شناسه یافت نشد.",
         });
       }
 
@@ -246,7 +246,7 @@ class IdeasController {
         return res.status(403).json({
           ok: false,
           code: "FORBIDDEN",
-          message: "You are not allowed to access this file",
+          message: "اجازه دسترسی به این فایل را ندارید.",
         });
       }
 
@@ -261,7 +261,7 @@ class IdeasController {
         return res.status(404).json({
           ok: false,
           code: "FILE_NOT_FOUND",
-          message: "File not found",
+          message: "فایل یافت نشد.",
         });
       }
 
@@ -280,7 +280,7 @@ class IdeasController {
         return res.status(404).json({
           ok: false,
           code: "NOT_FOUND",
-          message: "Idea not found",
+          message: "ایده‌ای با این شناسه یافت نشد.",
         });
       }
       const permitted = await canViewIdea(idea, req.user);
@@ -288,7 +288,7 @@ class IdeasController {
         return res.status(403).json({
           ok: false,
           code: "FORBIDDEN",
-          message: "You are not allowed to download this archive",
+          message: "اجازه دانلود این بسته را ندارید.",
         });
       }
 
@@ -297,7 +297,7 @@ class IdeasController {
         return res.status(404).json({
           ok: false,
           code: "NO_FILES",
-          message: "Idea has no uploaded files",
+          message: "هیچ فایلی برای این ایده بارگذاری نشده است.",
         });
       }
       res.setHeader("Content-Type", "application/zip");
@@ -313,7 +313,7 @@ class IdeasController {
           res.status(500).json({
             ok: false,
             code: "ARCHIVE_FAILED",
-            message: "Failed to build archive",
+            message: "ساخت فایل فشرده با خطا مواجه شد.",
           });
         }
       });

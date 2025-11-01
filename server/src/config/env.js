@@ -25,7 +25,7 @@ const parseBoolean = (value, defaultValue = false) => {
 
 const parseOrigins = (raw) => {
   if (!raw) {
-    return ["http://127.0.0.1:5173", "http://localhost:5173","https://www.separnoavari.ir"];
+    return ["http://127.0.0.1:5173", "http://localhost:5173","https://separnoavari.ir","https://www.separnoavari.ir"];
   }
   return raw
     .split(/[,\s]+/)
@@ -38,6 +38,54 @@ const host = process.env.HOST?.trim() || "127.0.0.1";
 const mongoUri =
   process.env.MONGO_URI?.trim() || "mongodb://localhost:27017/separ_noavari";
 const sessionSecret = process.env.SESSION_SECRET?.trim();
+
+const dbMaxPool = parseNumber(process.env.DB_MAX_POOL, 20);
+const dbMinPool = parseNumber(process.env.DB_MIN_POOL, 0);
+const syncIndexesAtStartup = parseBoolean(
+  process.env.SYNC_INDEXES_AT_STARTUP,
+  false
+);
+const mongoPreferIpv4 = parseBoolean(
+  process.env.MONGO_PREFER_IPV4 ?? process.env.MONGO_FORCE_IPV4 ?? process.env.MONGO_IPV4_ONLY,
+  process.platform === "win32"
+);
+const mongoConnectRetries = parseNumber(process.env.MONGO_CONNECT_RETRIES, 4);
+const mongoConnectRetryDelayMs = parseNumber(
+  process.env.MONGO_CONNECT_RETRY_DELAY_MS,
+  2000
+);
+
+const mongoAutoReconnect = parseBoolean(
+  process.env.MONGO_AUTO_RECONNECT,
+  true
+);
+const mongoReconnectInitialDelayMs = parseNumber(
+  process.env.MONGO_RECONNECT_INITIAL_DELAY_MS,
+  Math.max(1000, mongoConnectRetryDelayMs)
+);
+const mongoReconnectMaxDelayMs = parseNumber(
+  process.env.MONGO_RECONNECT_MAX_DELAY_MS,
+  60000
+);
+const mongoReconnectJitterMs = parseNumber(
+  process.env.MONGO_RECONNECT_JITTER_MS,
+  500
+);
+
+const mongoServerApi = (() => {
+  const disable = parseBoolean(process.env.MONGO_DISABLE_SERVER_API, false);
+  if (disable) return null;
+  const version = process.env.MONGO_SERVER_API_VERSION?.trim() || "1";
+  if (!version) return null;
+  return {
+    version,
+    strict: parseBoolean(process.env.MONGO_SERVER_API_STRICT, true),
+    deprecationErrors: parseBoolean(
+      process.env.MONGO_SERVER_API_DEPRECATION_ERRORS,
+      true
+    ),
+  };
+})();
 
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be provided in environment variables");
@@ -98,6 +146,17 @@ export default {
   host,
   mongoUri,
   sessionSecret,
+  dbMaxPool,
+  dbMinPool,
+  syncIndexesAtStartup,
+  mongoPreferIpv4,
+  mongoConnectRetries,
+  mongoConnectRetryDelayMs,
+  mongoAutoReconnect,
+  mongoReconnectInitialDelayMs,
+  mongoReconnectMaxDelayMs,
+  mongoReconnectJitterMs,
+  mongoServerApi,
   allowInsecureLocal,
   trustProxy,
   uploadDir,

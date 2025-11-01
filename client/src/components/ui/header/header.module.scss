@@ -80,6 +80,7 @@ html[data-theme="dark"] {
   box-shadow: none;
   transition: box-shadow .3s ease, background-color .3s ease, border-color .3s ease;
   font-family: "Peyda", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
   backdrop-filter: saturate(160%) blur(10px);
 
   will-change: background-color, box-shadow;
@@ -169,7 +170,7 @@ html[data-theme="dark"] {
 
 /* Mobile drawer */
 .mobileRoot { position: fixed; inset: 0; z-index: 130; display: flex; justify-content: space-between; }
-.mobileBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,.35); backdrop-filter: blur(2px); animation: fadeIn .25s ease; }
+.mobileBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,.35); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); animation: fadeIn .25s ease; }
 .mobilePanel {
   position: absolute; inset-inline: 0; top: var(--hdr-h);
   background: var(--hdr-bg); border-bottom: 1px solid var(--hdr-border); box-shadow: var(--shadow);

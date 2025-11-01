@@ -19,10 +19,12 @@ import {
   useIdeaAssignments,
   useFinalSummary,
   useUploadFinalSummary,
+  useIdeaReviews,
 } from "../../service/hooks";
+import type { ColumnsType } from "antd/es/table";
 import IdeaFilesList from "../../components/ideas/IdeaFilesList";
 import AssignmentModal from "../../components/judges/AssignmentModal";
-import type { Assignment } from "../../types/domain";
+import type { Assignment, ReviewScores } from "../../types/domain";
 import {
   getEvaluationConstraints,
   isFileTooLarge,
@@ -45,14 +47,125 @@ const IdeaAdminDetailPage = () => {
   const { t } = useTranslation();
   const { data, isLoading, error } = useIdea(id);
   const idea = data?.idea;
+  const assignedCount = idea?.assignedJudges?.length ?? 0;
   const [assignOpen, setAssignOpen] = useState(false);
   const assignmentsQuery = useIdeaAssignments(idea?.id);
   const finalSummaryQuery = useFinalSummary(idea?.id);
+  const ideaReviewsQuery = useIdeaReviews(idea?.id);
   const uploadSummary = useUploadFinalSummary();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const assignments = assignmentsQuery.data?.assignments ?? [];
   const finalSummary = finalSummaryQuery.data;
+  const reviewCriteria = ideaReviewsQuery.data?.criteria ?? [];
+  const reviews = ideaReviewsQuery.data?.reviews ?? [];
+  const scoreSummary = idea?.scoreSummary;
+
+  type ReviewRow = {
+    key: string;
+    judgeName: string;
+    judgeEmail?: string;
+    scores: ReviewScores;
+    comment?: string;
+    submittedAt?: string;
+    average: number | null;
+  };
+
+  const reviewRows: ReviewRow[] = useMemo(() => {
+    return reviews.map((review) => {
+      const judgeUser = review.judge?.user;
+      const judgeName =
+        judgeUser?.name || judgeUser?.email || review.judge?.id || t("admin.ideaDetail.unknownJudge", { defaultValue: "Unknown judge" });
+      const judgeEmail = judgeUser?.email;
+      const scores = (review.scores ?? {}) as ReviewScores;
+      const numericValues = reviewCriteria
+        .map((criterion) => {
+          const value = scores?.[criterion.id];
+          return typeof value === "number" ? value : null;
+        })
+        .filter((value): value is number => value !== null);
+      const average =
+        numericValues.length > 0
+          ? Number(
+              (numericValues.reduce((acc, value) => acc + value, 0) /
+                numericValues.length).toFixed(2)
+            )
+          : null;
+      return {
+        key: review.id,
+        judgeName,
+        judgeEmail,
+        scores,
+        comment: review.comment,
+        submittedAt: review.submittedAt,
+        average,
+      };
+    });
+  }, [reviews, reviewCriteria, t]);
+
+  const reviewColumns: ColumnsType<ReviewRow> = useMemo(() => {
+    const columns: ColumnsType<ReviewRow> = [
+      {
+        title: t("admin.ideaDetail.reviewJudge", { defaultValue: "Judge" }),
+        key: "judge",
+        render: (_value, record) => (
+          <Space direction="vertical" size={0}>
+            <Typography.Text strong>{record.judgeName}</Typography.Text>
+            {record.judgeEmail ? (
+              <Typography.Text type="secondary">{record.judgeEmail}</Typography.Text>
+            ) : null}
+          </Space>
+        ),
+      },
+    ];
+
+    reviewCriteria.forEach((criterion) => {
+      columns.push({
+        title: criterion.label,
+        key: criterion.id,
+        render: (_value, record) => {
+          const value = record.scores?.[criterion.id];
+          return typeof value === "number" ? value.toFixed(1) : "-";
+        },
+      });
+    });
+
+    columns.push(
+      {
+        title: t("admin.ideaDetail.reviewAverage", { defaultValue: "Average" }),
+        key: "average",
+        render: (_value, record) =>
+          record.average !== null && record.average !== undefined
+            ? record.average.toFixed(2)
+            : "-",
+      },
+      {
+        title: t("admin.ideaDetail.reviewSubmitted", { defaultValue: "Submitted" }),
+        key: "submittedAt",
+        render: (_value, record) =>
+          record.submittedAt
+            ? new Date(record.submittedAt).toLocaleString()
+            : "-",
+      },
+      {
+        title: t("admin.ideaDetail.reviewComment", { defaultValue: "Comment" }),
+        dataIndex: "comment",
+        key: "comment",
+        render: (value: string | undefined) =>
+          value && value.trim() ? value : "-",
+      }
+    );
+
+    return columns;
+  }, [reviewCriteria, t]);
+
+  const criteriaLabelMap = useMemo(() => {
+    const map = new Map<string, string>();
+    reviewCriteria.forEach((criterion) => {
+      map.set(criterion.id, criterion.label);
+    });
+    return map;
+  }, [reviewCriteria]);
 
   const handleSummaryPick = () => {
     fileInputRef.current?.click();
@@ -123,7 +236,7 @@ const IdeaAdminDetailPage = () => {
           return (
             <Space direction="vertical" size={2}>
               <Typography.Text type="secondary">
-                v{record.submission.version} · {new Date(record.submission.uploadedAt).toLocaleString()}
+                v{record.submission.version} ï¿½ {new Date(record.submission.uploadedAt).toLocaleString()}
               </Typography.Text>
               <Button
                 type="link"
@@ -191,6 +304,16 @@ const IdeaAdminDetailPage = () => {
                 <Descriptions.Item label={t("ideas.detail.status", { defaultValue: "Status" })}>
                   {idea.status}
                 </Descriptions.Item>
+                <Descriptions.Item
+                  label={t("admin.ideas.assignedJudges", { defaultValue: "Assigned judges" })}
+                >
+                  <Tag color={assignedCount > 0 ? "blue" : "default"}>
+                    {t("admin.ideas.assignedCountLabel", {
+                      defaultValue: "{{count}} assigned",
+                      count: assignedCount,
+                    })}
+                  </Tag>
+                </Descriptions.Item>
                 <Descriptions.Item label={t("ideas.detail.summary", { defaultValue: "Summary" })}>
                   {idea.summary || t("ideas.detail.noSummary", { defaultValue: "No summary provided." })}
                 </Descriptions.Item>
@@ -252,7 +375,7 @@ const IdeaAdminDetailPage = () => {
                       <Space direction="vertical" size={4}>
                         <Typography.Text>{finalSummary.filename}</Typography.Text>
                         <Typography.Text type="secondary">
-                          {new Date(finalSummary.uploadedAt).toLocaleString()} · {Math.round(finalSummary.size / 1024)} KB
+                          {new Date(finalSummary.uploadedAt).toLocaleString()} ï¿½ {Math.round(finalSummary.size / 1024)} KB
                         </Typography.Text>
                         {finalSummary.downloadUrl ? (
                           <Button
@@ -299,12 +422,70 @@ const IdeaAdminDetailPage = () => {
             key: "reviews",
             label: t("admin.ideaDetail.tabs.reviews", { defaultValue: "Reviews" }),
             children: (
-              <Alert
-                type="info"
-                message={t("admin.ideaDetail.reviewsDesc", {
-                  defaultValue: "Reviews will be displayed after judges submit them.",
-                })}
-              />
+              <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                <Space wrap>
+                  <Tag color="processing">
+                    {t("admin.ideaDetail.totalReviewsTag", {
+                      defaultValue: "Total reviews: {{count}}",
+                      count: scoreSummary?.totalReviews ?? 0,
+                    })}
+                  </Tag>
+                  {typeof scoreSummary?.average === "number" ? (
+                    <Tag color="gold">
+                      {t("admin.ideaDetail.overallAverageTag", {
+                        defaultValue: "Average: {{value}} / 10",
+                        value: scoreSummary.average.toFixed(2),
+                      })}
+                    </Tag>
+                  ) : null}
+                </Space>
+                {scoreSummary?.criteria && Object.keys(scoreSummary.criteria).length > 0 ? (
+                  <Space wrap>
+                    {Object.entries(scoreSummary.criteria).map(([criterionId, value]) => {
+                      if (typeof value !== "number") return null;
+                      const label = criteriaLabelMap.get(criterionId) ?? criterionId;
+                      return (
+                        <Tag key={criterionId} color="blue">
+                          {`${label}: ${value.toFixed(2)}`}
+                        </Tag>
+                      );
+                    })}
+                  </Space>
+                ) : null}
+                {ideaReviewsQuery.isLoading ? <Spin /> : null}
+                {ideaReviewsQuery.error ? (
+                  <Alert
+                    type="error"
+                    showIcon
+                    message={
+                      ideaReviewsQuery.error instanceof Error
+                        ? ideaReviewsQuery.error.message
+                        : t("admin.ideaDetail.reviewsError", { defaultValue: "Failed to load reviews." })
+                    }
+                  />
+                ) : null}
+                {!ideaReviewsQuery.isLoading &&
+                !ideaReviewsQuery.error &&
+                reviewRows.length === 0 ? (
+                  <Alert
+                    type="info"
+                    message={t("admin.ideaDetail.noReviews", {
+                      defaultValue: "No reviews submitted yet.",
+                    })}
+                  />
+                ) : null}
+                {!ideaReviewsQuery.isLoading &&
+                !ideaReviewsQuery.error &&
+                reviewRows.length > 0 ? (
+                  <Table<ReviewRow>
+                    rowKey={(record) => record.key}
+                    dataSource={reviewRows}
+                    columns={reviewColumns}
+                    pagination={false}
+                    scroll={{ x: true }}
+                  />
+                ) : null}
+              </Space>
             ),
           },
         ]}

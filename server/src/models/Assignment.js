@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import env from "../config/env.js";
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
 const templateSchema = new Schema(
   {
@@ -53,7 +53,7 @@ const assignmentSchema = new Schema(
   {
     idea: { type: Schema.Types.ObjectId, ref: "Idea", required: true, index: true },
     judge: { type: Schema.Types.ObjectId, ref: "Judge", required: true, index: true },
-    assignedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    assignedBy: { type: Schema.Types.Mixed, required: true },
     status: {
       type: String,
       enum: ["PENDING", "IN_PROGRESS", "SUBMITTED", "REVIEWED", "LOCKED"],
@@ -89,6 +89,15 @@ const assignmentSchema = new Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+        if (ret.assignedBy && typeof ret.assignedBy === "object") {
+          if (ret.assignedBy._id) {
+            ret.assignedBy = String(ret.assignedBy._id);
+          } else if (ret.assignedBy instanceof Types.ObjectId) {
+            ret.assignedBy = ret.assignedBy.toString();
+          }
+        } else if (ret.assignedBy instanceof Types.ObjectId) {
+          ret.assignedBy = ret.assignedBy.toString();
+        }
         return ret;
       },
     },

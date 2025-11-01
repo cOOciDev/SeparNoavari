@@ -7,6 +7,8 @@ import type {
   User,
   Assignment,
   EvaluationSummaryFile,
+  Review,
+  ReviewCriterion,
 } from "../../types/domain";
 import { normalizeIdeaCollection } from "../transformers";
 
@@ -225,6 +227,26 @@ export async function updateUserRole(id: string, role: Role): Promise<{ ok: bool
   return { ok: data.ok !== false };
 }
 
+export async function getIdeaReviews(ideaId: string): Promise<{
+  idea: { id: string; title?: string };
+  reviews: Review[];
+  criteria: ReviewCriterion[];
+}> {
+  const { data } = await api.get(
+    `/admin/ideas/${encodeURIComponent(ideaId)}/reviews`
+  );
+  return {
+    idea: data.idea as { id: string; title?: string },
+    reviews: (data.reviews ?? []) as Review[],
+    criteria: (data.criteria ?? []) as ReviewCriterion[],
+  };
+}
+
+export async function getAdminReviewCriteria(): Promise<ReviewCriterion[]> {
+  const { data } = await api.get("/admin/review-criteria");
+  return (data.criteria ?? []) as ReviewCriterion[];
+}
+
 export default {
   getAdminIdeas,
   createJudge,
@@ -238,6 +260,8 @@ export default {
   getAdminUsers,
   listAdminAssignments,
   updateUserRole,
+  getIdeaReviews,
+  getAdminReviewCriteria,
 };
 
 

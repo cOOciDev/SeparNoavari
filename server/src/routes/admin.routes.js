@@ -1,6 +1,7 @@
 import { Router } from "express";
 import AdminController from "../controllers/admin.controller.js";
 import AssignmentsController from "../controllers/assignments.controller.js";
+import ReviewsController from "../controllers/reviews.controller.js";
 import { authGuard } from "../middleware/authGuard.js";
 import { adminGuard } from "../middleware/adminGuard.js";
 
@@ -90,6 +91,18 @@ router.get(
   authGuard,
   adminGuard,
   AssignmentsController.downloadFinalSummary
+);
+router.get(
+  "/ideas/:ideaId/reviews",
+  authGuard,
+  adminGuard,
+  ReviewsController.listForIdea
+);
+router.get(
+  "/review-criteria",
+  authGuard,
+  adminGuard,
+  ReviewsController.getCriteria
 );
 
 export default router;

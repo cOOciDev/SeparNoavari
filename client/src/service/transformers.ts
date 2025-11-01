@@ -63,7 +63,8 @@ export const normalizeIdea = (input: any): Idea => {
       files: [],
       createdAt: "",
       updatedAt: "",
-      scoreSummary: { average: null, totalReviews: 0 },
+      scoreSummary: { average: null, totalReviews: 0, criteria: {} },
+      assignedJudges: [],
     };
   }
 
@@ -105,6 +106,11 @@ export const normalizeIdea = (input: any): Idea => {
   normalized.files = Array.isArray(files ?? rest.files)
     ? (files ?? rest.files).map((file: any) => normalizeIdeaFile(file))
     : [];
+  normalized.assignedJudges = Array.isArray(rest.assignedJudges ?? input.assignedJudges)
+    ? (rest.assignedJudges ?? input.assignedJudges)
+        .map((judgeId: unknown) => toStringSafe(judgeId))
+        .filter(Boolean)
+    : [];
 
   const summary = scoreSummary ?? rest.scoreSummary;
   if (summary) {
@@ -117,9 +123,18 @@ export const normalizeIdea = (input: any): Idea => {
         summary.totalReviews === undefined || summary.totalReviews === null
           ? 0
           : Number(summary.totalReviews),
+      criteria:
+        summary.criteria && typeof summary.criteria === "object"
+          ? Object.fromEntries(
+              Object.entries(summary.criteria).map(([key, value]) => [
+                key,
+                Number(value),
+              ])
+            )
+          : {},
     };
   } else {
-    normalized.scoreSummary = { average: null, totalReviews: 0 };
+    normalized.scoreSummary = { average: null, totalReviews: 0, criteria: {} };
   }
 
   normalized.phone = normalized.phone ? toStringSafe(normalized.phone) : "";

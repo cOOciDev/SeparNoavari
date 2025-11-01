@@ -10,7 +10,15 @@ import { sessionMiddleware } from "./config/session.js";
 import passport from "./config/passport.js";
 import router from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+<<<<<<< Updated upstream
 import { getMongoReadyState, isMongoConnected } from "./config/db.js";
+=======
+<<<<<<< HEAD
+import { getMongoStatus, waitForMongoHealthy } from "./config/db.js";
+=======
+import { getMongoReadyState, isMongoConnected } from "./config/db.js";
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
 
 const app = express();
 app.disable("etag");
@@ -89,6 +97,51 @@ app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+app.get("/api/health", async (req, res) => {
+  let mongoStatus = getMongoStatus();
+  if (mongoStatus.state !== "connected") {
+    await waitForMongoHealthy(1000);
+    mongoStatus = getMongoStatus();
+  }
+
+  const healthy = mongoStatus.state === "connected";
+  const toIso = (value) =>
+    value instanceof Date ? value.toISOString() : value ?? null;
+
+  const statusLabel = healthy
+    ? mongoStatus.reconnecting
+      ? "degraded"
+      : "healthy"
+    : "unhealthy";
+
+  const response = {
+    ok: healthy,
+    status: statusLabel,
+    timestamp: new Date().toISOString(),
+    mongo: {
+      state: mongoStatus.state,
+      readyState: mongoStatus.readyState,
+      reconnecting: mongoStatus.reconnecting,
+      reconnectAttempt: mongoStatus.reconnectAttempt,
+      lastConnectedAt: toIso(mongoStatus.lastConnectedAt),
+      lastDisconnectAt: toIso(mongoStatus.lastDisconnectAt),
+      lastError: mongoStatus.lastError
+        ? {
+            name: mongoStatus.lastError.name,
+            code: mongoStatus.lastError.code,
+            message: mongoStatus.lastError.message,
+            labels: mongoStatus.lastError.labels,
+          }
+        : null,
+    },
+  };
+
+  res.status(healthy ? 200 : 503).json(response);
+=======
+>>>>>>> Stashed changes
 // Health
 app.get("/api/health", (_req, res) => {
   const dbState = getMongoReadyState();
@@ -112,6 +165,10 @@ app.get("/api/health", (_req, res) => {
       },
       timestamp: new Date().toISOString(),
     });
+<<<<<<< Updated upstream
+=======
+>>>>>>> a582a459a026773c088d0a1851f4e2816ef5e273
+>>>>>>> Stashed changes
 });
 
 // API routes

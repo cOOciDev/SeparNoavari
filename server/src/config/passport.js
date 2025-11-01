@@ -32,31 +32,31 @@ passport.use(
         }
 
         if (!isMatch) {
-          return done(null, false, { message: "Invalid credentials" });
+          return done(null, false, { message: "ایمیل یا رمز عبور نادرست است." });
         }
 
         return done(null, {
           id: "admin",
           email: env.admin.username,
           role: "ADMIN",
-          name: "Administrator",
+          name: "مدیر سیستم",
         });
       }
 
       const user = await User.findOne({ email: normalizedEmail }).lean();
       if (!user) {
-        return done(null, false, { message: "Invalid credentials" });
+        return done(null, false, { message: "ایمیل یا رمز عبور نادرست است." });
       }
 
       if (!user.passwordHash) {
         return done(null, false, {
-          message: "Account requires password reset",
+          message: "این حساب به تنظیم مجدد رمز عبور نیاز دارد.",
         });
       }
 
       const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) {
-        return done(null, false, { message: "Invalid credentials" });
+        return done(null, false, { message: "ایمیل یا رمز عبور نادرست است." });
       }
 
       return done(null, {
@@ -86,7 +86,7 @@ passport.deserializeUser(async (token, done) => {
         id: "admin",
         email: env.admin.username,
         role: "ADMIN",
-        name: "Administrator",
+        name: "مدیر سیستم",
       });
     }
 

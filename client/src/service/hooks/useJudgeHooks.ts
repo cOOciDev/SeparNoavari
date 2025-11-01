@@ -4,7 +4,7 @@ import {
   getJudgeAssignments,
   uploadJudgeSubmission,
 } from "../apis/judges.api";
-import { submitReview } from "../apis/reviews.api";
+import { getJudgeReviewCriteria, submitReview } from "../apis/reviews.api";
 
 export const useJudgeIdeas = () =>
   useQuery({
@@ -16,6 +16,12 @@ export const useJudgeAssignments = () =>
   useQuery({
     queryKey: ["judge", "assignments"],
     queryFn: getJudgeAssignments,
+  });
+
+export const useJudgeReviewCriteria = () =>
+  useQuery({
+    queryKey: ["judge", "reviewCriteria"],
+    queryFn: getJudgeReviewCriteria,
   });
 
 export const useJudgeSubmissionUpload = () => {
@@ -42,6 +48,9 @@ export const useSubmitReview = () => {
       queryClient.invalidateQueries({ queryKey: ["judge", "ideas"] });
       if (variables.ideaId) {
         queryClient.invalidateQueries({ queryKey: ["idea", variables.ideaId] });
+        queryClient.invalidateQueries({
+          queryKey: ["admin", "ideaReviews", variables.ideaId],
+        });
       }
     },
   });
@@ -50,6 +59,7 @@ export const useSubmitReview = () => {
 export default {
   useJudgeIdeas,
   useJudgeAssignments,
+  useJudgeReviewCriteria,
   useJudgeSubmissionUpload,
   useSubmitReview,
 };

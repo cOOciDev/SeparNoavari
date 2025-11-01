@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
+import { reviewCriteria, reviewCriteriaIds } from "../config/reviewCriteria.js";
 
 const { Schema } = mongoose;
 
-const scoresSchema = new Schema(
-  {
-    novelty: { type: Number, min: 0, max: 100, required: true },
-    feasibility: { type: Number, min: 0, max: 100, required: true },
-    impact: { type: Number, min: 0, max: 100, required: true },
-  },
-  { _id: false }
+const scoresDefinition = Object.fromEntries(
+  reviewCriteria.map((criterion) => [
+    criterion.id,
+    { type: Number, min: 0, max: 10, required: true },
+  ])
 );
+
+const scoresSchema = new Schema(scoresDefinition, { _id: false });
 
 const reviewSchema = new Schema(
   {
@@ -33,6 +34,8 @@ const reviewSchema = new Schema(
 );
 
 reviewSchema.index({ idea: 1, judge: 1 }, { unique: true });
+
+reviewSchema.statics.criteriaIds = () => [...reviewCriteriaIds];
 
 const Review = mongoose.models.Review || mongoose.model("Review", reviewSchema);
 

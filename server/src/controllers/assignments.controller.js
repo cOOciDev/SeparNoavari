@@ -654,6 +654,21 @@ class AssignmentsController {
 
       await Assignment.deleteOne({ _id: assignment._id }).exec();
 
+      const ideaId =
+        assignment.idea && assignment.idea._id
+          ? assignment.idea._id
+          : assignment.idea;
+      const judgeId =
+        assignment.judge && assignment.judge._id
+          ? assignment.judge._id
+          : assignment.judge;
+      if (ideaId && judgeId) {
+        await Idea.updateOne(
+          { _id: ideaId },
+          { $pull: { assignedJudges: judgeId } }
+        ).exec();
+      }
+
       logger.info("Assignment removed", {
         assignmentId: String(assignment._id),
         ideaId: String(assignment.idea?._id || assignment.idea),
